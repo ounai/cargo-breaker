@@ -1,10 +1,7 @@
 class Game extends Phaser.Game {
-  constructor(config, scenes) {
+  constructor(config) {
     super({
       type: Phaser.AUTO,
-      width: 800,
-      height: 600,
-      scene: scenes,
       ...config
     });
   }

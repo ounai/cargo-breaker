@@ -20,10 +20,10 @@ const loadScenes = () => {
   return scenes;
 };
 
-const createGame = config => {
+const createGame = (config = {}) => {
   console.log('Creating game...');
 
-  new Game(config, loadScenes());
+  new Game({ ...config, scene: loadScenes() });
 };
 
 const initializeEngine = config => {
