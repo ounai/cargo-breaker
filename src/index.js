@@ -1,9 +1,9 @@
 import engineInit from '/src/engine/core/init';
+import config from '/src/config';
 
 console.log('Initializing...');
 
-engineInit({
-  width: 600,
-  height: 800
-});
+const { width, height } = config.game;
+
+engineInit({ width, height });
 
