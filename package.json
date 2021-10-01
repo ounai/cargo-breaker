@@ -1,0 +1,25 @@
+{
+  "name": "ld49",
+  "version": "0.0.1",
+  "description": "Ludum Dare #49",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --mode=development",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ounai/ld49.git"
+  },
+  "author": "Team Aivopiru",
+  "license": "UNLICENCED",
+  "bugs": {
+    "url": "https://github.com/ounai/ld49/issues"
+  },
+  "homepage": "https://github.com/ounai/ld49#readme",
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "webpack-cli": "^4.8.0",
+    "webpack-dev-server": "^4.3.0"
+  }
+}
