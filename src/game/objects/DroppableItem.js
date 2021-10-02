@@ -8,7 +8,13 @@ export default class DroppableItem extends MatterImage {
 
     console.log(`New ${itemType.name} (scale: ${itemType.scale}, density: ${itemType.density}, friction: ${itemType.friction}, frictionAir: ${itemType.frictionAir}, frictionStatic: ${itemType.frictionStatic}, bounce: ${itemType.bounce})`);
 
-    this.setScale(itemType.scale, itemType.scale);
+    const scale = (
+      Array.isArray(itemType.scale)
+        ? Phaser.Math.FloatBetween(itemType.scale[0], itemType.scale[1])
+        : itemType.scale
+    );
+
+    this.setScale(scale, scale);
     this.setDensity(itemType.density);
     this.setBounce(itemType.bounce);
 
