@@ -28,7 +28,7 @@ const config = {
       default: 1
     },
     frictionAir: {
-      defaul: 1
+      default: 0
     },
     minHeight: {
       default: null

@@ -34,9 +34,10 @@ export default class TestScene extends Scene {
   //arrays
   boxes = [];
 
-  currentItemType = DroppableItemType.SHIPPING_CONTAINER;
+  currentItemType = null;
 
   nextItemsType = [
+    DroppableItemType.SHIPPING_CONTAINER,
     DroppableItemType.SAFE,
     DroppableItemType.WOODEN_CRATE,
     DroppableItemType.CARDBOARD_BOX,
@@ -72,9 +73,12 @@ export default class TestScene extends Scene {
 
     if(this.roundItemCount === 5) return;
 
+    if (this.currentItemType !== null) this.nextItemsType.push(this.currentItemType);
+    this.currentItemType = this.nextItemsType.shift();
+
     //create a box
-    const box = new MatterImage(this.matter.world, pointer.x, pointer.y, this.currentItemType.res).setMass(this.currentItemType.mass);
-    const drop = new DroppableItem(box);
+    const box = new MatterImage(this.matter.world, pointer.x, pointer.y, this.currentItemType.res);
+    const drop = new DroppableItem(box).setScale(1, 1).setMass(this.currentItemType.mass).setDensity(this.currentItemType.density).setFriction(this.currentItemType.friction).setFrictionAir(this.currentItemType.frictionAir);
     console.log(this.currentItemType.res);
 
     //increase item count and round item count
