@@ -125,7 +125,7 @@ export default class TestScene extends Scene {
       if (allItemsStatic){
         for (const item of this.items){
           item.setStatic(true);
-          box.setTint(0x7878ff);
+          item.setTint(0x7878ff);
           this.items = [];
           this.roundItemCount = 0;
         }
