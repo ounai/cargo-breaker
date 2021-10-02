@@ -1,7 +1,7 @@
 export default class GameObjectWrapper {
   #gameObject = null;
 
-  #setupNamespace(gameObject, namespace) {
+  #setupNamespace(gameObject) {
     for (const symbol in gameObject) {
       if (gameObject[symbol]) {
         if (typeof gameObject[symbol] === 'function') {

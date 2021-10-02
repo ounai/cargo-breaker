@@ -6,7 +6,7 @@ import GameObjectWrapper from '/src/engine/core/GameObjectWrapper';
 export default class DroppableItem extends GameObjectWrapper {
   constructor(gameObject) {
     if (!(gameObject instanceof MatterImage) && !(gameObject instanceof MatterSprite)) {
-      throw new Error(`new ${this.constructor.name}() called without valid game object!`);
+      throw new Error(`Invalid game object type ${typeof gameObject}`);
     }
 
     super(gameObject);
