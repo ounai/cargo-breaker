@@ -122,6 +122,8 @@ export default class Scene extends Phaser.Scene {
     if (this.resources !== null) {
       this.#preloadResources(this.resources);
     }
+
+    this.onPreload();
   }
 
   create() {
@@ -164,6 +166,7 @@ export default class Scene extends Phaser.Scene {
   }
 
   // Subclass methods
+  onPreload() {}
   onCreate() {}
   onUpdate() {}
   debugStrings() {}
