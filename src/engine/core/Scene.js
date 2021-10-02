@@ -41,9 +41,30 @@ export default class Scene extends Phaser.Scene {
     }
   }
 
+  #createInputEventHandlers(eventHandlers) {
+    const eventNames = [
+      'pointerdown',
+      'pointerup'
+    ];
+
+    for (const eventName of eventNames) {
+      const handler = eventHandlers[eventName];
+
+      if (typeof handler === 'function') {
+        console.log('Registering event', eventName);
+
+        this.input.on(eventName, handler);
+      }
+    }
+  }
+
   #createEventHandlers(eventHandlers) {
     if (eventHandlers.keydown) {
       this.#createKeyDownEventHandlers(eventHandlers.keydown);
+    }
+
+    if (eventHandlers.input) {
+      this.#createInputEventHandlers(eventHandlers.input);
     }
   }
 
