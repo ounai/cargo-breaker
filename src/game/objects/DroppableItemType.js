@@ -56,14 +56,14 @@ export default class DroppableItemType {
     return this.#resource;
   }
 
-  preload() {
-    this.#resource = new ImageResource(this.#assetPath);
+  preload(scene) {
+    this.#resource = new ImageResource(this.#assetPath).load(scene);
   }
 
-  static preloadAll() {
+  static preloadAll(scene) {
     console.log('Preloading', droppableItemTypes.length, 'droppable item types...');
 
-    droppableItemTypes.forEach(d => d.preload());
+    droppableItemTypes.forEach(d => d.preload(scene));
   }
 }
 

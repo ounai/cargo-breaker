@@ -86,7 +86,7 @@ export default class TestScene extends Scene {
   }
 
   onPreload() {
-    DroppableItemType.preloadAll();
+    DroppableItemType.preloadAll(this);
   }
 
   onCreate() {

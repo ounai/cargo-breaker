@@ -13,6 +13,8 @@ export default class SpriteSheetResource extends Resource {
 
   load(phaserScene) {
     phaserScene.load.spritesheet(this.key, this.path, this.config);
+
+    return this;
   }
 }
 

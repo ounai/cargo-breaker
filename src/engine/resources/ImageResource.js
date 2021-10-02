@@ -11,6 +11,8 @@ export default class ImageResource extends Resource {
 
   load(phaserScene) {
     phaserScene.load.image(this.key, this.path);
+
+    return this;
   }
 }
 
