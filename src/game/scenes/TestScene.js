@@ -21,7 +21,7 @@ export default class TestScene extends Scene {
         matter: {
           enableSleeping: true,
           gravity: {
-            y: 0
+            y: 1
           },
           debug: {
             showBody: true,
@@ -34,6 +34,9 @@ export default class TestScene extends Scene {
 
   onCreate() {
     console.log('Game.onCreate()');
+
+    this.matter.world.setBounds();
+    this.matter.add.mouseSpring({ length: 1, stiffness: 0.6 });
 
     //setup images
     const background = new Image(this, 0, 0, this.resources.background);
