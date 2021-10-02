@@ -17,13 +17,13 @@ export default class DroppableItem extends GameObjectWrapper {
   }
 
   get x() {
-    if (this.gameObject && this.gameObject.body) return this.gameObject.body.x;
-    else return this.gameObject.x;
+    if (this.gameObject && this.gameObject.body && this.gameObject.body.position) return this.gameObject.body.position.x;
+    else return null;
   }
 
   get y() {
-    if (this.gameObject && this.gameObject.body) return this.gameObject.body.y;
-    else return this.gameObject.y;
+    if (this.gameObject && this.gameObject.body && this.gameObject.body.position) return this.gameObject.body.position.y;
+    else return null;
   }
 }
 
