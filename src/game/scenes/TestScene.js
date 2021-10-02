@@ -1,6 +1,7 @@
 import Scene from '/src/engine/core/Scene';
 import ImageResource from '/src/engine/resources/ImageResource';
 import MatterImage from '/src/engine/objects/MatterImage';
+import Image from '/src/engine/objects/Image';
 
 import DroppableItemType from '/src/game/objects/DroppableItemType';
 import DroppableItem from '/src/game/objects/DroppableItem';
@@ -9,7 +10,7 @@ import Health from '/src/game/objects/Health';
 export default class TestScene extends Scene {
   resources = {
     boat: new ImageResource('assets/testboat.png'),
-    box: new ImageResource('assets/testbox.png')
+    background: new ImageResource('assets/background.png')
   };
 
   eventHandlers = {
@@ -23,7 +24,7 @@ export default class TestScene extends Scene {
   roundItemCount = 0;
   health = null;
 
-  boxes = [];
+  items = [];
 
   currentItemType = null;
 
@@ -59,7 +60,7 @@ export default class TestScene extends Scene {
     });
   }
 
-  // Create box on mouse click
+  // Create item on mouse click
   onMouseDown(pointer) {
     if (this.roundItemCount === this.itemsPerRound) return;
 
@@ -67,18 +68,14 @@ export default class TestScene extends Scene {
     this.currentItemType = this.nextItemTypes.shift();
 
     const item = new DroppableItem(this.currentItemType, this.matter.world, pointer.x, pointer.y, this.currentItemType.res)
-      //.setScale(this.currentItemType.scale, this.currentItemType.scale)
-      //.setDensity(this.currentItemType.density)
-      //.setFriction(this.currentItemType.friction, this.currentItemType.frictionAir, this.currentItemType.frictionStatic)
-
     this.add.existing(item);
 
     // Increase item count and round item count
     this.itemCount++;
     this.roundItemCount++;
 
-    // Update boxes array
-    this.boxes.push(item);
+    // Update items array
+    this.items.push(item);
   }
 
   onPreload() {
@@ -89,6 +86,10 @@ export default class TestScene extends Scene {
     console.log('Game.onCreate()');
 
     this.cameras.main.setBackgroundColor('#46bed9');
+
+    const backgroundImage = new Image(this, 0, 720, this.res.background);
+    backgroundImage.setOrigin(.5, 1).setScale(5.4, 6);
+    this.add.existing(backgroundImage);
 
     this.health = new Health(3);
     // esimerkki this.health.on(0, kuolemafunktio)
@@ -101,31 +102,30 @@ export default class TestScene extends Scene {
   }
 
   onUpdate() {
-    // Delete boxes that are not in the boat
-    for (let i = 0; i < this.boxes.length; i++){
-      if (this.boxes[i].y > 720){
-        console.log('Destroy box', this.boxes[i]);
-        this.boxes[i].destroy();
-        this.boxes.splice(i, 1);
+    // Delete items that are not in the boat
+    for (let i = 0; i < this.items.length; i++){
+      if (this.items[i].y > 720){
+        console.log('Destroy item', this.items[i]);
+        this.items[i].destroy();
+        this.items.splice(i, 1);
         this.health.decrease();
       }
     }
 
-    // Check if there are itemsPerRound boxes
+    // Check if there are itemsPerRound items
     if (this.roundItemCount === this.itemsPerRound){
-      let allBoxesStatic = true;
+      let allItemsStatic = true;
 
-      // Check if all boxes are staying still
-      for (const box of this.boxes){
-        if (!box.hasStopped) allBoxesStatic = false;
+      // Check if all items are staying still
+      for (const item of this.items){
+        if (!item.hasStopped) allItemsStatic = false;
       }
 
-      // Make all boxes static if all are still
-      if (allBoxesStatic){
-        for (const box of this.boxes){
-          box.setStatic(true);
-          box.setTint(0x7878ff);
-          this.boxes = [];
+      // Make all items static if all are still
+      if (allItemsStatic){
+        for (const item of this.items){
+          item.setStatic(true);
+          this.items = [];
           this.roundItemCount = 0;
         }
       }
