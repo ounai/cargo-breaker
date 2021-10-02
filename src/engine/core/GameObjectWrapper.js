@@ -4,6 +4,10 @@ export default class GameObjectWrapper {
   #setupNamespace(gameObject) {
     for (const symbol in gameObject) {
       if (gameObject[symbol]) {
+        if (this.hasOwnProperty(symbol) || Object.getPrototypeOf(this).hasOwnProperty(symbol)) {
+          continue;
+        }
+
         if (typeof gameObject[symbol] === 'function') {
           this[symbol] = gameObject[symbol].bind(gameObject);
         } else {
