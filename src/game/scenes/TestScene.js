@@ -5,6 +5,7 @@ import Image from '/src/engine/objects/Image';
 import MatterImage from '/src/engine/objects/MatterImage';
 import Vector2 from '/src/engine/math/Vector2';
 
+import DroppableItemType from '/src/game/objects/DroppableItemType';
 import DroppableItem from '/src/game/objects/DroppableItem';
 import Health from '../objects/Health';
 
@@ -32,6 +33,21 @@ export default class TestScene extends Scene {
 
   //arrays
   boxes = [];
+
+  currentItemType = DroppableItemType.SHIPPING_CONTAINER;
+
+  nextItemsType = [
+    DroppableItemType.SAFE,
+    DroppableItemType.WOODEN_CRATE,
+    DroppableItemType.CARDBOARD_BOX,
+    DroppableItemType.GRASS_BLOCK,
+    DroppableItemType.ROTARY_PHONE,
+    DroppableItemType.GIFT_BOX,
+    DroppableItemType.CRT_SCREEN,
+    DroppableItemType.WASHING_MACHINE,
+    DroppableItemType.WIDE_PAINTING,
+    DroppableItemType.WIDE_PLANK
+  ];
 
   constructor() {
     super({
