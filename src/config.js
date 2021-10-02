@@ -36,8 +36,8 @@ const config = {
       WIDE_PLANK: 20
     },
     scale: {
-      // [0, inf[ ?
-      default: 2
+      // [0, inf[
+      default: [1.8, 2.2]
     },
     friction: {
       // [0, 1] ?

@@ -1,7 +1,11 @@
-import Scene from '/src/engine/core/Scene';
 import ImageResource from '/src/engine/resources/ImageResource';
-import MatterImage from '/src/engine/objects/MatterImage';
+import JSONResource from '/src/engine/resources/JSONResource';
+
+import Scene from '/src/engine/core/Scene';
 import Image from '/src/engine/objects/Image';
+import MatterImage from '/src/engine/objects/MatterImage';
+import MatterSprite from '/src/engine/objects/MatterSprite';
+import Vector2 from '/src/engine/math/Vector2';
 
 import DroppableItemType from '/src/game/objects/DroppableItemType';
 import DroppableItem from '/src/game/objects/DroppableItem';
@@ -9,7 +13,8 @@ import Health from '/src/game/objects/Health';
 
 export default class TestScene extends Scene {
   resources = {
-    boat: new ImageResource('assets/testboat.png'),
+    boat: new ImageResource('assets/boat.png'),
+    boatData: new JSONResource('assets/boat.json'),
     background: new ImageResource('assets/background.png')
   };
 
@@ -20,10 +25,12 @@ export default class TestScene extends Scene {
   }
 
   itemsPerRound = 3;
+
   itemCount = 0;
   roundItemCount = 0;
-  health = null;
 
+  boat = null;
+  health = null;
   items = [];
 
   currentItemType = null;
@@ -96,16 +103,20 @@ export default class TestScene extends Scene {
     //this.matter.world.setBounds();
     //this.matter.add.mouseSpring({ length: 1, stiffness: 0.6 });
 
-    // Add boat
-    const boat = new MatterImage(this.matter.world, this.screenCenter.x, 685, this.resources.boat).setScale(2, 1).setStatic(true);
-    this.add.existing(boat);
+    // Das Boot
+    this.boat = new MatterImage(this.matter.world, this.screenCenter.x, 700, this.resources.boat, 0, {
+      shape: this.cache.json.get(this.res.boatData).boat
+    }).setStatic(true).setScale(3, 3);
+
+    this.add.existing(this.boat);
   }
 
-  onUpdate() {
+  onUpdate(time, delta) {
     // Delete items that are not in the boat
     for (let i = 0; i < this.items.length; i++){
       if (this.items[i].y > 720){
         console.log('Destroy item', this.items[i]);
+
         this.items[i].destroy();
         this.items.splice(i, 1);
         this.health.decrease();
@@ -126,9 +137,10 @@ export default class TestScene extends Scene {
         for (const item of this.items){
           item.setStatic(true);
           item.setTint(0x7878ff);
-          this.items = [];
-          this.roundItemCount = 0;
         }
+
+        this.items = [];
+        this.roundItemCount = 0;
       }
     }
   }
