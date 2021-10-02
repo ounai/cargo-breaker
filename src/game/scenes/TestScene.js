@@ -5,6 +5,8 @@ import Image from '/src/engine/objects/Image';
 import MatterImage from '/src/engine/objects/MatterImage';
 import Vector2 from '/src/engine/math/Vector2';
 
+import DroppableItem from '/src/game/objects/DroppableItem';
+
 export default class TestScene extends Scene {
   resources = {
     background: new ImageResource('assets/testbg.png'),
@@ -36,17 +38,16 @@ export default class TestScene extends Scene {
     this.matter.world.setBounds();
     this.matter.add.mouseSpring({ length: 1, stiffness: 0.6 });
 
-    //setup images
     const background = new Image(this, 0, 0, this.resources.background).setOrigin(0, 0);
     this.add.existing(background);
 
-    //images with matter
     const boat = new MatterImage(this.matter.world, 450, 550, this.resources.boat).setScale(2, 1);
     this.add.existing(boat);
 
     const box = new MatterImage(this.matter.world, 400, 400, this.resources.box).setScale(.2, .2);
-    box.setScale(0.2, 0.2);
-    this.add.existing(box);
+    //this.add.existing(box);
+
+    const drop = new DroppableItem(box);
 
     const text = new Text(this, this.screenCenter.x, this.screenCenter.y, 'UNSTABLE', {
       fontSize: '32px'
