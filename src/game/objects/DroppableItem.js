@@ -2,7 +2,7 @@ import MatterImage from '/src/engine/objects/MatterImage';
 
 export default class DroppableItem extends MatterImage {
   #maxVelocities = 10;
-  #velocityTreshold = .01;
+  #velocityTreshold = 1;
 
   #itemType;
   #lastVelocities = [];

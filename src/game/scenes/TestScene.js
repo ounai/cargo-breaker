@@ -29,8 +29,8 @@ export default class TestScene extends Scene {
 
   itemCount = 0;
   roundItemCount = 0;
-  currentTowerHigh = 0;
-  lastTowerHigh = 0;
+  currentTowerHeight = 0;
+  lastTowerHeight = 0;
 
   scoreText = null;
   boat = null;
@@ -78,7 +78,7 @@ export default class TestScene extends Scene {
     if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
     this.currentItemType = this.nextItemTypes.shift();
 
-    const item = new DroppableItem(this.currentItemType, this.matter.world, pointer.x, pointer.y - this.currentTowerHigh, this.currentItemType.res)
+    const item = new DroppableItem(this.currentItemType, this.matter.world, pointer.x, pointer.y - this.currentTowerHeight, this.currentItemType.res)
     this.add.existing(item);
 
     // Increase item count and round item count
@@ -110,17 +110,17 @@ export default class TestScene extends Scene {
       item.setStatic(true);
       item.setTint(0x7878ff);
 
-      this.currentTowerHigh = Math.floor(Math.max(this.currentTowerHigh, 720 - item.y)) / 50;
-      this.scoreText.updateScore(Math.floor(Math.max(this.currentTowerHigh, 720 - item.y)) / 50);
+      this.currentTowerHeight = Math.max(this.currentTowerHeight, 720 - item.y);
+      this.scoreText.updateScore(Math.floor(Math.max(this.currentTowerHeight, 720 - item.y)) / 50);
     }
 
     this.items = [];
     this.roundItemCount = 0;
 
     // Move camera
-    if (this.lastTowerHigh < this.currentTowerHigh){
-      this.moveCamera(this.currentTowerHigh - this.lastTowerHigh);
-      this.lastTowerHigh = this.currentTowerHigh;
+    if (this.lastTowerHeight < this.currentTowerHeight){
+      this.moveCamera(this.currentTowerHeight - this.lastTowerHeight);
+      this.lastTowerHeight = this.currentTowerHeight;
     } 
   }
 
@@ -158,8 +158,8 @@ export default class TestScene extends Scene {
   }
 
   onUpdate(time, delta) {
-    // Delete items that are not in the boat
     for (let i = 0; i < this.items.length; i++) {
+      // Delete items that are not in the boat
       if (this.items[i].y > 720){
         this.items[i].destroy();
         this.items.splice(i, 1);
@@ -168,6 +168,7 @@ export default class TestScene extends Scene {
         continue;
       }
 
+      // Update item
       this.items[i].onUpdate();
     }
 
@@ -179,7 +180,7 @@ export default class TestScene extends Scene {
       `Item Count: ${this.itemCount}`,
       `Round Item Count: ${this.roundItemCount}`,
       `Health: ${this.health}`,
-      `Tower height: ${this.currentTowerHigh} m`
+      `Tower height: ${this.currentTowerHeight} px`
     ];
   }
 }
