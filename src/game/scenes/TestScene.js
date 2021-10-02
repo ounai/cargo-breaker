@@ -28,6 +28,7 @@ export default class TestScene extends Scene {
 
   itemCount = 0;
   roundItemCount = 0;
+  currentTowerHigh = 0;
 
   boat = null;
   health = null;
@@ -129,7 +130,9 @@ export default class TestScene extends Scene {
 
       // Check if all items are staying still
       for (const item of this.items){
-        if (!item.hasStopped) allItemsStatic = false;
+        if (!item.hasStopped){
+          allItemsStatic = false;
+        } 
       }
 
       // Make all items static if all are still
@@ -137,6 +140,8 @@ export default class TestScene extends Scene {
         for (const item of this.items){
           item.setStatic(true);
           item.setTint(0x7878ff);
+
+          this.currentTowerHigh = Math.floor(Math.max(this.currentTowerHigh, 720 - item.y)) / 50;
         }
 
         this.items = [];
@@ -149,7 +154,8 @@ export default class TestScene extends Scene {
     return [
       `Item Count: ${this.itemCount}`,
       `Round Item Count: ${this.roundItemCount}`,
-      `Health: ${this.health}`
+      `Health: ${this.health}`,
+      `Tower height: ${this.currentTowerHigh} m`
     ];
   }
 }
