@@ -1,5 +1,7 @@
 import Phaser from '/src/lib/phaser';
 
+import config from '/src/config.js';
+
 import Text from '/src/engine/objects/Text';
 import Vector2 from '/src/engine/math/Vector2';
 
@@ -153,8 +155,7 @@ export default class Scene extends Phaser.Scene {
 
     const debugStrings = this.debugStrings();
 
-    // TODO is debug mode on
-    if (Array.isArray(debugStrings) && JSON.stringify(debugStrings) !== JSON.stringify(this.#lastDebugStrings)) {
+    if (config.debug && Array.isArray(debugStrings) && JSON.stringify(debugStrings) !== JSON.stringify(this.#lastDebugStrings)) {
       console.log('Updating debug strings...');
 
       this.#drawDebugStrings(debugStrings);

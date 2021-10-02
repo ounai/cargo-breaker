@@ -10,6 +10,7 @@ import Vector2 from '/src/engine/math/Vector2';
 import DroppableItemType from '/src/game/objects/DroppableItemType';
 import DroppableItem from '/src/game/objects/DroppableItem';
 import Health from '/src/game/objects/Health';
+import ScoreText from '/src/game/objects/ScoreText';
 
 export default class TestScene extends Scene {
   resources = {
@@ -30,6 +31,7 @@ export default class TestScene extends Scene {
   roundItemCount = 0;
   currentTowerHigh = 0;
 
+  scoreText = null;
   boat = null;
   health = null;
   items = [];
@@ -110,6 +112,8 @@ export default class TestScene extends Scene {
     }).setStatic(true).setScale(3, 3);
 
     this.add.existing(this.boat);
+
+    this.scoreText = new ScoreText(this);
   }
 
   onUpdate(time, delta) {
@@ -142,6 +146,7 @@ export default class TestScene extends Scene {
           item.setTint(0x7878ff);
 
           this.currentTowerHigh = Math.floor(Math.max(this.currentTowerHigh, 720 - item.y)) / 50;
+          this.scoreText.updateScore(Math.floor(Math.max(this.currentTowerHigh, 720 - item.y)) / 50);
         }
 
         this.items = [];

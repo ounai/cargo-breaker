@@ -1,4 +1,5 @@
 const config = {
+  debug: process.env.NODE_ENV !== 'production',
   game: {
     type: Phaser.AUTO,
     width: 1280,
