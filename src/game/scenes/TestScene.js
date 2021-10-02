@@ -30,6 +30,7 @@ export default class TestScene extends Scene {
   itemCount = 0;
   roundItemCount = 0;
   currentTowerHigh = 0;
+  lastTowerHigh = 0;
 
   scoreText = null;
   boat = null;
@@ -77,7 +78,7 @@ export default class TestScene extends Scene {
     if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
     this.currentItemType = this.nextItemTypes.shift();
 
-    const item = new DroppableItem(this.currentItemType, this.matter.world, pointer.x, pointer.y, this.currentItemType.res)
+    const item = new DroppableItem(this.currentItemType, this.matter.world, pointer.x, pointer.y - this.currentTowerHigh, this.currentItemType.res)
     this.add.existing(item);
 
     // Increase item count and round item count
@@ -86,6 +87,11 @@ export default class TestScene extends Scene {
 
     // Update items array
     this.items.push(item);
+  }
+
+  moveCamera(changeY) {
+    const cam = this.cameras.main;
+    cam.centerOn(this.screenCenter.x, this.screenCenter.y - changeY);
   }
 
   onPreload() {
@@ -141,11 +147,18 @@ export default class TestScene extends Scene {
 
       // Make all items static if all are still
       if (allItemsStatic){
+        
+        //move camera
+        if (this.lastTowerHigh < this.currentTowerHigh){
+          this.moveCamera(this.currentTowerHigh - this.lastTowerHigh);
+          this.lastTowerHigh = this.currentTowerHigh;
+        } 
+
         for (const item of this.items){
           item.setStatic(true);
           item.setTint(0x7878ff);
 
-          this.currentTowerHigh = Math.floor(Math.max(this.currentTowerHigh, 720 - item.y)) / 50;
+          this.currentTowerHigh = Math.max(this.currentTowerHigh, 720 - item.y);
           this.scoreText.updateScore(Math.floor(Math.max(this.currentTowerHigh, 720 - item.y)) / 50);
         }
 
