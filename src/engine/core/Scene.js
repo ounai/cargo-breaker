@@ -1,11 +1,14 @@
 import Phaser from '/src/lib/phaser';
 
+import Vector2 from '/src/engine/math/Vector2';
+
 export default class Scene extends Phaser.Scene {
   baseURL = null;
   resources = null;
   eventHandlers = null;
-
   cursors = null;
+  screenCenter = null;
+
   #cursorKeys = null;
 
   #preloadBaseURL(baseURL) {
@@ -44,6 +47,15 @@ export default class Scene extends Phaser.Scene {
     }
   }
 
+  #updateScreenCenter() {
+    if (this.screenCenter === null) {
+      this.screenCenter = new Vector2();
+    }
+
+    this.screenCenter.x = this.cameras.main.worldView.x + this.cameras.main.width / 2;
+    this.screenCenter.y = this.cameras.main.worldView.y + this.cameras.main.height / 2;
+  }
+
   constructor(config) {
     super(config);
   }
@@ -73,6 +85,7 @@ export default class Scene extends Phaser.Scene {
       this.#createEventHandlers(this.eventHandlers);
     }
 
+    this.#updateScreenCenter();
     this.onCreate();
   }
 
@@ -88,6 +101,7 @@ export default class Scene extends Phaser.Scene {
       });
     }
 
+    this.#updateScreenCenter();
     this.onUpdate(...args);
   }
 
