@@ -30,6 +30,7 @@ export default class TestScene extends Scene {
   itemCount = 0;
   roundItemCount = 0;
   currentTowerHigh = 0;
+  lastTowerHigh = 0;
 
   scoreText = null;
   boat = null;
@@ -77,7 +78,7 @@ export default class TestScene extends Scene {
     if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
     this.currentItemType = this.nextItemTypes.shift();
 
-    const item = new DroppableItem(this.currentItemType, this.matter.world, pointer.x, pointer.y, this.currentItemType.res)
+    const item = new DroppableItem(this.currentItemType, this.matter.world, pointer.x, pointer.y - this.currentTowerHigh, this.currentItemType.res)
     this.add.existing(item);
 
     // Increase item count and round item count
@@ -115,6 +116,17 @@ export default class TestScene extends Scene {
 
     this.items = [];
     this.roundItemCount = 0;
+
+    // Move camera
+    if (this.lastTowerHigh < this.currentTowerHigh){
+      this.moveCamera(this.currentTowerHigh - this.lastTowerHigh);
+      this.lastTowerHigh = this.currentTowerHigh;
+    } 
+  }
+
+  moveCamera(changeY) {
+    const cam = this.cameras.main;
+    cam.centerOn(this.screenCenter.x, this.screenCenter.y - changeY);
   }
 
   onPreload() {
