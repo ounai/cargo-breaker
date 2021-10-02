@@ -11,5 +11,9 @@ export default class DroppableItem extends GameObjectWrapper {
 
     super(gameObject);
   }
+
+  get velocity() {
+    return this.gameObject.velocity;
+  }
 }
 
