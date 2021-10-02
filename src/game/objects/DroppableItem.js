@@ -10,9 +10,6 @@ export default class DroppableItem extends GameObjectWrapper {
     }
 
     super(gameObject);
-
-    console.log('Droppable item created!');
-    console.log(gameObject);
   }
 }
 
