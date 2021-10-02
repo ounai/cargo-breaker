@@ -75,10 +75,7 @@ export default class Scene extends Phaser.Scene {
     if (this.#debugStringTexts.length > 0) {
       console.log('Destroying', this.#debugStringTexts.length, 'old debug string texts');
 
-      for (const text of this.#debugStringTexts) {
-        console.log('Destroy', text);
-        text.destroy();
-      }
+      for (const text of this.#debugStringTexts) text.destroy();
 
       this.#debugStringTexts = [];
     }
