@@ -1,22 +1,18 @@
 import MatterImage from '/src/engine/objects/MatterImage';
 import MatterSprite from '/src/engine/objects/MatterSprite';
 
-export default class DroppableItem {
-  #gameObject = null;
+import GameObjectWrapper from '/src/engine/core/GameObjectWrapper';
 
+export default class DroppableItem extends GameObjectWrapper {
   constructor(gameObject) {
     if (!(gameObject instanceof MatterImage) && !(gameObject instanceof MatterSprite)) {
       throw new Error(`new ${this.constructor.name}() called without valid game object!`);
     }
 
+    super(gameObject);
+
     console.log('Droppable item created!');
     console.log(gameObject);
-
-    gameObject.scene.add.existing(gameObject);
-
-    this.#gameObject = gameObject;
   }
-
-  setScale(...args) { console.log(...args); return this.#gameObject.setScale(...args); }
 }
 
