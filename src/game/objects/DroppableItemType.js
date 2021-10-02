@@ -1,3 +1,7 @@
+import ImageResource from '/src/engine/resources/ImageResource';
+
+const droppableItemTypes = [];
+
 export default class DroppableItemType {
   static SHIPPING_CONTAINER = new DroppableItemType(1, '/assets/shipping-container.png');
   static SAFE = new DroppableItemType(1, '/assets/safe.png');
@@ -12,9 +16,11 @@ export default class DroppableItemType {
   static WIDE_PLANK = new DroppableItemType(1, '/assets/wide-plank.png');
 
   #mass;
-  #asset;
+  #assetPath;
   #minHeight;
   #maxHeight;
+
+  #resource = null;
 
   constructor(mass, asset, minHeight = null, maxHeight = null) {
     if (typeof mass !== 'number' || isNaN(mass)) throw new Error(`Invalid mass ${mass}`);
@@ -23,8 +29,11 @@ export default class DroppableItemType {
     if (isNaN(maxHeight)) throw new Error('Min height is NaN');
 
     this.#mass = mass;
+    this.#assetPath = asset;
     this.#minHeight = minHeight;
     this.#maxHeight = maxHeight;
+
+    droppableItemTypes.push(this);
   }
 
   get mass() {
@@ -37,6 +46,24 @@ export default class DroppableItemType {
 
   get maxHeight() {
     return this.#maxHeight;
+  }
+
+  get resource() {
+    return this.#resource;
+  }
+
+  get res() {
+    return this.#resource;
+  }
+
+  preload() {
+    this.#resource = new ImageResource(this.#assetPath);
+  }
+
+  static preloadAll() {
+    console.log('Preloading', droppableItemTypes.length, 'droppable item types...');
+
+    droppableItemTypes.forEach(d => d.preload());
   }
 }
 

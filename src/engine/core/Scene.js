@@ -155,7 +155,7 @@ export default class Scene extends Phaser.Scene {
 
     // TODO is debug mode on
     if (Array.isArray(debugStrings) && JSON.stringify(debugStrings) !== JSON.stringify(this.#lastDebugStrings)) {
-      console.log('Updating debug strings');
+      console.log('Updating debug strings...');
 
       this.#drawDebugStrings(debugStrings);
       this.#lastDebugStrings = debugStrings;

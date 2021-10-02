@@ -84,6 +84,10 @@ export default class TestScene extends Scene {
     this.boxes.push(drop);
   }
 
+  onPreload() {
+    DroppableItemType.preloadAll();
+  }
+
   onCreate() {
     console.log('Game.onCreate()');
 
