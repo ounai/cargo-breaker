@@ -29,10 +29,10 @@ export default class TestScene extends Scene {
   currentItemType = null;
 
   nextItemTypes = [
+    DroppableItemType.CARDBOARD_BOX,
     DroppableItemType.SHIPPING_CONTAINER,
     DroppableItemType.SAFE,
     DroppableItemType.WOODEN_CRATE,
-    DroppableItemType.CARDBOARD_BOX,
     DroppableItemType.GRASS_BLOCK,
     DroppableItemType.ROTARY_PHONE,
     DroppableItemType.GIFT_BOX,
