@@ -2,10 +2,7 @@ import Phaser from '/src/lib/phaser';
 
 class Game extends Phaser.Game {
   constructor(config) {
-    super({
-      type: Phaser.AUTO,
-      ...config
-    });
+    super(config);
   }
 }
 

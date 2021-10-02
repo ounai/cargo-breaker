@@ -49,8 +49,6 @@ export default class DroppableItemType {
     this.#minHeight = config.droppableItems.minHeight[name] ?? config.droppableItems.minHeight.default;
     this.#maxHeight = config.droppableItems.maxHeight[name] ?? config.droppableItems.maxHeight.default;
 
-    console.log(`new ${this.constructor.name}()`, this);
-
     droppableItemTypes.push(this);
   }
 

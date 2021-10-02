@@ -66,7 +66,7 @@ export default class TestScene extends Scene {
     this.currentItemType = this.nextItemTypes.shift();
 
     const item = new DroppableItem(this.matter.world, pointer.x, pointer.y, this.currentItemType.res)
-      .setScale(1, 1)
+      .setScale(this.currentItemType.scale, this.currentItemType.scale)
       .setDensity(this.currentItemType.density)
       .setFriction(this.currentItemType.friction)
       .setFrictionAir(this.currentItemType.frictionAir);
