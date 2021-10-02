@@ -1,46 +1,71 @@
+import config from '/src/config.js';
+
 import ImageResource from '/src/engine/resources/ImageResource';
 
 const droppableItemTypes = [];
 
 export default class DroppableItemType {
-  static SHIPPING_CONTAINER = new DroppableItemType(1, 1, '/assets/shipping-container.png');
-  static SAFE = new DroppableItemType(1, 1, '/assets/safe.png');
-  static WOODEN_CRATE = new DroppableItemType(1, 1, '/assets/wooden-crate.png');
-  static CARDBOARD_BOX = new DroppableItemType(1, 1, '/assets/cardboard-box.png');
-  static GRASS_BLOCK = new DroppableItemType(1, 1, '/assets/grass-block.png');
-  static ROTARY_PHONE = new DroppableItemType(1, 1, '/assets/rotary-phone.png');
-  static GIFT_BOX = new DroppableItemType(1, 1, '/assets/gift-box.png');
-  static CRT_SCREEN = new DroppableItemType(1, 1, '/assets/crt-screen.png');
-  static WASHING_MACHINE = new DroppableItemType(1, 1, '/assets/washing-machine.png');
-  static WIDE_PAINTING = new DroppableItemType(1, 1, '/assets/wide-painting.png');
-  static WIDE_PLANK = new DroppableItemType(1, 1, '/assets/wide-plank.png');
+  static SHIPPING_CONTAINER = new DroppableItemType('SHIPPING_CONTAINER', '/assets/shipping-container.png');
+  static SAFE = new DroppableItemType('SAFE', '/assets/safe.png');
+  static WOODEN_CRATE = new DroppableItemType('WOODEN_CRATE', '/assets/wooden-crate.png');
+  static CARDBOARD_BOX = new DroppableItemType('CARDBOARD_BOX', '/assets/cardboard-box.png');
+  static GRASS_BLOCK = new DroppableItemType('GRASS_BLOCK', '/assets/grass-block.png');
+  static ROTARY_PHONE = new DroppableItemType('ROTARY_PHONE', '/assets/rotary-phone.png');
+  static GIFT_BOX = new DroppableItemType('GIFT_BOX', '/assets/gift-box.png');
+  static CRT_SCREEN = new DroppableItemType('CRT_SCREEN', '/assets/crt-screen.png');
+  static WASHING_MACHINE = new DroppableItemType('WASHING_MACHINE', '/assets/washing-machine.png');
+  static WIDE_PAINTING = new DroppableItemType('WIDE_PAINTING', '/assets/wide-painting.png');
+  static WIDE_PLANK = new DroppableItemType('WIDE_PLANK', '/assets/wide-plank.png');
 
-  #mass;
-  #scale;
+  #name;
   #assetPath;
+
+  #density;
+  #scale;
+  #friction;
+  #frictionAir;
   #minHeight;
   #maxHeight;
 
   #resource = null;
 
-  constructor(mass, scale, asset, minHeight = null, maxHeight = null) {
-    if (typeof mass !== 'number' || isNaN(mass)) throw new Error(`Invalid mass ${mass}`);
-    if (typeof scale !== 'number' || isNaN(scale)) throw new Error(`Invalid scale ${scale}`);
-    if (typeof asset !== 'string' || asset.length === 0) throw new Error(`Invalid asset name ${asset}`);
-    if (isNaN(minHeight)) throw new Error('Min height is NaN');
-    if (isNaN(maxHeight)) throw new Error('Min height is NaN');
+  constructor(name, assetPath) {
+    if (typeof name !== 'string' || name.length === 0) {
+      throw new Error(`Invalid name ${name}`);
+    }
 
-    this.#mass = mass;
-    this.#scale = scale;
-    this.#assetPath = asset;
-    this.#minHeight = minHeight;
-    this.#maxHeight = maxHeight;
+    if (typeof assetPath !== 'string' || assetPath.length === 0) {
+      throw new Error(`Invalid asset path ${assetPath}`);
+    }
+
+    this.#name = name;
+    this.#assetPath = assetPath;
+
+    this.#density = config.droppableItems.density[name] ?? config.droppableItems.density.default;
+    this.#scale = config.droppableItems.scale[name] ?? config.droppableItems.scale.default;
+    this.#friction = config.droppableItems.friction[name] ?? config.droppableItems.friction.default;
+    this.#frictionAir = config.droppableItems.frictionAir[name] ?? config.droppableItems.frictionAir.default;
+
+    this.#minHeight = config.droppableItems.minHeight[name] ?? config.droppableItems.minHeight.default;
+    this.#maxHeight = config.droppableItems.maxHeight[name] ?? config.droppableItems.maxHeight.default;
 
     droppableItemTypes.push(this);
   }
 
-  get mass() {
-    return this.#mass;
+  get name() {
+    return this.#name;
+  }
+
+  get density() {
+    return this.#density;
+  }
+
+  get friction() {
+    return this.#friction;
+  }
+
+  get frictionAir() {
+    return this.#frictionAir;
   }
 
   get minHeight() {
