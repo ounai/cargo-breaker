@@ -1,7 +1,7 @@
 const config = {
   game: {
-    width: 600,
-    height: 800
+    width: 900,
+    height: 600
   }
 };
 
