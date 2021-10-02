@@ -73,8 +73,9 @@ export default class TestScene extends Scene {
     if(this.roundItemCount === 5) return;
 
     //create a box
-    const box = new MatterImage(this.matter.world, pointer.x, pointer.y, this.resources.box).setScale(.2, .2);
+    const box = new MatterImage(this.matter.world, pointer.x, pointer.y, this.currentItemType.res).setMass(this.currentItemType.mass);
     const drop = new DroppableItem(box);
+    console.log(this.currentItemType.res);
 
     //increase item count and round item count
     this.itemCount++;
