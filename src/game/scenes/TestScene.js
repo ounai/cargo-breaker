@@ -1,13 +1,10 @@
 import Scene from '/src/engine/core/Scene';
-import Text from '/src/engine/objects/Text';
 import ImageResource from '/src/engine/resources/ImageResource';
-import Image from '/src/engine/objects/Image';
 import MatterImage from '/src/engine/objects/MatterImage';
-import Vector2 from '/src/engine/math/Vector2';
 
 import DroppableItemType from '/src/game/objects/DroppableItemType';
 import DroppableItem from '/src/game/objects/DroppableItem';
-import Health from '../objects/Health';
+import Health from '/src/game/objects/Health';
 
 export default class TestScene extends Scene {
   resources = {
@@ -21,22 +18,15 @@ export default class TestScene extends Scene {
     }
   }
 
-  //variables
   itemCount = 0;
   roundItemCount = 0;
   health = null;
 
-  //texts
-  texts = {
-    itemCount: null
-  }
-
-  //arrays
   boxes = [];
 
   currentItemType = null;
 
-  nextItemsType = [
+  nextItemTypes = [
     DroppableItemType.SHIPPING_CONTAINER,
     DroppableItemType.SAFE,
     DroppableItemType.WOODEN_CRATE,
@@ -68,24 +58,29 @@ export default class TestScene extends Scene {
     });
   }
 
-  //Create box on mouse click
+  // Create box on mouse click
   onMouseDown(pointer) {
+    if (this.roundItemCount === 5) return;
 
-    if(this.roundItemCount === 5) return;
+    if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
+    this.currentItemType = this.nextItemTypes.shift();
 
-    if (this.currentItemType !== null) this.nextItemsType.push(this.currentItemType);
-    this.currentItemType = this.nextItemsType.shift();
+    // Create a box
+    const box = new MatterImage(this.matter.world, pointer.x, pointer.y, this.currentItemType.res)
+      .setScale(1, 1)
+      .setDensity(this.currentItemType.density)
+      .setFriction(this.currentItemType.friction)
+      .setFrictionAir(this.currentItemType.frictionAir);
 
-    //create a box
-    const box = new MatterImage(this.matter.world, pointer.x, pointer.y, this.currentItemType.res);
-    const drop = new DroppableItem(box).setScale(1, 1).setMass(this.currentItemType.mass).setDensity(this.currentItemType.density).setFriction(this.currentItemType.friction).setFrictionAir(this.currentItemType.frictionAir);
+    const drop = new DroppableItem(box);
+
     console.log(this.currentItemType.res);
 
-    //increase item count and round item count
+    // Increase item count and round item count
     this.itemCount++;
     this.roundItemCount++;
 
-    //update boxes array
+    // Update boxes array
     this.boxes.push(drop);
   }
 
@@ -103,32 +98,32 @@ export default class TestScene extends Scene {
     //this.matter.world.setBounds();
     //this.matter.add.mouseSpring({ length: 1, stiffness: 0.6 });
 
-    //add boat
+    // Add boat
     const boat = new MatterImage(this.matter.world, this.screenCenter.x, 685, this.resources.boat).setScale(2, 1).setStatic(true);
     this.add.existing(boat);
   }
 
   onUpdate() {
-    //delete boxes that are not in the boat
-    for(let i = 0; i < this.boxes.length; i++){
-      if(this.boxes[i].y > 720){
-        console.log("Destroy box", this.boxes[i]);
+    // Delete boxes that are not in the boat
+    for (let i = 0; i < this.boxes.length; i++){
+      if (this.boxes[i].y > 720){
+        console.log('Destroy box', this.boxes[i]);
         this.boxes[i].destroy();
         this.boxes.splice(i, 1);
         this.health.decrease();
-      } 
+      }
     }
-    
-    //check if there are 5 boxes
+
+    // Check if there are 5 boxes
     if (this.roundItemCount === 5){
       let allBoxesStatic = true;
 
-      //check if all boxes are staying still
+      // Check if all boxes are staying still
       for (const box of this.boxes){
         if (!box.hasStopped) allBoxesStatic = false;
       }
 
-      //make all boxes static if all are still
+      // Make all boxes static if all are still
       if (allBoxesStatic){
         for (const box of this.boxes){
           box.setStatic(true);
@@ -137,7 +132,6 @@ export default class TestScene extends Scene {
         }
       }
     }
-
   }
 
   debugStrings(){
@@ -145,8 +139,7 @@ export default class TestScene extends Scene {
       `Item Count: ${this.itemCount}`,
       `Round Item Count: ${this.roundItemCount}`,
       `Health: ${this.health}`
-    ]
+    ];
   }
-
 }
 

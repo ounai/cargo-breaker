@@ -4,6 +4,7 @@ export default class GameObjectWrapper {
   #setupNamespace(gameObject) {
     for (const symbol in gameObject) {
       if (gameObject[symbol]) {
+        // eslint-disable-next-line no-prototype-builtins
         if (this.hasOwnProperty(symbol) || Object.getPrototypeOf(this).hasOwnProperty(symbol)) {
           continue;
         }

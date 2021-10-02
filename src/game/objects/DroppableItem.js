@@ -12,12 +12,12 @@ export default class DroppableItem extends GameObjectWrapper {
     super(gameObject);
   }
 
-  get hasStopped() {
-    return this.velocity.length < 0.1;
-  }
-
   get velocity() {
     return this.gameObject.velocity;
+  }
+
+  get hasStopped() {
+    return this.velocity.length < 0.1;
   }
 
   get x() {
