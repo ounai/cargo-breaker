@@ -21,23 +21,32 @@ const config = {
     */
 
     density: {
+      // [0, inf[ ?
       default: 1
     },
     scale: {
-      default: 1
+      // [0, inf[ ?
+      default: 2
     },
     friction: {
+      // [0, 1] ?
       default: 1
     },
     frictionAir: {
+      // [0, 1] ?
       default: 0
     },
-    minHeight: {
-      default: null
+    frictionStatic: {
+      // [0, inf[ ?
+      default: 0
     },
-    maxHeight: {
-      default: null
+    restitution: {
+      // [0, 1] ?
+      default: 0
     },
+
+    minHeight: { default: null },
+    maxHeight: { default: null }
   }
 };
 

@@ -18,6 +18,7 @@ export default class TestScene extends Scene {
     }
   }
 
+  itemsPerRound = 3;
   itemCount = 0;
   roundItemCount = 0;
   health = null;
@@ -60,16 +61,15 @@ export default class TestScene extends Scene {
 
   // Create box on mouse click
   onMouseDown(pointer) {
-    if (this.roundItemCount === 5) return;
+    if (this.roundItemCount === this.itemsPerRound) return;
 
     if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
     this.currentItemType = this.nextItemTypes.shift();
 
-    const item = new DroppableItem(this.matter.world, pointer.x, pointer.y, this.currentItemType.res)
-      .setScale(this.currentItemType.scale, this.currentItemType.scale)
-      .setDensity(this.currentItemType.density)
-      .setFriction(this.currentItemType.friction)
-      .setFrictionAir(this.currentItemType.frictionAir);
+    const item = new DroppableItem(this.currentItemType, this.matter.world, pointer.x, pointer.y, this.currentItemType.res)
+      //.setScale(this.currentItemType.scale, this.currentItemType.scale)
+      //.setDensity(this.currentItemType.density)
+      //.setFriction(this.currentItemType.friction, this.currentItemType.frictionAir, this.currentItemType.frictionStatic)
 
     this.add.existing(item);
 
@@ -111,8 +111,8 @@ export default class TestScene extends Scene {
       }
     }
 
-    // Check if there are 5 boxes
-    if (this.roundItemCount === 5){
+    // Check if there are itemsPerRound boxes
+    if (this.roundItemCount === this.itemsPerRound){
       let allBoxesStatic = true;
 
       // Check if all boxes are staying still

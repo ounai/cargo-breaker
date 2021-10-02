@@ -20,10 +20,13 @@ export default class DroppableItemType {
   #name;
   #assetPath;
 
-  #density;
   #scale;
+  #density;
+
   #friction;
   #frictionAir;
+  #frictionStatic;
+
   #minHeight;
   #maxHeight;
 
@@ -41,10 +44,12 @@ export default class DroppableItemType {
     this.#name = name;
     this.#assetPath = assetPath;
 
-    this.#density = config.droppableItems.density[name] ?? config.droppableItems.density.default;
     this.#scale = config.droppableItems.scale[name] ?? config.droppableItems.scale.default;
+    this.#density = config.droppableItems.density[name] ?? config.droppableItems.density.default;
+
     this.#friction = config.droppableItems.friction[name] ?? config.droppableItems.friction.default;
     this.#frictionAir = config.droppableItems.frictionAir[name] ?? config.droppableItems.frictionAir.default;
+    this.#frictionStatic = config.droppableItems.frictionStatic[name] ?? config.droppableItems.frictionStatic.default;
 
     this.#minHeight = config.droppableItems.minHeight[name] ?? config.droppableItems.minHeight.default;
     this.#maxHeight = config.droppableItems.maxHeight[name] ?? config.droppableItems.maxHeight.default;
@@ -56,8 +61,20 @@ export default class DroppableItemType {
     return this.#name;
   }
 
+  get resource() {
+    return this.#resource;
+  }
+
+  get res() {
+    return this.#resource;
+  }
+
   get density() {
     return this.#density;
+  }
+
+  get scale() {
+    return this.#scale;
   }
 
   get friction() {
@@ -68,8 +85,8 @@ export default class DroppableItemType {
     return this.#frictionAir;
   }
 
-  get scale() {
-    return this.#scale;
+  get frictionStatic() {
+    return this.#frictionStatic;
   }
 
   get minHeight() {
@@ -78,14 +95,6 @@ export default class DroppableItemType {
 
   get maxHeight() {
     return this.#maxHeight;
-  }
-
-  get resource() {
-    return this.#resource;
-  }
-
-  get res() {
-    return this.#resource;
   }
 
   preload(scene) {
