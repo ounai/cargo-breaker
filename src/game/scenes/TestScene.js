@@ -9,7 +9,6 @@ import DroppableItem from '/src/game/objects/DroppableItem';
 
 export default class TestScene extends Scene {
   resources = {
-    background: new ImageResource('assets/testbg.png'),
     boat: new ImageResource('assets/testboat.png'),
     box: new ImageResource('assets/testbox.png')
   };
@@ -83,12 +82,10 @@ export default class TestScene extends Scene {
   onCreate() {
     console.log('Game.onCreate()');
 
-    //this.matter.world.setBounds();
-    this.matter.add.mouseSpring({ length: 1, stiffness: 0.6 });
+    this.cameras.main.setBackgroundColor('#46bed9');
 
-    //add bg image
-    const background = new Image(this, 0, 0, this.resources.background).setOrigin(0, 0);
-    this.add.existing(background);
+    //this.matter.world.setBounds();
+    //this.matter.add.mouseSpring({ length: 1, stiffness: 0.6 });
 
     //add boat
     const boat = new MatterImage(this.matter.world, 450, 550, this.resources.boat).setScale(2, 1).setStatic(true);
@@ -138,5 +135,5 @@ export default class TestScene extends Scene {
     }
 
   }
-
 }
+
