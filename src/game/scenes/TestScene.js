@@ -6,6 +6,7 @@ import MatterImage from '/src/engine/objects/MatterImage';
 import Vector2 from '/src/engine/math/Vector2';
 
 import DroppableItem from '/src/game/objects/DroppableItem';
+import Health from '../objects/Health';
 
 export default class TestScene extends Scene {
   resources = {
@@ -22,6 +23,7 @@ export default class TestScene extends Scene {
   //variables
   itemCount = 0;
   roundItemCount = 0;
+  health = null;
 
   //texts
   texts = {
@@ -49,19 +51,10 @@ export default class TestScene extends Scene {
     });
   }
 
-  //return item count
-  getScoreText(){
-    return `Item Count: ${this.itemCount}`;
-  }
-
-  getRoundItemCount(){
-    return `Round Item Count: ${this.roundItemCount}`;
-  }
-
   //Create box on mouse click
   onMouseDown(pointer) {
 
-    if(this.boxes.length === 5) return;
+    if(this.roundItemCount === 5) return;
 
     //create a box
     const box = new MatterImage(this.matter.world, pointer.x, pointer.y, this.resources.box).setScale(.2, .2);
@@ -70,10 +63,6 @@ export default class TestScene extends Scene {
     //increase item count and round item count
     this.itemCount++;
     this.roundItemCount++;
-
-    //update text
-    this.texts.itemCount.setText(this.getScoreText());
-    this.texts.roundItemCount.setText(this.getRoundItemCount());
 
     //update boxes array
     this.boxes.push(drop);
@@ -84,34 +73,24 @@ export default class TestScene extends Scene {
 
     this.cameras.main.setBackgroundColor('#46bed9');
 
+    this.health = new Health(3);
+    // esimerkki this.health.on(0, kuolemafunktio)
     //this.matter.world.setBounds();
     //this.matter.add.mouseSpring({ length: 1, stiffness: 0.6 });
 
     //add boat
-    const boat = new MatterImage(this.matter.world, 450, 550, this.resources.boat).setScale(2, 1).setStatic(true);
+    const boat = new MatterImage(this.matter.world, this.screenCenter.x, 685, this.resources.boat).setScale(2, 1).setStatic(true);
     this.add.existing(boat);
-
-    //add item count txt
-    this.texts.itemCount = new Text(this, this.screenCenter.x, this.screenCenter.y, this.getScoreText(), {
-      fontSize: '32px'
-    }).setOrigin(.5);
-    this.add.existing(this.texts.itemCount);
-    
-    //add round item txt
-    this.texts.roundItemCount = new Text(this, this.screenCenter.x, this.screenCenter.y + 40, this.getRoundItemCount(), {
-      fontSize: '32px'
-    }).setOrigin(.5);
-    this.add.existing(this.texts.roundItemCount);  
   }
 
   onUpdate() {
     //delete boxes that are not in the boat
-
     for(let i = 0; i < this.boxes.length; i++){
-      if(this.boxes[i].y > 600){
+      if(this.boxes[i].y > 720){
         console.log("Destroy box", this.boxes[i]);
         this.boxes[i].destroy();
         this.boxes.splice(i, 1);
+        this.health.decrease();
       } 
     }
     
@@ -135,5 +114,14 @@ export default class TestScene extends Scene {
     }
 
   }
+
+  debugStrings(){
+    return [
+      `Item Count: ${this.itemCount}`,
+      `Round Item Count: ${this.roundItemCount}`,
+      `Health: ${this.health}`
+    ]
+  }
+
 }
 
