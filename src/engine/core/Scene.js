@@ -1,5 +1,6 @@
 import Phaser from '/src/lib/phaser';
 
+import Text from '/src/engine/objects/Text';
 import Vector2 from '/src/engine/math/Vector2';
 
 export default class Scene extends Phaser.Scene {
@@ -10,6 +11,8 @@ export default class Scene extends Phaser.Scene {
   screenCenter = null;
 
   #cursorKeys = null;
+  #lastDebugStrings = null;
+  #debugStringTexts = [];
 
   #preloadBaseURL(baseURL) {
     if (baseURL !== null) {
@@ -68,6 +71,33 @@ export default class Scene extends Phaser.Scene {
     }
   }
 
+  #drawDebugStrings(debugStrings) {
+    if (this.#debugStringTexts.length > 0) {
+      console.log('Destroying', this.#debugStringTexts.length, 'old debug string texts');
+
+      for (const text of this.#debugStringTexts) {
+        console.log('Destroy', text);
+        text.destroy();
+      }
+
+      this.#debugStringTexts = [];
+    }
+
+    const fontSize = 16;
+    const style = { fontSize: `${fontSize}px` };
+
+    let y = 8;
+
+    for (const str of debugStrings) {
+      const text = new Text(this, 8, y, str, style);
+
+      this.add.existing(text);
+      this.#debugStringTexts.push(text);
+
+      y += fontSize + 4;
+    }
+  }
+
   #updateScreenCenter() {
     if (this.screenCenter === null) {
       this.screenCenter = new Vector2();
@@ -122,6 +152,16 @@ export default class Scene extends Phaser.Scene {
       });
     }
 
+    const debugStrings = this.debugStrings();
+
+    // TODO is debug mode on
+    if (Array.isArray(debugStrings) && JSON.stringify(debugStrings) !== JSON.stringify(this.#lastDebugStrings)) {
+      console.log('Updating debug strings');
+
+      this.#drawDebugStrings(debugStrings);
+      this.#lastDebugStrings = debugStrings;
+    }
+
     this.#updateScreenCenter();
     this.onUpdate(...args);
   }
@@ -129,5 +169,6 @@ export default class Scene extends Phaser.Scene {
   // Subclass methods
   onCreate() {}
   onUpdate() {}
+  debugStrings() {}
 }
 
