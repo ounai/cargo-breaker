@@ -1,7 +1,11 @@
 import MatterImage from '/src/engine/objects/MatterImage';
 
 export default class DroppableItem extends MatterImage {
+  #maxVelocities = 10;
+  #velocityTreshold = .01;
+
   #itemType;
+  #lastVelocities = [];
 
   constructor(itemType, ...rest) {
     super(...rest);
@@ -28,11 +32,17 @@ export default class DroppableItem extends MatterImage {
   }
 
   get hasStopped() {
-    return this.velocity.length < 0.1;
+    return this.#lastVelocities.length === this.#maxVelocities && !this.#lastVelocities.find(v => v > this.#velocityTreshold);
   }
 
   get itemType() {
     return this.#itemType;
+  }
+
+  onUpdate() {
+    if (this.#lastVelocities.length >= this.#maxVelocities) this.#lastVelocities.shift();
+
+    this.#lastVelocities.push(this.velocity.length);
   }
 }
 

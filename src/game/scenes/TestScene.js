@@ -88,6 +88,35 @@ export default class TestScene extends Scene {
     this.items.push(item);
   }
 
+  shouldRoundEnd() {
+    // Check if there are itemsPerRound items
+    if (this.roundItemCount === this.itemsPerRound) {
+      let allItemsStatic = true;
+
+      // Check if all items are staying still
+      for (const item of this.items) {
+        if (!item.hasStopped) allItemsStatic = false;
+      }
+
+      return allItemsStatic;
+    }
+
+    return false;
+  }
+
+  newRound() {
+    for (const item of this.items) {
+      item.setStatic(true);
+      item.setTint(0x7878ff);
+
+      this.currentTowerHigh = Math.floor(Math.max(this.currentTowerHigh, 720 - item.y)) / 50;
+      this.scoreText.updateScore(Math.floor(Math.max(this.currentTowerHigh, 720 - item.y)) / 50);
+    }
+
+    this.items = [];
+    this.roundItemCount = 0;
+  }
+
   onPreload() {
     DroppableItemType.preloadAll(this);
   }
@@ -118,41 +147,19 @@ export default class TestScene extends Scene {
 
   onUpdate(time, delta) {
     // Delete items that are not in the boat
-    for (let i = 0; i < this.items.length; i++){
+    for (let i = 0; i < this.items.length; i++) {
       if (this.items[i].y > 720){
-        console.log('Destroy item', this.items[i]);
-
         this.items[i].destroy();
         this.items.splice(i, 1);
         this.health.decrease();
+
+        continue;
       }
+
+      this.items[i].onUpdate();
     }
 
-    // Check if there are itemsPerRound items
-    if (this.roundItemCount === this.itemsPerRound){
-      let allItemsStatic = true;
-
-      // Check if all items are staying still
-      for (const item of this.items){
-        if (!item.hasStopped){
-          allItemsStatic = false;
-        } 
-      }
-
-      // Make all items static if all are still
-      if (allItemsStatic){
-        for (const item of this.items){
-          item.setStatic(true);
-          item.setTint(0x7878ff);
-
-          this.currentTowerHigh = Math.floor(Math.max(this.currentTowerHigh, 720 - item.y)) / 50;
-          this.scoreText.updateScore(Math.floor(Math.max(this.currentTowerHigh, 720 - item.y)) / 50);
-        }
-
-        this.items = [];
-        this.roundItemCount = 0;
-      }
-    }
+    if (this.shouldRoundEnd()) this.newRound();
   }
 
   debugStrings(){
