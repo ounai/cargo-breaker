@@ -65,23 +65,20 @@ export default class TestScene extends Scene {
     if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
     this.currentItemType = this.nextItemTypes.shift();
 
-    // Create a box
-    const box = new MatterImage(this.matter.world, pointer.x, pointer.y, this.currentItemType.res)
+    const item = new DroppableItem(this.matter.world, pointer.x, pointer.y, this.currentItemType.res)
       .setScale(1, 1)
       .setDensity(this.currentItemType.density)
       .setFriction(this.currentItemType.friction)
       .setFrictionAir(this.currentItemType.frictionAir);
 
-    const drop = new DroppableItem(box);
-
-    console.log(this.currentItemType.res);
+    this.add.existing(item);
 
     // Increase item count and round item count
     this.itemCount++;
     this.roundItemCount++;
 
     // Update boxes array
-    this.boxes.push(drop);
+    this.boxes.push(item);
   }
 
   onPreload() {
