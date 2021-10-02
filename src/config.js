@@ -40,8 +40,8 @@ const config = {
       // [0, inf[ ?
       default: 0
     },
-    restitution: {
-      // [0, 1] ?
+    bounce: {
+      // [0, 1]
       default: 0
     },
 
