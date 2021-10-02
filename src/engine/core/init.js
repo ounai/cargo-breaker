@@ -13,6 +13,7 @@ const requireAll = r => {
 const loadScenes = () => {
   console.log('Loading scenes...');
 
+  // eslint-disable-next-line no-undef
   const scenes = requireAll(require.context('/src/game/scenes', true, /\.js$/));
 
   console.log('Loaded', scenes.length, 'scenes');

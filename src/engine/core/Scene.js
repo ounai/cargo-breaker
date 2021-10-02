@@ -1,3 +1,5 @@
+import Phaser from '/src/lib/phaser';
+
 export default class Scene extends Phaser.Scene {
   baseURL = null;
   resources = null;
