@@ -37,7 +37,7 @@ export default class Scene extends Phaser.Scene {
 
   #createKeyDownEventHandlers(keydown) {
     for (const [key, listener] of Object.entries(keydown)) {
-      this.input.keyboard.on(`keydown-${key}`, listener.bind(this));
+      this.input.keyboard.on(`keydown-${key}`, listener);
     }
   }
 
@@ -53,7 +53,7 @@ export default class Scene extends Phaser.Scene {
       if (typeof handler === 'function') {
         console.log('Registering event', eventName);
 
-        this.input.on(eventName, handler);
+        this.input.on(eventName, handler, this);
       }
     }
   }
