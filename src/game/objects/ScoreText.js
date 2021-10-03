@@ -4,11 +4,12 @@ export default class ScoreText extends TextObject {
   #score = null;
 
   constructor(scene) {
-    super(scene, scene.screenCenter.x, scene.screenCenter.y / 2, '', {
-      fontSize: '32px'
+    super(scene, scene.screenCenter.x, scene.screenCenter.y / 2, '0 m', {
+      fontSize: '16px'
     });
 
     this.setOrigin(.5);
+    this.setScrollFactor(0);
 
     scene.add.existing(this);
   }

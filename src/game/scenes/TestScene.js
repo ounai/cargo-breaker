@@ -4,8 +4,6 @@ import JSONResource from '/src/engine/resources/JSONResource';
 import Scene from '/src/engine/core/Scene';
 import Image from '/src/engine/objects/Image';
 import MatterImage from '/src/engine/objects/MatterImage';
-import MatterSprite from '/src/engine/objects/MatterSprite';
-import Vector2 from '/src/engine/math/Vector2';
 
 import DroppableItemType from '/src/game/objects/DroppableItemType';
 import DroppableItem from '/src/game/objects/DroppableItem';
@@ -30,7 +28,7 @@ export default class TestScene extends Scene {
   itemCount = 0;
   roundItemCount = 0;
   currentTowerHeight = 0;
-  lastTowerHeight = 0;
+  lastTowerHeight = null;
 
   scoreText = null;
   boat = null;
@@ -78,7 +76,8 @@ export default class TestScene extends Scene {
     if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
     this.currentItemType = this.nextItemTypes.shift();
 
-    const item = new DroppableItem(this.currentItemType, this.matter.world, pointer.x, pointer.y - this.currentTowerHeight, this.currentItemType.res)
+    const itemPosition = this.viewportToWorld(pointer.x, pointer.y);
+    const item = new DroppableItem(this.currentItemType, this.matter.world, itemPosition.x, itemPosition.y, this.currentItemType.res);
     this.add.existing(item);
 
     // Increase item count and round item count
@@ -105,6 +104,14 @@ export default class TestScene extends Scene {
     return false;
   }
 
+  moveCamera() {
+    const y = Math.min(this.cameraCenter.y, this.cameraOrigin.y - this.currentTowerHeight + 400);
+    const diff = Math.abs(this.cameraCenter.y - y);
+    const timeMs = 8 * Math.floor(diff);
+
+    this.cameras.main.pan(this.cameraCenter.x, y, timeMs, 'Sine.easeInOut');
+  }
+
   newRound() {
     for (const item of this.items) {
       item.setStatic(true);
@@ -117,16 +124,12 @@ export default class TestScene extends Scene {
     this.items = [];
     this.roundItemCount = 0;
 
-    // Move camera
-    if (this.lastTowerHeight < this.currentTowerHeight){
-      this.moveCamera(this.currentTowerHeight - this.lastTowerHeight);
-      this.lastTowerHeight = this.currentTowerHeight;
-    } 
-  }
+    if (this.lastTowerHeight === null) this.lastTowerHeight = this.currentTowerHeight;
+    else if (this.lastTowerHeight < this.currentTowerHeight - 100) {
+      this.moveCamera();
 
-  moveCamera(changeY) {
-    const cam = this.cameras.main;
-    cam.centerOn(this.screenCenter.x, this.screenCenter.y - changeY);
+      this.lastTowerHeight = this.currentTowerHeight;
+    }
   }
 
   onPreload() {
@@ -136,7 +139,7 @@ export default class TestScene extends Scene {
   onCreate() {
     console.log('Game.onCreate()');
 
-    this.cameras.main.setBackgroundColor('#46bed9');
+    this.cameras.main.setBackgroundColor('#000000');
 
     const backgroundImage = new Image(this, 0, 720, this.res.background);
     backgroundImage.setOrigin(.5, 1).setScale(5.4, 6);
@@ -144,8 +147,6 @@ export default class TestScene extends Scene {
 
     this.health = new Health(3);
     // esimerkki this.health.on(0, kuolemafunktio)
-    //this.matter.world.setBounds();
-    //this.matter.add.mouseSpring({ length: 1, stiffness: 0.6 });
 
     // Das Boot
     this.boat = new MatterImage(this.matter.world, this.screenCenter.x, 700, this.resources.boat, 0, {
@@ -157,10 +158,10 @@ export default class TestScene extends Scene {
     this.scoreText = new ScoreText(this);
   }
 
-  onUpdate(time, delta) {
+  onUpdate() {
     for (let i = 0; i < this.items.length; i++) {
       // Delete items that are not in the boat
-      if (this.items[i].y > 720){
+      if (this.items[i].y > 720) {
         this.items[i].destroy();
         this.items.splice(i, 1);
         this.health.decrease();

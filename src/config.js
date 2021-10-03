@@ -1,5 +1,7 @@
+import Phaser from '/src/lib/phaser';
+
 const config = {
-  debug: process.env.NODE_ENV !== 'production',
+  debug: true,
   game: {
     type: Phaser.AUTO,
     width: 1280,

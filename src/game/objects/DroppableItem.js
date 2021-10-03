@@ -1,3 +1,5 @@
+import Phaser from '/src/lib/phaser';
+
 import MatterImage from '/src/engine/objects/MatterImage';
 
 export default class DroppableItem extends MatterImage {

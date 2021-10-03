@@ -15,6 +15,7 @@ export default class Scene extends Phaser.Scene {
   #cursorKeys = null;
   #lastDebugStrings = null;
   #debugStringTexts = [];
+  #cameraOrigin = null;
 
   #preloadBaseURL(baseURL) {
     if (baseURL !== null) {
@@ -88,7 +89,7 @@ export default class Scene extends Phaser.Scene {
     let y = 8;
 
     for (const str of debugStrings) {
-      const text = new Text(this, 8, y, str, style);
+      const text = new Text(this, 8, y, str, style).setScrollFactor(0);
 
       this.add.existing(text);
       this.#debugStringTexts.push(text);
@@ -106,12 +107,48 @@ export default class Scene extends Phaser.Scene {
     this.screenCenter.y = this.cameras.main.worldView.y + this.cameras.main.height / 2;
   }
 
+  #argsToVector(x, y) {
+    if (typeof y !== 'number') return new Vector2(x.x, x.y);
+    else return new Vector2(x, y);
+  }
+
+  #setCameraOrigin() {
+    this.#cameraOrigin = new Vector2(this.cameras.main.midPoint.x, this.cameras.main.midPoint.y);
+  }
+
   constructor(config) {
     super(config);
   }
 
   get res() {
     return this.resources;
+  }
+
+  get cameraOrigin() {
+    return this.#cameraOrigin;
+  }
+
+  get cameraPosition() {
+    return new Vector2(this.cameras.main.scrollX, this.cameras.main.scrollY);
+  }
+
+  get cameraCenter() {
+    console.log(this.cameras.main);
+    return new Vector2(this.cameras.main.midPoint.x, this.cameras.main.midPoint.y);
+  }
+
+  // Takes either (x, y) or (Vector2(x, y))
+  viewportToWorld(x, y) {
+    const viewportPosition = this.#argsToVector(x, y);
+
+    return new Vector2(viewportPosition.x + this.cameraPosition.x, viewportPosition.y + this.cameraPosition.y);
+  }
+
+  // Takes either (x, y) or (Vector2(x, y))
+  worldToViewport(x, y) {
+    const viewportPosition = this.#argsToVector(x, y);
+
+    return new Vector2(viewportPosition.x - this.cameraPosition.x, viewportPosition.y - this.cameraPosition.y);
   }
 
   preload() {
@@ -137,7 +174,9 @@ export default class Scene extends Phaser.Scene {
       this.#createEventHandlers(this.eventHandlers);
     }
 
+    this.#setCameraOrigin();
     this.#updateScreenCenter();
+
     this.onCreate();
   }
 
@@ -163,6 +202,7 @@ export default class Scene extends Phaser.Scene {
     }
 
     this.#updateScreenCenter();
+
     this.onUpdate(...args);
   }
 
