@@ -8,6 +8,7 @@ import Image from '/src/engine/objects/Image';
 import MatterImage from '/src/engine/objects/MatterImage';
 import Sprite from '/src/engine/objects/Sprite';
 import SpriteSheetResource from '/src/engine/resources/SpriteSheetResource';
+import Vector2 from '/src/engine/math/Vector2';
 
 import config from '/src/config';
 
@@ -51,12 +52,13 @@ export default class TestScene extends Scene {
   player = null;
   staticItems = [];
 
-  canSpawnItem = true;
+  canSpawnItem = false;
   demolish = false;
 
   currentItemType = DroppableItemType.CARDBOARD_BOX;
 
-  //nextItemTypes = Array(10).fill(DroppableItemType.SAFE);
+  nextItemTypes = Array(10).fill(DroppableItemType.CARDBOARD_BOX);
+  /*
   nextItemTypes = [
     DroppableItemType.CARDBOARD_BOX,
     DroppableItemType.SHIPPING_CONTAINER,
@@ -70,6 +72,7 @@ export default class TestScene extends Scene {
     DroppableItemType.WIDE_PAINTING,
     DroppableItemType.WIDE_PLANK
   ];
+  */
 
   constructor() {
     super({
@@ -152,18 +155,18 @@ export default class TestScene extends Scene {
     this.canSpawnItem = false;
   }
 
-  spawnThrowableItem(screenX, screenY, rotation, velocityX, velocityY){
+  spawnThrowableItem(screenX, screenY, rotation, velocityVector) {
     const itemPosition = this.viewportToWorld(screenX, screenY);
     const opt = {};
 
     if (this.shapes[this.currentItemType.name]) opt.shape = this.shapes[this.currentItemType.name];
 
     const item = this.itemInPlayerHand;
-    item.setStatic(false)
-    .setVelocity(velocityX, velocityY)
-    .setOrigin(.5, .5);
+
+    item.setStatic(false).applyForce(velocityVector);
+
     //new DroppableItem(this.currentItemType, this.matter.world, itemPosition.x, itemPosition.y, this.currentItemType.res, 0, opt).setRotation(rotation).setVelocity(velocityX, velocityY);
-    item.thrust(0.001);
+    //item.thrust(0.001);
 
     item.onStop(() => this.player.anims.play('pickup_item', true));
 
@@ -179,7 +182,6 @@ export default class TestScene extends Scene {
     if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
     this.currentItemType = this.nextItemTypes.shift();
 
-    console.log(this.currentItemType);
     this.itemInPlayerHand = null
   }
 
@@ -202,13 +204,15 @@ export default class TestScene extends Scene {
 
     this.chargeStartTime = null;
 
-    //Spawn item at player position
-    if(this.canSpawnItem) this.spawnThrowableItem(
-      this.player.x,
-      this.player.y,
-      this.player.rotation,
-      Math.sin(this.player.rotation) * Math.min(chargeTime / 100, 50),
-      -Math.cos(this.player.rotation) * Math.min(chargeTime / 100, 50));
+    // Spawn item at player position
+    if(this.canSpawnItem) {
+      const velocityVector = new Vector2(
+        Math.sin(this.player.rotation) * 2000,//Math.min(chargeTime / 100, 50),
+        -Math.cos(this.player.rotation) * 2000//Math.min(chargeTime / 100, 50)
+      );
+
+      this.spawnThrowableItem(this.player.x, this.player.y, this.player.rotation, velocityVector);
+    }
   }
 
   shouldRoundEnd() {
@@ -292,8 +296,10 @@ export default class TestScene extends Scene {
     this.player.on('animationcomplete', (animation) => {
       if(animation.key === 'pickup_item'){
         this.canSpawnItem = true;
-        this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, this.player.x, this.player.y, this.currentItemType.res)
-        .setScrollFactor(0).setStatic(true);
+
+        const { x, y } = this.worldToViewport(this.player.x, this.player.y);
+
+        this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, x, y, this.currentItemType.res).setStatic(true);
 
         this.add.existing(this.itemInPlayerHand);
       }
@@ -340,7 +346,15 @@ export default class TestScene extends Scene {
     const playerRotation = Math.atan2(this.input.mousePointer.x - this.player.x, -(this.input.mousePointer.y - this.player.y));
 
     this.player.setRotation(playerRotation);
-    if(this.itemInPlayerHand !== null) this.itemInPlayerHand.setRotation(playerRotation);
+
+    if(this.itemInPlayerHand !== null) {
+      const { x: playerWorldX, y: playerWorldY } = this.viewportToWorld(this.player.x, this.player.y);
+
+      // Move hand item to player's new position
+      if (this.itemInPlayerHand.y !== playerWorldY) this.itemInPlayerHand.y = playerWorldY;
+
+      this.itemInPlayerHand.setRotation(playerRotation);
+    }
   }
 
   debugStrings(){
