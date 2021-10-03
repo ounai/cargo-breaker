@@ -45,7 +45,7 @@ export default class Scene extends Phaser.Scene {
 
   #createKeyDownEventHandlers(keydown) {
     for (const [key, listener] of Object.entries(keydown)) {
-      this.input.keyboard.on(`keydown-${key}`, listener);
+      this.input.keyboard.on(`keydown-${key}`, listener, this);
     }
   }
 

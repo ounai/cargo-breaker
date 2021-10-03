@@ -16,6 +16,8 @@ export default class DroppableItem extends MatterImage {
   #itemType;
   #lastVelocities = [];
 
+  demolish = false;
+
   #autoPosition(center) {
     const posDiff = Math.abs(this.x - center);
     const velocity = this.velocity.x;
@@ -77,19 +79,22 @@ export default class DroppableItem extends MatterImage {
   }
 
   onUpdate(boatCenter) {
-    if (this.#lastVelocities.length >= this.#maxVelocities) this.#lastVelocities.shift();
+    if (!this.demolish) {
+      if (this.#lastVelocities.length >= this.#maxVelocities) this.#lastVelocities.shift();
 
-    this.#lastVelocities.push(this.velocity.length);
+      this.#lastVelocities.push(this.velocity.length);
 
-    this.#autoPosition(boatCenter);
+      this.#autoPosition(boatCenter);
+    }
 
     return this;
   }
 
   onStop(callback) {
     const timeoutFunction = () => {
-      if (this.hasStopped) callback();
+      if (this.hasStopped) callback(false);
       else if (this.scene) setTimeout(timeoutFunction.bind(this), 100);
+      else callback(true);
     };
 
     setTimeout(timeoutFunction.bind(this), 100);

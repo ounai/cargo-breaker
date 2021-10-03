@@ -1,3 +1,5 @@
+import Phaser from '/src/lib/phaser';
+
 import ImageResource from '/src/engine/resources/ImageResource';
 import JSONResource from '/src/engine/resources/JSONResource';
 
@@ -14,24 +16,26 @@ import ScoreText from '/src/game/objects/ScoreText';
 
 export default class TestScene extends Scene {
   resources = {
+    shapes: new JSONResource('assets/shapes.json'),
     boat: new ImageResource('assets/boat.png'),
-    boatData: new JSONResource('assets/boat.json'),
     background: new ImageResource('assets/Background_Wide_V2.png'),
     player: new SpriteSheetResource('assets/Worker_bot_sprites.png', {
       frameWidth: 64,
       frameHeight: 48
-    }),
-    shapes: new JSONResource('assets/shapes.json'),
+    })
   };
 
   eventHandlers = {
     input: {
       pointerdown: this.onMouseDown,
       pointerup: this.onMouseUp
+    },
+    keydown: {
+      SPACE: this.demolish
     }
   }
 
-  itemsPerRound = 3;
+  itemsPerRound = 20;
 
   itemCount = 0;
   roundItemCount = 0;
@@ -45,8 +49,10 @@ export default class TestScene extends Scene {
   health = null;
   items = [];
   player = null;
+  staticItems = [];
 
   canSpawnItem = true;
+  demolish = false;
 
   currentItemType = null;
 
@@ -87,35 +93,72 @@ export default class TestScene extends Scene {
     return this.cache.json.get(this.res.shapes);
   }
 
+  demolish() {
+    this.demolish = true;
+
+    const time = Math.floor(Math.abs(this.cameraPosition.y) * 4);
+
+    this.debug('Start demolish, time:', time);
+
+    this.cameras.main.pan(this.cameraOrigin.x, this.cameraOrigin.y, time);
+
+    const demolishInterval = setInterval(() => {
+      this.debug('Demolish interval!');
+
+      const { y, height } = this.cameras.main.worldView;
+
+      if (y === 0) clearInterval(demolishInterval);
+
+      for (const item of this.staticItems) {
+        if (item.y > y && item.y < y + height) {
+          if (item.isStatic()) {
+            this.debug('Unstatic:', item);
+
+            item.demolish = true;
+            item.setStatic(false);
+
+            const maxThrust = .01;
+
+            if (Math.random() < .5) item.thrustRight(Phaser.Math.FloatBetween(0, maxThrust));
+            else item.thrustLeft(Phaser.Math.FloatBetween(0, maxThrust));
+
+            item.thrust(Phaser.Math.FloatBetween(0, maxThrust));
+          }
+        }
+      }
+    }, 500);
+  }
+
+  spawnItem(screenX, screenY, playerAction = true) {
+    if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
+    this.currentItemType = this.nextItemTypes.shift();
+
+    const itemPosition = this.viewportToWorld(screenX, screenY);
+    const opt = {};
+
+    if (this.shapes[this.currentItemType.name]) opt.shape = this.shapes[this.currentItemType.name];
+
+    const item = new DroppableItem(this.currentItemType, this.matter.world, itemPosition.x, itemPosition.y, this.currentItemType.res, 0, opt);
+
+    if (playerAction) item.onStop(() => this.player.anims.play('pickup_item', true));
+
+    this.add.existing(item);
+    this.items.push(item);
+
+    // Increase item count and round item count
+    this.itemCount++;
+    this.roundItemCount++;
+
+    this.canSpawnItem = false;
+  }
+
   // Create item on mouse click
   onMouseDown(pointer) {
     if (this.roundItemCount === this.itemsPerRound) return;
 
-    if(this.canSpawnItem){
-      if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
-      this.currentItemType = this.nextItemTypes.shift();
-      
-      const itemPosition = this.viewportToWorld(pointer.x, pointer.y);
-      const opt = {};
-      if (this.shapes[this.currentItemType.name]) opt.shape = this.shapes[this.currentItemType.name];
-      const item = new DroppableItem(this.currentItemType, this.matter.world, itemPosition.x, itemPosition.y, this.currentItemType.res, 0, opt);
-      item.onStop(() => this.player.anims.play('pickup_item', true));
-      
-      this.player.on('animationcomplete', (animation) => {
-        if(animation.key === 'pickup_item') this.canSpawnItem = true;
-      });
-      
-      this.add.existing(item);
-    
-      // Increase item count and round item count
-      this.itemCount++;
-      this.roundItemCount++;
-    
-      // Update items array
-      this.items.push(item);
-      this.canSpawnItem = false;
-      this.chargeStartTime = this.time.now;
-    }
+    if(this.canSpawnItem) this.spawnItem(pointer.x, pointer.y);
+
+    this.chargeStartTime = this.time.now;
   }
 
   onMouseUp() {
@@ -162,6 +205,8 @@ export default class TestScene extends Scene {
 
       this.currentTowerHeight = Math.max(this.currentTowerHeight, 720 - item.y);
       this.scoreText.updateScore(Math.floor(Math.max(this.currentTowerHeight, 720 - item.y)) / 50);
+
+      this.staticItems.push(item);
     }
 
     this.items = [];
@@ -189,9 +234,10 @@ export default class TestScene extends Scene {
     this.add.existing(backgroundImage);
 
     this.player = new Sprite(this, 100, 200, this.res.player)
-    .setScale(1.5, 1.5)
-    .setOrigin(.5, 1)
-    .setScrollFactor(0);
+      .setScale(1.5, 1.5)
+      .setOrigin(.5, 1)
+      .setScrollFactor(0);
+
     this.add.existing(this.player);
 
     //Animations setup
@@ -200,8 +246,13 @@ export default class TestScene extends Scene {
       frames: this.anims.generateFrameNumbers(this.res.player, { start: 0, end: 3 }),
       frameRate: 10,
       repeat: 0
-    })
+    });
+
     this.player.anims.play('pickup_item', true);
+
+    this.player.on('animationcomplete', (animation) => {
+      if(animation.key === 'pickup_item') this.canSpawnItem = true;
+    });
 
     this.health = new Health(3);
     // esimerkki this.health.on(0, kuolemafunktio)
@@ -214,6 +265,12 @@ export default class TestScene extends Scene {
     this.add.existing(this.boat);
 
     this.scoreText = new ScoreText(this);
+
+    setInterval(() => {
+      if (!this.demolish && this.roundItemCount < this.itemsPerRound) {
+        this.spawnItem(Phaser.Math.FloatBetween(0 + 200, 1280 - 200), 0, false);
+      }
+    }, 100);
   }
 
   onUpdate() {
@@ -233,14 +290,9 @@ export default class TestScene extends Scene {
 
     if (this.shouldRoundEnd()) this.newRound();
 
-    // Set player rotation 
-    this.player.setRotation(
-      Math.atan2(
-        this.input.mousePointer.x - this.player.x,
-        -(this.input.mousePointer.y - this.player.y)
-        )
-    );
+    const playerRotation = Math.atan2(this.input.mousePointer.x - this.player.x, -(this.input.mousePointer.y - this.player.y));
 
+    this.player.setRotation(playerRotation);
   }
 
   debugStrings(){
