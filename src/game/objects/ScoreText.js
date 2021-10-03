@@ -21,7 +21,6 @@ export default class ScoreText extends TextObject {
 
   updateScore(newScore) {
     if (this.#score === null || newScore > this.#score) {
-      console.log('new score', newScore);
       this.#score = newScore;
 
       this.setText(`${newScore} m`);

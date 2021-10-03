@@ -1,5 +1,7 @@
 import config from '/src/config.js';
 
+import { debug } from '/src/engine/services/log';
+
 import ImageResource from '/src/engine/resources/ImageResource';
 
 const droppableItemTypes = [];
@@ -108,7 +110,7 @@ export default class DroppableItemType {
   }
 
   static preloadAll(scene) {
-    console.log('Preloading', droppableItemTypes.length, 'droppable item types...');
+    debug('[DroppableItemType] Preloading', droppableItemTypes.length, 'droppable item types...');
 
     droppableItemTypes.forEach(d => d.preload(scene));
   }

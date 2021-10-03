@@ -2,6 +2,8 @@ import Phaser from '/src/lib/phaser';
 
 import config from '/src/config';
 
+import { debug as logDebug } from '/src/engine/services/log';
+
 import MatterImage from '/src/engine/objects/MatterImage';
 
 export default class DroppableItem extends MatterImage {
@@ -21,12 +23,12 @@ export default class DroppableItem extends MatterImage {
 
     if (this.x < center && velocity < 0 && Math.abs(velocity) > this.#autoPositionVelocityTreshold) {
       // More velocity towards zero
-      if (this.#autoPositionDebug) console.log('Moving to the right, diff', posDiff, 'velocity', velocity, 'changeBy', changeBy);
+      if (this.#autoPositionDebug) this.debug('Moving to the right, diff', posDiff, 'velocity', velocity, 'changeBy', changeBy);
 
       this.setVelocityX(velocity + changeBy);
     } else if (this.x > center && velocity > 0 && Math.abs(velocity) > this.#autoPositionVelocityTreshold) {
       // Less velocity towards zero
-      if (this.#autoPositionDebug) console.log('Moving to the left, diff', posDiff, 'velocity', velocity, 'changeBy', changeBy);
+      if (this.#autoPositionDebug) this.debug('Moving to the left, diff', posDiff, 'velocity', velocity, 'changeBy', changeBy);
 
       this.setVelocityX(velocity - changeBy);
     }
@@ -35,7 +37,7 @@ export default class DroppableItem extends MatterImage {
   constructor(itemType, ...rest) {
     super(...rest);
 
-    console.log(`New ${itemType.name} (scale: ${itemType.scale}, density: ${itemType.density}, friction: ${itemType.friction}, frictionAir: ${itemType.frictionAir}, frictionStatic: ${itemType.frictionStatic}, bounce: ${itemType.bounce})`);
+    this.debug(`New ${itemType.name} (scale: ${itemType.scale}, density: ${itemType.density}, friction: ${itemType.friction}, frictionAir: ${itemType.frictionAir}, frictionStatic: ${itemType.frictionStatic}, bounce: ${itemType.bounce})`);
 
     const scale = (
       Array.isArray(itemType.scale)
@@ -57,7 +59,7 @@ export default class DroppableItem extends MatterImage {
     this.#autoPositionFactor = config.droppableItems.autoPositionFactor[itemType.name] ?? config.droppableItems.autoPositionFactor.default;
     this.#autoPositionDebug = config.droppableItems.autoPositionDebug[itemType.name] ?? config.droppableItems.autoPositionDebug.default;
 
-    console.log(`Done! (scale: ${this.body.scale.x === this.body.scale.y ? this.body.scale.x : JSON.stringify(this.body.scale)}, density: ${this.body.density}, mass: ${this.body.mass}, friction: ${this.body.friction}, frictionAir: ${this.body.frictionAir}, frictionStatic: ${this.body.frictionStatic}, bounce: ${this.body.restitution})`);
+    this.debug(`Done! (scale: ${this.body.scale.x === this.body.scale.y ? this.body.scale.x : JSON.stringify(this.body.scale)}, density: ${this.body.density}, mass: ${this.body.mass}, friction: ${this.body.friction}, frictionAir: ${this.body.frictionAir}, frictionStatic: ${this.body.frictionStatic}, bounce: ${this.body.restitution})`);
 
     this.#itemType = itemType;
   }
@@ -68,6 +70,10 @@ export default class DroppableItem extends MatterImage {
 
   get itemType() {
     return this.#itemType;
+  }
+
+  debug(...args) {
+    logDebug(`[${this.constructor.name}]`, ...args);
   }
 
   onUpdate(boatCenter) {

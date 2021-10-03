@@ -137,7 +137,7 @@ export default class TestScene extends Scene {
   }
 
   onCreate() {
-    console.log('Game.onCreate()');
+    this.debug('Game.onCreate()');
 
     this.cameras.main.setBackgroundColor('#000000');
 

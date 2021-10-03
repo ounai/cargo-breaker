@@ -5,3 +5,5 @@ console.log('Initializing...');
 
 engineInit(config.game);
 
+console.log('Init done, commence game!');
+

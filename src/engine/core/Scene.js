@@ -2,6 +2,8 @@ import Phaser from '/src/lib/phaser';
 
 import config from '/src/config.js';
 
+import { debug as logDebug } from '/src/engine/services/log';
+
 import Text from '/src/engine/objects/Text';
 import Vector2 from '/src/engine/math/Vector2';
 
@@ -20,7 +22,7 @@ export default class Scene extends Phaser.Scene {
   #preloadBaseURL(baseURL) {
     if (baseURL !== null) {
       if (typeof baseURL === 'string' && baseURL.length > 0) {
-        console.log('Setting base URL to', baseURL);
+        this.debug('Setting base URL to', baseURL);
 
         this.load.setBaseURL(baseURL);
       } else {
@@ -32,7 +34,7 @@ export default class Scene extends Phaser.Scene {
   #preloadResources(resources) {
     if (typeof resources === 'object') {
       for (const [name, resource] of Object.entries(resources)) {
-        console.log('Loading resource', name, `(type: ${resource.constructor.name})`);
+        this.debug('Loading resource', name, `(type: ${resource.constructor.name})`);
 
         resource.load(this);
       }
@@ -57,7 +59,7 @@ export default class Scene extends Phaser.Scene {
       const handler = eventHandlers[eventName];
 
       if (typeof handler === 'function') {
-        console.log('Registering event', eventName);
+        this.debug('Registering event', eventName);
 
         this.input.on(eventName, handler, this);
       }
@@ -76,7 +78,7 @@ export default class Scene extends Phaser.Scene {
 
   #drawDebugStrings(debugStrings) {
     if (this.#debugStringTexts.length > 0) {
-      console.log('Destroying', this.#debugStringTexts.length, 'old debug string texts');
+      this.debug('Destroying', this.#debugStringTexts.length, 'old debug string texts');
 
       for (const text of this.#debugStringTexts) text.destroy();
 
@@ -133,8 +135,11 @@ export default class Scene extends Phaser.Scene {
   }
 
   get cameraCenter() {
-    console.log(this.cameras.main);
     return new Vector2(this.cameras.main.midPoint.x, this.cameras.main.midPoint.y);
+  }
+
+  debug(...args) {
+    logDebug(`[${this.constructor.name}]`, ...args);
   }
 
   // Takes either (x, y) or (Vector2(x, y))
@@ -152,7 +157,7 @@ export default class Scene extends Phaser.Scene {
   }
 
   preload() {
-    console.log('Preloading scene', this.constructor.name);
+    this.debug('Preloading scene', this.constructor.name);
 
     if (this.baseURL !== null) {
       this.#preloadBaseURL(this.baseURL);
@@ -195,7 +200,7 @@ export default class Scene extends Phaser.Scene {
     const debugStrings = this.debugStrings();
 
     if (config.debug && Array.isArray(debugStrings) && JSON.stringify(debugStrings) !== JSON.stringify(this.#lastDebugStrings)) {
-      console.log('Updating debug strings...');
+      this.debug('Updating debug strings...');
 
       this.#drawDebugStrings(debugStrings);
       this.#lastDebugStrings = debugStrings;
