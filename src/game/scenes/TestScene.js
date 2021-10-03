@@ -43,7 +43,7 @@ export default class TestScene extends Scene {
 
   lastTowerHeight = null;
   chargeStartTime = null;
-
+  itemInPlayerHand = null;
   scoreText = null;
   boat = null;
   health = null;
@@ -54,7 +54,7 @@ export default class TestScene extends Scene {
   canSpawnItem = true;
   demolish = false;
 
-  currentItemType = null;
+  currentItemType = DroppableItemType.CARDBOARD_BOX;
 
   //nextItemTypes = Array(10).fill(DroppableItemType.SAFE);
   nextItemTypes = [
@@ -152,11 +152,40 @@ export default class TestScene extends Scene {
     this.canSpawnItem = false;
   }
 
+  spawnThrowableItem(screenX, screenY, rotation, velocityX, velocityY){
+    const itemPosition = this.viewportToWorld(screenX, screenY);
+    const opt = {};
+
+    if (this.shapes[this.currentItemType.name]) opt.shape = this.shapes[this.currentItemType.name];
+
+    const item = this.itemInPlayerHand;
+    item.setStatic(false)
+    .setVelocity(velocityX, velocityY)
+    .setOrigin(.5, .5);
+    //new DroppableItem(this.currentItemType, this.matter.world, itemPosition.x, itemPosition.y, this.currentItemType.res, 0, opt).setRotation(rotation).setVelocity(velocityX, velocityY);
+    item.thrust(0.001);
+
+    item.onStop(() => this.player.anims.play('pickup_item', true));
+
+    //this.add.existing(item);
+    this.items.push(item);
+
+    // Increase item count and round item count
+    this.itemCount++;
+    this.roundItemCount++;
+
+    this.canSpawnItem = false;
+
+    if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
+    this.currentItemType = this.nextItemTypes.shift();
+
+    console.log(this.currentItemType);
+    this.itemInPlayerHand = null
+  }
+
   // Create item on mouse click
   onMouseDown(pointer) {
     if (this.roundItemCount === config.itemsPerRound) return;
-
-    if(this.canSpawnItem) this.spawnItem(pointer.x, pointer.y);
 
     this.chargeStartTime = this.time.now;
   }
@@ -164,7 +193,7 @@ export default class TestScene extends Scene {
   onMouseUp() {
     if (this.chargeStartTime === null) {
       this.debug('Not handling onMouseUp, chargeStartTime is null');
-
+      
       return;
     }
 
@@ -172,6 +201,14 @@ export default class TestScene extends Scene {
     this.debug('Liftoff! Charge time:', chargeTime);
 
     this.chargeStartTime = null;
+
+    //Spawn item at player position
+    if(this.canSpawnItem) this.spawnThrowableItem(
+      this.player.x,
+      this.player.y,
+      this.player.rotation,
+      Math.sin(this.player.rotation) * Math.min(chargeTime / 100, 50),
+      -Math.cos(this.player.rotation) * Math.min(chargeTime / 100, 50));
   }
 
   shouldRoundEnd() {
@@ -235,10 +272,12 @@ export default class TestScene extends Scene {
 
     this.player = new Sprite(this, 100, 200, this.res.player)
       .setScale(1.5, 1.5)
-      .setOrigin(.5, 1)
+      .setOrigin(.5, .5)
       .setScrollFactor(0);
-
     this.add.existing(this.player);
+
+    //this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, this.player.x, this.player.y, this.currentItemType.res).setScrollFactor(0).setOrigin(.5, 2).setStatic(true);
+    //this.add.existing(this.itemInPlayerHand);
 
     //Animations setup
     this.anims.create({
@@ -251,7 +290,13 @@ export default class TestScene extends Scene {
     this.player.anims.play('pickup_item', true);
 
     this.player.on('animationcomplete', (animation) => {
-      if(animation.key === 'pickup_item') this.canSpawnItem = true;
+      if(animation.key === 'pickup_item'){
+        this.canSpawnItem = true;
+        this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, this.player.x, this.player.y, this.currentItemType.res)
+        .setScrollFactor(0).setStatic(true);
+
+        this.add.existing(this.itemInPlayerHand);
+      }
     });
 
     this.health = new Health(3);
@@ -295,6 +340,7 @@ export default class TestScene extends Scene {
     const playerRotation = Math.atan2(this.input.mousePointer.x - this.player.x, -(this.input.mousePointer.y - this.player.y));
 
     this.player.setRotation(playerRotation);
+    if(this.itemInPlayerHand !== null) this.itemInPlayerHand.setRotation(playerRotation);
   }
 
   debugStrings(){
