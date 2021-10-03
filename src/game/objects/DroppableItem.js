@@ -6,6 +6,7 @@ export default class DroppableItem extends MatterImage {
   #maxVelocities = 10;
   #stopVelocityTreshold = 1;
   #autoPositionVelocityTreshold = .1;
+  #autoPositionFactor = 10000;
 
   #itemType;
   #lastVelocities = [];
@@ -13,7 +14,7 @@ export default class DroppableItem extends MatterImage {
   #autoPosition(center) {
     const posDiff = Math.abs(this.x - center);
     const velocity = this.velocity.x;
-    const changeBy = posDiff / 10000;
+    const changeBy = posDiff / this.#autoPositionFactor;
 
     if (this.x < center && velocity < 0 && Math.abs(velocity) > this.#autoPositionVelocityTreshold) {
       // More velocity towards zero

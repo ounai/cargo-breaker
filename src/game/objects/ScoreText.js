@@ -10,6 +10,7 @@ export default class ScoreText extends TextObject {
 
     this.setOrigin(.5);
     this.setScrollFactor(0);
+    this.setDepth(1);
 
     scene.add.existing(this);
   }
@@ -23,7 +24,7 @@ export default class ScoreText extends TextObject {
       console.log('new score', newScore);
       this.#score = newScore;
 
-      this.setText(`${newScore} m`).setDepth(1);
+      this.setText(`${newScore} m`);
 
       const newSize = 16 + Math.floor(newScore / 2);
       this.setStyle({ fontSize: `${newSize}px` });
