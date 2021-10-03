@@ -7,7 +7,9 @@ import Scene from '/src/engine/core/Scene';
 import Image from '/src/engine/objects/Image';
 import MatterImage from '/src/engine/objects/MatterImage';
 import Sprite from '/src/engine/objects/Sprite';
-import SpriteSheetResource from '../../engine/resources/SpriteSheetResource';
+import SpriteSheetResource from '/src/engine/resources/SpriteSheetResource';
+
+import config from '/src/config';
 
 import DroppableItemType from '/src/game/objects/DroppableItemType';
 import DroppableItem from '/src/game/objects/DroppableItem';
@@ -34,8 +36,6 @@ export default class TestScene extends Scene {
       SPACE: this.demolish
     }
   }
-
-  itemsPerRound = 20;
 
   itemCount = 0;
   roundItemCount = 0;
@@ -154,7 +154,7 @@ export default class TestScene extends Scene {
 
   // Create item on mouse click
   onMouseDown(pointer) {
-    if (this.roundItemCount === this.itemsPerRound) return;
+    if (this.roundItemCount === config.itemsPerRound) return;
 
     if(this.canSpawnItem) this.spawnItem(pointer.x, pointer.y);
 
@@ -176,7 +176,7 @@ export default class TestScene extends Scene {
 
   shouldRoundEnd() {
     // Check if there are itemsPerRound items
-    if (this.roundItemCount === this.itemsPerRound) {
+    if (this.roundItemCount === config.itemsPerRound) {
       let allItemsStatic = true;
 
       // Check if all items are staying still
@@ -266,11 +266,13 @@ export default class TestScene extends Scene {
 
     this.scoreText = new ScoreText(this);
 
-    setInterval(() => {
-      if (!this.demolish && this.roundItemCount < this.itemsPerRound) {
-        this.spawnItem(Phaser.Math.FloatBetween(0 + 200, 1280 - 200), 0, false);
-      }
-    }, 100);
+    if (config.itemRain) {
+      setInterval(() => {
+        if (!this.demolish && this.roundItemCount < config.itemsPerRound) {
+          this.spawnItem(Phaser.Math.FloatBetween(0 + 200, 1280 - 200), 0, false);
+        }
+      }, 100);
+    }
   }
 
   onUpdate() {

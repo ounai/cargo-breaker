@@ -2,6 +2,8 @@ import Phaser from '/src/lib/phaser';
 
 const config = {
   debug: true,
+  itemRain: false,
+  itemsPerRound: 3,
   game: {
     type: Phaser.AUTO,
     width: 1280,
@@ -65,7 +67,7 @@ const config = {
     },
     scale: {
       // [0, inf[
-      default: [1.8, 2.2]
+      default: [1.5, 3]
     },
     friction: {
       // [0, 1] ?
