@@ -23,7 +23,7 @@ export default class ScoreText extends TextObject {
       console.log('new score', newScore);
       this.#score = newScore;
 
-      this.setText(`${newScore} m`);
+      this.setText(`${newScore} m`).setDepth(1);
 
       const newSize = 16 + Math.floor(newScore / 2);
       this.setStyle({ fontSize: `${newSize}px` });
