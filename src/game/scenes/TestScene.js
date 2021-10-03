@@ -4,6 +4,8 @@ import JSONResource from '/src/engine/resources/JSONResource';
 import Scene from '/src/engine/core/Scene';
 import Image from '/src/engine/objects/Image';
 import MatterImage from '/src/engine/objects/MatterImage';
+import MatterSprite from '/src/engine/objects/MatterSprite';
+import SpriteSheetResource from '../../engine/resources/SpriteSheetResource';
 
 import DroppableItemType from '/src/game/objects/DroppableItemType';
 import DroppableItem from '/src/game/objects/DroppableItem';
@@ -14,7 +16,11 @@ export default class TestScene extends Scene {
   resources = {
     boat: new ImageResource('assets/boat.png'),
     boatData: new JSONResource('assets/boat.json'),
-    background: new ImageResource('assets/background.png')
+    background: new ImageResource('assets/Background_Wide_V2.png'),
+    player: new SpriteSheetResource('assets/Worker_bot_sprites.png', {
+      frameWidth: 64,
+      frameHeight: 48
+    })
   };
 
   eventHandlers = {
@@ -34,6 +40,7 @@ export default class TestScene extends Scene {
   boat = null;
   health = null;
   items = [];
+  player = null;
 
   currentItemType = null;
 
@@ -86,6 +93,9 @@ export default class TestScene extends Scene {
 
     // Update items array
     this.items.push(item);
+
+    //Play pickup anim
+    this.player.anims.play('pickup_item', true);
   }
 
   shouldRoundEnd() {
@@ -142,14 +152,28 @@ export default class TestScene extends Scene {
     this.cameras.main.setBackgroundColor('#000000');
 
     const backgroundImage = new Image(this, 0, 720, this.res.background);
-    backgroundImage.setOrigin(.5, 1).setScale(5.4, 6);
+    backgroundImage.setOrigin(0.1, 1).setScale(4.4, 5);
     this.add.existing(backgroundImage);
+
+    this.player = new MatterSprite(this.matter.world, 100, 200, this.res.player)
+    .setStatic(true)
+    .setScale(1.5, 1.5);
+    this.add.existing(this.player);
+
+    //Animations setup
+    this.anims.create({
+      key: 'pickup_item',
+      frames: this.anims.generateFrameNumbers(this.res.player, { start: 0, end: 3 }),
+      frameRate: 10,
+      repeat: 0
+    })
+    this.player.anims.play('pickup_item', true);
 
     this.health = new Health(3);
     // esimerkki this.health.on(0, kuolemafunktio)
 
     // Das Boot
-    this.boat = new MatterImage(this.matter.world, this.screenCenter.x, 700, this.resources.boat, 0, {
+    this.boat = new MatterImage(this.matter.world, this.screenCenter.x + 80, 640, this.resources.boat, 0, {
       shape: this.cache.json.get(this.res.boatData).boat
     }).setStatic(true).setScale(3, 3).setDepth(1);
 
