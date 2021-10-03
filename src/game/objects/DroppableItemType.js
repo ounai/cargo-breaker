@@ -7,17 +7,17 @@ import ImageResource from '/src/engine/resources/ImageResource';
 const droppableItemTypes = [];
 
 export default class DroppableItemType {
-  static SHIPPING_CONTAINER = new DroppableItemType('SHIPPING_CONTAINER', '/assets/shipping-container.png');
-  static SAFE = new DroppableItemType('SAFE', '/assets/safe.png');
-  static WOODEN_CRATE = new DroppableItemType('WOODEN_CRATE', '/assets/wooden-crate.png');
-  static CARDBOARD_BOX = new DroppableItemType('CARDBOARD_BOX', '/assets/cardboard-box.png');
-  static GRASS_BLOCK = new DroppableItemType('GRASS_BLOCK', '/assets/grass-block.png');
-  static ROTARY_PHONE = new DroppableItemType('ROTARY_PHONE', '/assets/rotary-phone.png');
-  static GIFT_BOX = new DroppableItemType('GIFT_BOX', '/assets/gift-box.png');
-  static CRT_SCREEN = new DroppableItemType('CRT_SCREEN', '/assets/crt-screen.png');
-  static WASHING_MACHINE = new DroppableItemType('WASHING_MACHINE', '/assets/washing-machine.png');
-  static WIDE_PAINTING = new DroppableItemType('WIDE_PAINTING', '/assets/wide-painting.png');
-  static WIDE_PLANK = new DroppableItemType('WIDE_PLANK', '/assets/wide-plank.png');
+  static SHIPPING_CONTAINER = new DroppableItemType('SHIPPING_CONTAINER', '/assets/items/shipping-container.png');
+  static SAFE = new DroppableItemType('SAFE', '/assets/items/safe.png');
+  static WOODEN_CRATE = new DroppableItemType('WOODEN_CRATE', '/assets/items/wooden-crate.png');
+  static CARDBOARD_BOX = new DroppableItemType('CARDBOARD_BOX', '/assets/items/cardboard-box.png');
+  static GRASS_BLOCK = new DroppableItemType('GRASS_BLOCK', '/assets/items/grass-block.png');
+  static ROTARY_PHONE = new DroppableItemType('ROTARY_PHONE', '/assets/items/rotary-phone.png');
+  static GIFT_BOX = new DroppableItemType('GIFT_BOX', '/assets/items/gift-box.png');
+  static CRT_SCREEN = new DroppableItemType('CRT_SCREEN', '/assets/items/crt-screen.png');
+  static WASHING_MACHINE = new DroppableItemType('WASHING_MACHINE', '/assets/items/washing-machine.png');
+  static WIDE_PAINTING = new DroppableItemType('WIDE_PAINTING', '/assets/items/wide-painting.png');
+  static WIDE_PLANK = new DroppableItemType('WIDE_PLANK', '/assets/items/wide-plank.png');
 
   #name;
   #assetPath;
