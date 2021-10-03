@@ -193,6 +193,12 @@ export default class TestScene extends Scene {
 
       this.spawnThrowableItem(this.player.x, this.player.y, this.player.rotation, velocityVector);
     }
+
+    //Update next items textures
+    this.upcomingItem1.setTexture(this.nextItemTypes[0].res);
+    this.upcomingItem2.setTexture(this.nextItemTypes[1].res);
+    this.upcomingItem3.setTexture(this.nextItemTypes[2].res);
+
   }
 
   shouldRoundEnd() {
@@ -312,7 +318,7 @@ export default class TestScene extends Scene {
     //this.add.existing(this.itemInPlayerHand);
 
     this.health = new Health(3);
-    // esimerkki this.health.on(0, kuolemafunktio)
+    // tapa ittes esimerkki this.health.on(0, kuolemafunktio)
 
     // Das Boot
     this.boat = new MatterImage(this.matter.world, this.screenCenter.x, 700, this.resources.boat, 0, {
@@ -323,6 +329,20 @@ export default class TestScene extends Scene {
 
     this.scoreText = new ScoreText(this);
 
+    this.add.text(50, 300, 'UPCOMING ITEMS:');
+    this.add.text(50, 400, '(eka vasemmalt)');
+
+    //Next items
+    this.upcomingItem1 = new Image(this, 50, 350, this.nextItemTypes[0].res);
+    this.add.existing(this.upcomingItem1);
+
+    this.upcomingItem2 = new Image(this, 100, 350, this.nextItemTypes[1].res);
+    this.add.existing(this.upcomingItem2);
+
+    this.upcomingItem3 = new Image(this, 150, 350, this.nextItemTypes[2].res);
+    this.add.existing(this.upcomingItem3);
+
+    //psykoosit tulille
     if (config.itemRain) {
       setInterval(() => {
         if (!this.demolish && this.roundItemCount < config.itemsPerRound) {

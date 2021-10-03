@@ -3,7 +3,7 @@ import Phaser from '/src/lib/phaser';
 const config = {
   debug: true,
 
-  itemRain: true,
+  itemRain: false,
   itemsPerRound: 10,
 
   game: {
