@@ -151,7 +151,7 @@ export default class TestScene extends Scene {
     // Das Boot
     this.boat = new MatterImage(this.matter.world, this.screenCenter.x, 700, this.resources.boat, 0, {
       shape: this.cache.json.get(this.res.boatData).boat
-    }).setStatic(true).setScale(3, 3);
+    }).setStatic(true).setScale(3, 3).setDepth(1);
 
     this.add.existing(this.boat);
 
