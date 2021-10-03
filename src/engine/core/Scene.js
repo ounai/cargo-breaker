@@ -89,7 +89,7 @@ export default class Scene extends Phaser.Scene {
     let y = 8;
 
     for (const str of debugStrings) {
-      const text = new Text(this, 8, y, str, style).setScrollFactor(0);
+      const text = new Text(this, 8, y, str, style).setScrollFactor(0).setDepth(1);
 
       this.add.existing(text);
       this.#debugStringTexts.push(text);

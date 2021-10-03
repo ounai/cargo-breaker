@@ -4,10 +4,29 @@ import MatterImage from '/src/engine/objects/MatterImage';
 
 export default class DroppableItem extends MatterImage {
   #maxVelocities = 10;
-  #velocityTreshold = 1;
+  #stopVelocityTreshold = 1;
+  #autoPositionVelocityTreshold = .1;
 
   #itemType;
   #lastVelocities = [];
+
+  #autoPosition(center) {
+    const posDiff = Math.abs(this.x - center);
+    const velocity = this.velocity.x;
+    const changeBy = posDiff / 10000;
+
+    if (this.x < center && velocity < 0 && Math.abs(velocity) > this.#autoPositionVelocityTreshold) {
+      // More velocity towards zero
+      console.log('Moving to the right, diff', posDiff, 'velocity', velocity, 'changeBy', changeBy);
+
+      this.setVelocityX(velocity + changeBy);
+    } else if (this.x > center && velocity > 0 && Math.abs(velocity) > this.#autoPositionVelocityTreshold) {
+      // Less velocity towards zero
+      console.log('Moving to the left, diff', posDiff, 'velocity', velocity, 'changeBy', changeBy);
+
+      this.setVelocityX(velocity - changeBy);
+    }
+  }
 
   constructor(itemType, ...rest) {
     super(...rest);
@@ -34,17 +53,19 @@ export default class DroppableItem extends MatterImage {
   }
 
   get hasStopped() {
-    return this.#lastVelocities.length === this.#maxVelocities && !this.#lastVelocities.find(v => v > this.#velocityTreshold);
+    return this.#lastVelocities.length === this.#maxVelocities && !this.#lastVelocities.find(v => v > this.#stopVelocityTreshold);
   }
 
   get itemType() {
     return this.#itemType;
   }
 
-  onUpdate() {
+  onUpdate(boatCenter) {
     if (this.#lastVelocities.length >= this.#maxVelocities) this.#lastVelocities.shift();
 
     this.#lastVelocities.push(this.velocity.length);
+
+    this.#autoPosition(boatCenter);
   }
 }
 

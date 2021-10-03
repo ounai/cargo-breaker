@@ -170,7 +170,7 @@ export default class TestScene extends Scene {
       }
 
       // Update item
-      this.items[i].onUpdate();
+      this.items[i].onUpdate(this.boat.x);
     }
 
     if (this.shouldRoundEnd()) this.newRound();
