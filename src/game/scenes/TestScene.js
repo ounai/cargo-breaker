@@ -136,8 +136,7 @@ export default class TestScene extends Scene {
     if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
     this.currentItemType = this.nextItemTypes.shift();
 
-    const itemPosition = this.viewportToWorld(screenX, screenY);
-    const opt = {};
+    const itemPosition = this.viewportToWorld(screenX, screenY), opt = {};
 
     if (this.shapes[this.currentItemType.name]) opt.shape = this.shapes[this.currentItemType.name];
 
@@ -156,37 +155,29 @@ export default class TestScene extends Scene {
   }
 
   spawnThrowableItem(screenX, screenY, rotation, velocityVector) {
-    const itemPosition = this.viewportToWorld(screenX, screenY);
-    const opt = {};
+    const item = this.itemInPlayerHand
+      .setStatic(false)
+      .applyForce(velocityVector)
+      .onStop(() => this.player.anims.play('pickup_item', true));
 
-    if (this.shapes[this.currentItemType.name]) opt.shape = this.shapes[this.currentItemType.name];
-
-    const item = this.itemInPlayerHand;
-
-    item.setStatic(false).applyForce(velocityVector);
-
-    //new DroppableItem(this.currentItemType, this.matter.world, itemPosition.x, itemPosition.y, this.currentItemType.res, 0, opt).setRotation(rotation).setVelocity(velocityX, velocityY);
-    //item.thrust(0.001);
-
-    item.onStop(() => this.player.anims.play('pickup_item', true));
-
-    //this.add.existing(item);
     this.items.push(item);
 
     // Increase item count and round item count
     this.itemCount++;
     this.roundItemCount++;
 
-    this.canSpawnItem = false;
-
+    // Add current item type at the end of next items array
     if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
+
+    // Get new current item type from the start of next items array
     this.currentItemType = this.nextItemTypes.shift();
 
-    this.itemInPlayerHand = null
+    this.canSpawnItem = false;
+    this.itemInPlayerHand = null;
   }
 
   // Create item on mouse click
-  onMouseDown(pointer) {
+  onMouseDown() {
     if (this.roundItemCount === config.itemsPerRound) return;
 
     this.chargeStartTime = this.time.now;
@@ -195,7 +186,7 @@ export default class TestScene extends Scene {
   onMouseUp() {
     if (this.chargeStartTime === null) {
       this.debug('Not handling onMouseUp, chargeStartTime is null');
-      
+
       return;
     }
 
@@ -348,7 +339,7 @@ export default class TestScene extends Scene {
     this.player.setRotation(playerRotation);
 
     if(this.itemInPlayerHand !== null) {
-      const { x: playerWorldX, y: playerWorldY } = this.viewportToWorld(this.player.x, this.player.y);
+      const { y: playerWorldY } = this.viewportToWorld(this.player.x, this.player.y);
 
       // Move hand item to player's new position
       if (this.itemInPlayerHand.y !== playerWorldY) this.itemInPlayerHand.y = playerWorldY;
