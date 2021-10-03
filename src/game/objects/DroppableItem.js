@@ -3,8 +3,8 @@ import Phaser from '/src/lib/phaser';
 import MatterImage from '/src/engine/objects/MatterImage';
 
 export default class DroppableItem extends MatterImage {
-  #maxVelocities = 10;
-  #stopVelocityTreshold = 1;
+  #maxVelocities = 20;
+  #stopVelocityTreshold = .5;
   #autoPositionVelocityTreshold = .1;
   #autoPositionFactor = 10000;
 
@@ -18,12 +18,12 @@ export default class DroppableItem extends MatterImage {
 
     if (this.x < center && velocity < 0 && Math.abs(velocity) > this.#autoPositionVelocityTreshold) {
       // More velocity towards zero
-      console.log('Moving to the right, diff', posDiff, 'velocity', velocity, 'changeBy', changeBy);
+      //console.log('Moving to the right, diff', posDiff, 'velocity', velocity, 'changeBy', changeBy);
 
       this.setVelocityX(velocity + changeBy);
     } else if (this.x > center && velocity > 0 && Math.abs(velocity) > this.#autoPositionVelocityTreshold) {
       // Less velocity towards zero
-      console.log('Moving to the left, diff', posDiff, 'velocity', velocity, 'changeBy', changeBy);
+      //console.log('Moving to the left, diff', posDiff, 'velocity', velocity, 'changeBy', changeBy);
 
       this.setVelocityX(velocity - changeBy);
     }
