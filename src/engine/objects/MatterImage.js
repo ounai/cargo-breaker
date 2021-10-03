@@ -11,8 +11,8 @@ export default class MatterImage extends Phaser.Physics.Matter.Image {
       ease: Phaser.Math.Easing.Sine.InOut,
       repeat: -1,
       yoyo: true,
-      onUpdate: (tween, target) => {
-        const x = startX + target.value;
+      onUpdate: (tween, { value }) => {
+        const x = startX + value;
 
         this.x = x;
         this.setVelocityX(x - this.x);

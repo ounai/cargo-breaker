@@ -12,7 +12,9 @@ export default class DroppableItem extends MatterImage {
   #stopVelocityTreshold = null;
   #autoPositionVelocityTreshold = null;
   #autoPositionFactor = null;
-  #autoPositionDebug = null;
+
+  #autoPositionDebug = false;
+  #physicsDebug = false;
 
   #itemType;
   #lastVelocities = [];
@@ -42,7 +44,7 @@ export default class DroppableItem extends MatterImage {
   constructor(itemType, ...rest) {
     super(...rest);
 
-    this.debug(`New ${itemType.name} (scale: ${JSON.stringify(itemType.scale)}, density: ${itemType.density}, mass: ${itemType.mass}, friction: ${itemType.friction}, frictionAir: ${itemType.frictionAir}, frictionStatic: ${itemType.frictionStatic}, bounce: ${itemType.bounce})`);
+    if (this.#physicsDebug) this.debug(`New ${itemType.name} (scale: ${JSON.stringify(itemType.scale)}, density: ${itemType.density}, mass: ${itemType.mass}, friction: ${itemType.friction}, frictionAir: ${itemType.frictionAir}, frictionStatic: ${itemType.frictionStatic}, bounce: ${itemType.bounce})`);
 
     const scale = (
       Array.isArray(itemType.scale)
@@ -65,8 +67,9 @@ export default class DroppableItem extends MatterImage {
     this.#autoPositionVelocityTreshold = config.droppableItems.autoPositionVelocityTreshold[itemType.name] ?? config.droppableItems.autoPositionVelocityTreshold.default;
     this.#autoPositionFactor = config.droppableItems.autoPositionFactor[itemType.name] ?? config.droppableItems.autoPositionFactor.default;
     this.#autoPositionDebug = config.droppableItems.autoPositionDebug[itemType.name] ?? config.droppableItems.autoPositionDebug.default;
+    this.#physicsDebug = config.droppableItems.physicsDebug[itemType.name] ?? config.droppableItems.physicsDebug.default;
 
-    this.debug(`Done! (scale: ${this.body.scale.x === this.body.scale.y ? this.body.scale.x : JSON.stringify(this.body.scale)}, density: ${this.body.density}, mass: ${this.body.mass}, friction: ${this.body.friction}, frictionAir: ${this.body.frictionAir}, frictionStatic: ${this.body.frictionStatic}, bounce: ${this.body.restitution})`);
+    if (this.#physicsDebug) this.debug(`Done! (scale: ${this.body.scale.x === this.body.scale.y ? this.body.scale.x : JSON.stringify(this.body.scale)}, density: ${this.body.density}, mass: ${this.body.mass}, friction: ${this.body.friction}, frictionAir: ${this.body.frictionAir}, frictionStatic: ${this.body.frictionStatic}, bounce: ${this.body.restitution})`);
 
     this.#itemType = itemType;
   }

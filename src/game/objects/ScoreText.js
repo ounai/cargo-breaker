@@ -2,12 +2,16 @@ import TextObject from '/src/engine/objects/Text';
 
 export default class ScoreText extends TextObject {
   #score = null;
+  #fontSize = 16;
 
-  constructor(scene) {
-    super(scene, scene.screenCenter.x, scene.screenCenter.y / 2, '0 m', {
-      fontSize: '16px'
+  constructor(scene, fontSize = 20) {
+    super(scene, scene.screenCenter.x, scene.screenCenter.y / 2, '0.0 m', {
+      font: 'Courier'
     });
 
+    this.#fontSize = fontSize;
+
+    this.setFontSize(fontSize);
     this.setOrigin(.5);
     this.setScrollFactor(0);
     this.setDepth(1);
@@ -21,12 +25,25 @@ export default class ScoreText extends TextObject {
 
   updateScore(newScore) {
     if (this.#score === null || newScore > this.#score) {
-      this.#score = newScore;
-
-      this.setText(`${newScore} m`);
-
       const newSize = 16 + Math.floor(newScore / 2);
-      this.setStyle({ fontSize: `${newSize}px` });
+      const oldScore = this.#score ?? 0;
+
+      this.scene.tweens.addCounter({
+        from: this.#fontSize,
+        to: newSize,
+        duration: 250,
+        yoyo: true,
+        onUpdate: ({ totalProgress }, { value }) => {
+          const progressValue = Math.floor((oldScore + totalProgress * (newScore - oldScore)) * 10) / 10;
+
+          this.setFontSize(value);
+          this.setText(`${progressValue.toFixed(1)} m`);
+        }
+      });
+
+      this.#score = newScore;
     }
+
+    return this;
   }
 }

@@ -3,8 +3,8 @@ import Phaser from '/src/lib/phaser';
 const config = {
   debug: true,
 
-  itemRain: false,
-  itemsPerRound: 3,
+  itemRain: true,
+  itemsPerRound: 10,
 
   game: {
     type: Phaser.AUTO,
@@ -50,6 +50,11 @@ const config = {
 
     // Show auto position debug messages every frame
     autoPositionDebug: {
+      default: false
+    },
+
+    // Show physics debug messages on create
+    physicsDebug: {
       default: false
     },
 

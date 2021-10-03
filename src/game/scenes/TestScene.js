@@ -187,8 +187,8 @@ export default class TestScene extends Scene {
     // Spawn item at player position
     if (this.canSpawnItem) {
       const velocityVector = new Vector2(
-        Math.sin(this.player.rotation), //Math.min(chargeTime / 100, 50),
-        -Math.cos(this.player.rotation) //Math.min(chargeTime / 100, 50)
+        Math.sin(this.player.rotation) * chargeTime / 100, //Math.min(chargeTime / 100, 50),
+        -Math.cos(this.player.rotation) * chargeTime / 100 //Math.min(chargeTime / 100, 50)
       );
 
       this.spawnThrowableItem(this.player.x, this.player.y, this.player.rotation, velocityVector);
@@ -220,15 +220,19 @@ export default class TestScene extends Scene {
   }
 
   newRound() {
+    let score = 0;
+
     for (const item of this.items) {
       item.setStatic(true);
       item.setTint(0x7878ff);
 
-      this.currentTowerHeight = Math.max(this.currentTowerHeight, 720 - item.y);
-      this.scoreText.updateScore(Math.floor(Math.max(this.currentTowerHeight, 720 - item.y)) / 50);
+      score = Math.floor(Math.max(this.currentTowerHeight, 720 - item.y)) / 50;
 
+      this.currentTowerHeight = Math.max(this.currentTowerHeight, 720 - item.y);
       this.staticItems.push(item);
     }
+
+    this.scoreText.updateScore(score);
 
     this.items = [];
     this.roundItemCount = 0;

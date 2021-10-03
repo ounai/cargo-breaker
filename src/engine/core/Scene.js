@@ -78,9 +78,9 @@ export default class Scene extends Phaser.Scene {
 
   #drawDebugStrings(debugStrings) {
     if (this.#debugStringTexts.length > 0) {
-      this.debug('Destroying', this.#debugStringTexts.length, 'old debug string texts');
-
-      for (const text of this.#debugStringTexts) text.destroy();
+      for (const text of this.#debugStringTexts) {
+        text.destroy();
+      }
 
       this.#debugStringTexts = [];
     }
@@ -200,8 +200,6 @@ export default class Scene extends Phaser.Scene {
     const debugStrings = this.debugStrings();
 
     if (config.debug && Array.isArray(debugStrings) && JSON.stringify(debugStrings) !== JSON.stringify(this.#lastDebugStrings)) {
-      this.debug('Updating debug strings...');
-
       this.#drawDebugStrings(debugStrings);
       this.#lastDebugStrings = debugStrings;
     }
