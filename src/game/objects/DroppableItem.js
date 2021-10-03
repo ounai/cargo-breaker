@@ -5,6 +5,7 @@ import config from '/src/config';
 import { debug as logDebug } from '/src/engine/services/log';
 
 import MatterImage from '/src/engine/objects/MatterImage';
+import Vector2 from '/src/engine/math/Vector2';
 
 export default class DroppableItem extends MatterImage {
   #maxVelocities = null;
@@ -27,19 +28,21 @@ export default class DroppableItem extends MatterImage {
       // More velocity towards zero
       if (this.#autoPositionDebug) this.debug('Moving to the right, diff', posDiff, 'velocity', velocity, 'changeBy', changeBy);
 
-      this.setVelocityX(velocity + changeBy);
+      //this.setVelocityX(velocity + changeBy);
+      this.applyForce(new Vector2(changeBy, 0));
     } else if (this.x > center && velocity > 0 && Math.abs(velocity) > this.#autoPositionVelocityTreshold) {
       // Less velocity towards zero
       if (this.#autoPositionDebug) this.debug('Moving to the left, diff', posDiff, 'velocity', velocity, 'changeBy', changeBy);
 
-      this.setVelocityX(velocity - changeBy);
+      //this.setVelocityX(velocity - changeBy);
+      this.applyForce(new Vector2(-changeBy, 0));
     }
   }
 
   constructor(itemType, ...rest) {
     super(...rest);
 
-    this.debug(`New ${itemType.name} (scale: ${itemType.scale}, density: ${itemType.density}, friction: ${itemType.friction}, frictionAir: ${itemType.frictionAir}, frictionStatic: ${itemType.frictionStatic}, bounce: ${itemType.bounce})`);
+    this.debug(`New ${itemType.name} (scale: ${JSON.stringify(itemType.scale)}, density: ${itemType.density}, mass: ${itemType.mass}, friction: ${itemType.friction}, frictionAir: ${itemType.frictionAir}, frictionStatic: ${itemType.frictionStatic}, bounce: ${itemType.bounce})`);
 
     const scale = (
       Array.isArray(itemType.scale)
@@ -48,8 +51,10 @@ export default class DroppableItem extends MatterImage {
     );
 
     this.setScale(scale, scale);
-    this.setDensity(itemType.density);
     this.setBounce(itemType.bounce);
+
+    //this.setDensity(itemType.density);
+    this.setMass(itemType.mass);
 
     this.setFriction(itemType.friction);
     this.setFrictionAir(itemType.frictionAir);

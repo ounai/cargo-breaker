@@ -24,6 +24,7 @@ export default class DroppableItemType {
 
   #scale;
   #density;
+  #mass;
   #bounce;
 
   #friction;
@@ -49,6 +50,7 @@ export default class DroppableItemType {
 
     this.#scale = config.droppableItems.scale[name] ?? config.droppableItems.scale.default;
     this.#density = config.droppableItems.density[name] ?? config.droppableItems.density.default;
+    this.#mass = config.droppableItems.mass[name] ?? config.droppableItems.mass.default;
     this.#bounce = config.droppableItems.bounce[name] ?? config.droppableItems.bounce.default;
 
     this.#friction = config.droppableItems.friction[name] ?? config.droppableItems.friction.default;
@@ -75,6 +77,10 @@ export default class DroppableItemType {
 
   get density() {
     return this.#density;
+  }
+
+  get mass() {
+    return this.#mass;
   }
 
   get bounce() {

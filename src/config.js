@@ -2,14 +2,17 @@ import Phaser from '/src/lib/phaser';
 
 const config = {
   debug: true,
+
   itemRain: false,
   itemsPerRound: 3,
+
   game: {
     type: Phaser.AUTO,
     width: 1280,
     height: 720,
     pixelArt: true
   },
+
   droppableItems: {
     /*
       SHIPPING_CONTAINER: 1,
@@ -27,7 +30,7 @@ const config = {
 
     // How many past frames to check for hasStopped
     maxVelocities: {
-      default: 20
+      default: 30
     },
 
     // Max velocity to be considered as stopped
@@ -42,12 +45,27 @@ const config = {
 
     // How aggressive the auto positioning is, higher is less aggressive
     autoPositionFactor: {
-      default: 10000
+      default: 100000
     },
 
     // Show auto position debug messages every frame
     autoPositionDebug: {
       default: false
+    },
+
+    mass: {
+      default: 10,
+      SHIPPING_CONTAINER: 100,
+      SAFE: 100,
+      WOODEN_CRATE: 30,
+      CARDBOARD_BOX: 10,
+      GRASS_BLOCK: 30,
+      ROTARY_PHONE: 10,
+      GIFT_BOX: 10,
+      CRT_SCREEN: 50,
+      WASHING_MACHINE: 100,
+      WIDE_PAINTING: 10,
+      WIDE_PLANK: 20
     },
 
     density: {

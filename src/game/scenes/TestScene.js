@@ -57,10 +57,9 @@ export default class TestScene extends Scene {
 
   currentItemType = DroppableItemType.CARDBOARD_BOX;
 
-  nextItemTypes = Array(10).fill(DroppableItemType.CARDBOARD_BOX);
-  /*
+  //nextItemTypes = Array(10).fill(DroppableItemType.CARDBOARD_BOX);
   nextItemTypes = [
-    DroppableItemType.CARDBOARD_BOX,
+    //DroppableItemType.CARDBOARD_BOX,
     DroppableItemType.SHIPPING_CONTAINER,
     DroppableItemType.SAFE,
     DroppableItemType.WOODEN_CRATE,
@@ -72,7 +71,6 @@ export default class TestScene extends Scene {
     DroppableItemType.WIDE_PAINTING,
     DroppableItemType.WIDE_PLANK
   ];
-  */
 
   constructor() {
     super({
@@ -115,24 +113,16 @@ export default class TestScene extends Scene {
       for (const item of this.staticItems) {
         if (item.y < y + height) {
           if (item.isStatic()) {
-            this.debug('Unstatic:', item);
-
             item.demolish = true;
-            item.setStatic(false);
 
-            const maxThrust = .01;
-
-            if (Math.random() < .5) item.thrustRight(Phaser.Math.FloatBetween(0, maxThrust));
-            else item.thrustLeft(Phaser.Math.FloatBetween(0, maxThrust));
-
-            item.thrust(Phaser.Math.FloatBetween(0, maxThrust));
+            item.setStatic(false).applyForce(new Vector2(Phaser.Math.FloatBetween(-.1, .1), item.y / 100000));
           }
         }
       }
     }, 500);
   }
 
-  spawnItem(screenX, screenY, playerAction = true) {
+  spawnItem(screenX, screenY) {
     if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
     this.currentItemType = this.nextItemTypes.shift();
 
@@ -141,8 +131,6 @@ export default class TestScene extends Scene {
     if (this.shapes[this.currentItemType.name]) opt.shape = this.shapes[this.currentItemType.name];
 
     const item = new DroppableItem(this.currentItemType, this.matter.world, itemPosition.x, itemPosition.y, this.currentItemType.res, 0, opt);
-
-    if (playerAction) item.onStop(() => this.player.anims.play('pickup_item', true));
 
     this.add.existing(item);
     this.items.push(item);
@@ -191,15 +179,16 @@ export default class TestScene extends Scene {
     }
 
     const chargeTime = this.time.now - this.chargeStartTime;
+
     this.debug('Liftoff! Charge time:', chargeTime);
 
     this.chargeStartTime = null;
 
     // Spawn item at player position
-    if(this.canSpawnItem) {
+    if (this.canSpawnItem) {
       const velocityVector = new Vector2(
-        Math.sin(this.player.rotation) * 2000,//Math.min(chargeTime / 100, 50),
-        -Math.cos(this.player.rotation) * 2000//Math.min(chargeTime / 100, 50)
+        Math.sin(this.player.rotation), //Math.min(chargeTime / 100, 50),
+        -Math.cos(this.player.rotation) //Math.min(chargeTime / 100, 50)
       );
 
       this.spawnThrowableItem(this.player.x, this.player.y, this.player.rotation, velocityVector);
@@ -223,7 +212,7 @@ export default class TestScene extends Scene {
   }
 
   moveCamera() {
-    const y = Math.min(this.cameraCenter.y, this.cameraOrigin.y - this.currentTowerHeight + 400);
+    const y = Math.min(this.cameraCenter.y, this.cameraOrigin.y - this.currentTowerHeight + 300);
     const diff = Math.abs(this.cameraCenter.y - y);
     const timeMs = 8 * Math.floor(diff);
 
@@ -246,9 +235,55 @@ export default class TestScene extends Scene {
 
     if (this.lastTowerHeight === null) this.lastTowerHeight = this.currentTowerHeight;
     else if (this.lastTowerHeight < this.currentTowerHeight - 100) {
-      this.moveCamera();
+      if (!this.demolish) this.moveCamera();
 
       this.lastTowerHeight = this.currentTowerHeight;
+    }
+  }
+
+  createPlayer() {
+    this.player = new Sprite(this, 100, 200, this.res.player)
+      .setScale(1.5, 1.5)
+      .setOrigin(.5, .5)
+      .setScrollFactor(0);
+
+    this.add.existing(this.player);
+
+    //Animations setup
+    this.anims.create({
+      key: 'pickup_item',
+      frames: this.anims.generateFrameNumbers(this.res.player, { start: 0, end: 3 }),
+      frameRate: 10,
+      repeat: 0
+    });
+
+    this.player.on('animationcomplete', (animation) => {
+      if(animation.key === 'pickup_item'){
+        this.canSpawnItem = true;
+
+        const { x, y } = this.worldToViewport(this.player.x, this.player.y);
+
+        this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, x, y, this.currentItemType.res).setStatic(true);
+
+        this.add.existing(this.itemInPlayerHand);
+      }
+    });
+
+    this.player.anims.play('pickup_item', true);
+  }
+
+  updatePlayer() {
+    const playerRotation = Math.atan2(this.input.mousePointer.x - this.player.x, -(this.input.mousePointer.y - this.player.y));
+
+    this.player.setRotation(playerRotation);
+
+    if(this.itemInPlayerHand !== null) {
+      const { y: playerWorldY } = this.viewportToWorld(this.player.x, this.player.y);
+
+      // Move hand item to player's new position
+      if (this.itemInPlayerHand.y !== playerWorldY) this.itemInPlayerHand.y = playerWorldY;
+
+      this.itemInPlayerHand.setRotation(playerRotation);
     }
   }
 
@@ -265,36 +300,12 @@ export default class TestScene extends Scene {
     backgroundImage.setOrigin(0.1, 1).setScale(4.4, 5);
     this.add.existing(backgroundImage);
 
-    this.player = new Sprite(this, 100, 200, this.res.player)
-      .setScale(1.5, 1.5)
-      .setOrigin(.5, .5)
-      .setScrollFactor(0);
-    this.add.existing(this.player);
+    if (!config.itemRain) {
+      this.createPlayer();
+    }
 
     //this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, this.player.x, this.player.y, this.currentItemType.res).setScrollFactor(0).setOrigin(.5, 2).setStatic(true);
     //this.add.existing(this.itemInPlayerHand);
-
-    //Animations setup
-    this.anims.create({
-      key: 'pickup_item',
-      frames: this.anims.generateFrameNumbers(this.res.player, { start: 0, end: 3 }),
-      frameRate: 10,
-      repeat: 0
-    });
-
-    this.player.anims.play('pickup_item', true);
-
-    this.player.on('animationcomplete', (animation) => {
-      if(animation.key === 'pickup_item'){
-        this.canSpawnItem = true;
-
-        const { x, y } = this.worldToViewport(this.player.x, this.player.y);
-
-        this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, x, y, this.currentItemType.res).setStatic(true);
-
-        this.add.existing(this.itemInPlayerHand);
-      }
-    });
 
     this.health = new Health(3);
     // esimerkki this.health.on(0, kuolemafunktio)
@@ -334,18 +345,7 @@ export default class TestScene extends Scene {
 
     if (this.shouldRoundEnd()) this.newRound();
 
-    const playerRotation = Math.atan2(this.input.mousePointer.x - this.player.x, -(this.input.mousePointer.y - this.player.y));
-
-    this.player.setRotation(playerRotation);
-
-    if(this.itemInPlayerHand !== null) {
-      const { y: playerWorldY } = this.viewportToWorld(this.player.x, this.player.y);
-
-      // Move hand item to player's new position
-      if (this.itemInPlayerHand.y !== playerWorldY) this.itemInPlayerHand.y = playerWorldY;
-
-      this.itemInPlayerHand.setRotation(playerRotation);
-    }
+    if (!config.itemRain) this.updatePlayer();
   }
 
   debugStrings(){
