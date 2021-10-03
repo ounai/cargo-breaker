@@ -13,7 +13,7 @@ import ScoreText from '/src/game/objects/ScoreText';
 export default class TestScene extends Scene {
   resources = {
     boat: new ImageResource('assets/boat.png'),
-    boatData: new JSONResource('assets/boat.json'),
+    shapes: new JSONResource('assets/shapes.json'),
     background: new ImageResource('assets/background.png')
   };
 
@@ -37,6 +37,7 @@ export default class TestScene extends Scene {
 
   currentItemType = null;
 
+  //nextItemTypes = Array(10).fill(DroppableItemType.SAFE);
   nextItemTypes = [
     DroppableItemType.CARDBOARD_BOX,
     DroppableItemType.SHIPPING_CONTAINER,
@@ -69,6 +70,10 @@ export default class TestScene extends Scene {
     });
   }
 
+  get shapes() {
+    return this.cache.json.get(this.res.shapes);
+  }
+
   // Create item on mouse click
   onMouseDown(pointer) {
     if (this.roundItemCount === this.itemsPerRound) return;
@@ -77,7 +82,9 @@ export default class TestScene extends Scene {
     this.currentItemType = this.nextItemTypes.shift();
 
     const itemPosition = this.viewportToWorld(pointer.x, pointer.y);
-    const item = new DroppableItem(this.currentItemType, this.matter.world, itemPosition.x, itemPosition.y, this.currentItemType.res);
+    const opt = {};
+    if (this.shapes[this.currentItemType.name]) opt.shape = this.shapes[this.currentItemType.name];
+    const item = new DroppableItem(this.currentItemType, this.matter.world, itemPosition.x, itemPosition.y, this.currentItemType.res, 0, opt);
     this.add.existing(item);
 
     // Increase item count and round item count
@@ -150,7 +157,7 @@ export default class TestScene extends Scene {
 
     // Das Boot
     this.boat = new MatterImage(this.matter.world, this.screenCenter.x, 700, this.resources.boat, 0, {
-      shape: this.cache.json.get(this.res.boatData).boat
+      shape: this.shapes.boat
     }).setStatic(true).setScale(3, 3).setDepth(1);
 
     this.add.existing(this.boat);
