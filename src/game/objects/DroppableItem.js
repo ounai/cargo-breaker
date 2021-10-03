@@ -1,13 +1,15 @@
 import Phaser from '/src/lib/phaser';
 
+import config from '/src/config';
+
 import MatterImage from '/src/engine/objects/MatterImage';
 
 export default class DroppableItem extends MatterImage {
-  #maxVelocities = 30;
-  #stopVelocityTreshold = 1;
-  #autoPositionVelocityTreshold = .1;
-  #autoPositionFactor = 10000;
-  #autoPositionDebug = false;
+  #maxVelocities = null;
+  #stopVelocityTreshold = null;
+  #autoPositionVelocityTreshold = null;
+  #autoPositionFactor = null;
+  #autoPositionDebug = null;
 
   #itemType;
   #lastVelocities = [];
@@ -48,6 +50,12 @@ export default class DroppableItem extends MatterImage {
     this.setFriction(itemType.friction);
     this.setFrictionAir(itemType.frictionAir);
     this.setFrictionStatic(itemType.frictionStatic);
+
+    this.#maxVelocities = config.droppableItems.maxVelocities[itemType.name] ?? config.droppableItems.maxVelocities.default;
+    this.#stopVelocityTreshold = config.droppableItems.stopVelocityTreshold[itemType.name] ?? config.droppableItems.stopVelocityTreshold.default;
+    this.#autoPositionVelocityTreshold = config.droppableItems.autoPositionVelocityTreshold[itemType.name] ?? config.droppableItems.autoPositionVelocityTreshold.default;
+    this.#autoPositionFactor = config.droppableItems.autoPositionFactor[itemType.name] ?? config.droppableItems.autoPositionFactor.default;
+    this.#autoPositionDebug = config.droppableItems.autoPositionDebug[itemType.name] ?? config.droppableItems.autoPositionDebug.default;
 
     console.log(`Done! (scale: ${this.body.scale.x === this.body.scale.y ? this.body.scale.x : JSON.stringify(this.body.scale)}, density: ${this.body.density}, mass: ${this.body.mass}, friction: ${this.body.friction}, frictionAir: ${this.body.frictionAir}, frictionStatic: ${this.body.frictionStatic}, bounce: ${this.body.restitution})`);
 

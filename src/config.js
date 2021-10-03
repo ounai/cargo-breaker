@@ -23,6 +23,31 @@ const config = {
       WIDE_PLANK: 1,
     */
 
+    // How many past frames to check for hasStopped
+    maxVelocities: {
+      default: 30
+    },
+
+    // Max velocity to be considered as stopped
+    stopVelocityTreshold: {
+      default: 1
+    },
+
+    // Min velocity to do auto positioning
+    autoPositionVelocityTreshold: {
+      default: .1,
+    },
+
+    // How aggressive the auto positioning is, higher is less aggressive
+    autoPositionFactor: {
+      default: 10000
+    },
+
+    // Show auto position debug messages every frame
+    autoPositionDebug: {
+      default: true
+    },
+
     density: {
       // [0, inf[ ?
       default: 1,
