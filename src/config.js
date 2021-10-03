@@ -45,7 +45,7 @@ const config = {
 
     // Show auto position debug messages every frame
     autoPositionDebug: {
-      default: true
+      default: false
     },
 
     density: {
