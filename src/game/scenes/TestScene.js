@@ -19,7 +19,8 @@ export default class TestScene extends Scene {
 
   eventHandlers = {
     input: {
-      pointerdown: this.onMouseDown
+      pointerdown: this.onMouseDown,
+      pointerup: this.onMouseUp
     }
   }
 
@@ -28,7 +29,9 @@ export default class TestScene extends Scene {
   itemCount = 0;
   roundItemCount = 0;
   currentTowerHeight = 0;
+
   lastTowerHeight = null;
+  chargeStartTime = null;
 
   scoreText = null;
   boat = null;
@@ -93,6 +96,21 @@ export default class TestScene extends Scene {
 
     // Update items array
     this.items.push(item);
+
+    this.chargeStartTime = this.time.now;
+  }
+
+  onMouseUp() {
+    if (this.chargeStartTime === null) {
+      this.debug('Not handling onMouseUp, chargeStartTime is null');
+
+      return;
+    }
+
+    const chargeTime = this.time.now - this.chargeStartTime;
+    this.debug('Liftoff! Charge time:', chargeTime);
+
+    this.chargeStartTime = null;
   }
 
   shouldRoundEnd() {
@@ -188,7 +206,7 @@ export default class TestScene extends Scene {
       `Item Count: ${this.itemCount}`,
       `Round Item Count: ${this.roundItemCount}`,
       `Health: ${this.health}`,
-      `Tower height: ${this.currentTowerHeight} px`
+      `Tower height: ${Math.floor(this.currentTowerHeight)} px`
     ];
   }
 }

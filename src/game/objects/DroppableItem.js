@@ -82,6 +82,19 @@ export default class DroppableItem extends MatterImage {
     this.#lastVelocities.push(this.velocity.length);
 
     this.#autoPosition(boatCenter);
+
+    return this;
+  }
+
+  onStop(callback) {
+    const timeoutFunction = () => {
+      if (this.hasStopped) callback();
+      else if (this.scene) setTimeout(timeoutFunction.bind(this), 100);
+    };
+
+    setTimeout(timeoutFunction.bind(this), 100);
+
+    return this;
   }
 }
 
