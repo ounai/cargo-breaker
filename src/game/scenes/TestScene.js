@@ -4,7 +4,7 @@ import JSONResource from '/src/engine/resources/JSONResource';
 import Scene from '/src/engine/core/Scene';
 import Image from '/src/engine/objects/Image';
 import MatterImage from '/src/engine/objects/MatterImage';
-import MatterSprite from '/src/engine/objects/MatterSprite';
+import Sprite from '/src/engine/objects/Sprite';
 import SpriteSheetResource from '../../engine/resources/SpriteSheetResource';
 
 import DroppableItemType from '/src/game/objects/DroppableItemType';
@@ -45,6 +45,8 @@ export default class TestScene extends Scene {
   health = null;
   items = [];
   player = null;
+
+  canSpawnItem = true;
 
   currentItemType = null;
 
@@ -89,23 +91,31 @@ export default class TestScene extends Scene {
   onMouseDown(pointer) {
     if (this.roundItemCount === this.itemsPerRound) return;
 
-    if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
-    this.currentItemType = this.nextItemTypes.shift();
-
-    const itemPosition = this.viewportToWorld(pointer.x, pointer.y);
-    const opt = {};
-    if (this.shapes[this.currentItemType.name]) opt.shape = this.shapes[this.currentItemType.name];
-    const item = new DroppableItem(this.currentItemType, this.matter.world, itemPosition.x, itemPosition.y, this.currentItemType.res, 0, opt);
-    this.add.existing(item);
-
-    // Increase item count and round item count
-    this.itemCount++;
-    this.roundItemCount++;
-
-    // Update items array
-    this.items.push(item);
-
-    this.chargeStartTime = this.time.now;
+    if(this.canSpawnItem){
+      if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
+      this.currentItemType = this.nextItemTypes.shift();
+      
+      const itemPosition = this.viewportToWorld(pointer.x, pointer.y);
+      const opt = {};
+      if (this.shapes[this.currentItemType.name]) opt.shape = this.shapes[this.currentItemType.name];
+      const item = new DroppableItem(this.currentItemType, this.matter.world, itemPosition.x, itemPosition.y, this.currentItemType.res, 0, opt);
+      item.onStop(() => this.player.anims.play('pickup_item', true));
+      
+      this.player.on('animationcomplete', (animation) => {
+        if(animation.key === 'pickup_item') this.canSpawnItem = true;
+      });
+      
+      this.add.existing(item);
+    
+      // Increase item count and round item count
+      this.itemCount++;
+      this.roundItemCount++;
+    
+      // Update items array
+      this.items.push(item);
+      this.canSpawnItem = false;
+      this.chargeStartTime = this.time.now;
+    }
   }
 
   onMouseUp() {
@@ -119,9 +129,6 @@ export default class TestScene extends Scene {
     this.debug('Liftoff! Charge time:', chargeTime);
 
     this.chargeStartTime = null;
-
-    // Play pickup anim
-    this.player.anims.play('pickup_item', true);
   }
 
   shouldRoundEnd() {
@@ -181,9 +188,10 @@ export default class TestScene extends Scene {
     backgroundImage.setOrigin(0.1, 1).setScale(4.4, 5);
     this.add.existing(backgroundImage);
 
-    this.player = new MatterSprite(this.matter.world, 100, 200, this.res.player)
-    .setStatic(true)
-    .setScale(1.5, 1.5);
+    this.player = new Sprite(this, 100, 200, this.res.player)
+    .setScale(1.5, 1.5)
+    .setOrigin(.5, 1)
+    .setScrollFactor(0);
     this.add.existing(this.player);
 
     //Animations setup
@@ -224,6 +232,15 @@ export default class TestScene extends Scene {
     }
 
     if (this.shouldRoundEnd()) this.newRound();
+
+    // Set player rotation 
+    this.player.setRotation(
+      Math.atan2(
+        this.input.mousePointer.x - this.player.x,
+        -(this.input.mousePointer.y - this.player.y)
+        )
+    );
+
   }
 
   debugStrings(){
