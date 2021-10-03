@@ -16,10 +16,10 @@ import ScoreText from '/src/game/objects/ScoreText';
 
 export default class TestScene extends Scene {
   resources = {
-    shapes: new JSONResource('assets/shapes.json'),
-    boat: new ImageResource('assets/boat.png'),
-    background: new ImageResource('assets/Background_Wide_V2.png'),
-    player: new SpriteSheetResource('assets/Worker_bot_sprites.png', {
+    shapes: new JSONResource('assets/jsons/shapes.json'),
+    boat: new ImageResource('assets/static_props/boat.png'),
+    background: new ImageResource('assets/backgrounds/Background_Wide_V2.png'),
+    player: new SpriteSheetResource('assets/player/Worker_bot_sprites.png', {
       frameWidth: 64,
       frameHeight: 48
     })

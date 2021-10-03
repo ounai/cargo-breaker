@@ -25,7 +25,7 @@ const config = {
 
     // How many past frames to check for hasStopped
     maxVelocities: {
-      default: 30
+      default: 20
     },
 
     // Max velocity to be considered as stopped
