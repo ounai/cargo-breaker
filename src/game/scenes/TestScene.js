@@ -96,11 +96,11 @@ export default class TestScene extends Scene {
   demolish() {
     this.demolish = true;
 
-    const time = Math.floor(Math.abs(this.cameraPosition.y) * 4);
+    const time = Math.floor(Math.abs(this.cameraPosition.y * 2));
 
     this.debug('Start demolish, time:', time);
 
-    this.cameras.main.pan(this.cameraOrigin.x, this.cameraOrigin.y, time);
+    this.cameras.main.pan(this.cameraOrigin.x, this.cameraOrigin.y, time, 'Sine.easeIn');
 
     const demolishInterval = setInterval(() => {
       this.debug('Demolish interval!');
@@ -110,7 +110,7 @@ export default class TestScene extends Scene {
       if (y === 0) clearInterval(demolishInterval);
 
       for (const item of this.staticItems) {
-        if (item.y > y && item.y < y + height) {
+        if (item.y < y + height) {
           if (item.isStatic()) {
             this.debug('Unstatic:', item);
 
