@@ -161,7 +161,7 @@ export default class TestScene extends Scene {
   onUpdate() {
     for (let i = 0; i < this.items.length; i++) {
       // Delete items that are not in the boat
-      if (this.items[i].y > 720) {
+      if (this.items[i].y > this.cameras.main.worldView.bottom) {
         this.items[i].destroy();
         this.items.splice(i, 1);
         this.health.decrease();
