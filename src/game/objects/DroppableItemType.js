@@ -17,7 +17,15 @@ export default class DroppableItemType {
   static CRT_SCREEN = new DroppableItemType('CRT_SCREEN', '/assets/items/crt-screen.png');
   static WASHING_MACHINE = new DroppableItemType('WASHING_MACHINE', '/assets/items/washing-machine.png');
   static WIDE_PAINTING = new DroppableItemType('WIDE_PAINTING', '/assets/items/wide-painting.png');
-  static WIDE_PLANK = new DroppableItemType('WIDE_PLANK', '/assets/items/wide-plank.png');
+  static MUIKKU = new DroppableItemType('MUIKKU', '/assets/items/Muikku1.png');
+  static FELIX = new DroppableItemType('FELIX', '/assets/items/Felix1.png');
+  static TRIANGLE = new DroppableItemType('TRIANGLE', '/assets/items/Kolmio_Hagrid.png');
+  static GRAMOPHONE = new DroppableItemType('GRAMOPHONE', '/assets/items/Grafomoni.png');
+  static LONG_CONTAINER = new DroppableItemType('LONG_CONTAINER', '/assets/items/Long_Container.png');
+  static BOMB = new DroppableItemType('BOMB', '/assets/items/Pommi.png');
+  static BOTTLE = new DroppableItemType('BOTTLE', '/assets/items/Pullo.png');
+  static BRIEFCASE = new DroppableItemType('BRIEFCASE', '/assets/items/Salkku.png');
+  static AKIMBO_CONTAINER = new DroppableItemType('AKIMBO_CONTAINER', '/assets/items/Weird_ass_container.png');
 
   #name;
   #assetPath;

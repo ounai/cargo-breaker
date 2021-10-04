@@ -37,6 +37,10 @@ export default class TestScene extends Scene {
     playerTorso: new SpriteSheetResource('assets/player/Worker_bot_sprites.png', {
       frameWidth: 64,
       frameHeight: 48
+    }),
+    explosion: new SpriteSheetResource('assets/player/Explosion.png', {
+      frameWidth: 32,
+      frameHeight: 32
     })
   };
 
@@ -579,6 +583,9 @@ export default class TestScene extends Scene {
     this.hitSound = this.sound.add('box_hit');
     this.hitSound.setVolume(.04);
 
+    this.throwSound = this.sound.add('throw');
+    this.throwSound.setVolume(.04);
+    
     //Particle test
     let particles = this.add.particles(this.res.player);
 
