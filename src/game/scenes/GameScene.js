@@ -155,8 +155,8 @@ export default class TestScene extends Scene {
             y: 1
           },
           debug: {
-            showBody: true,
-            showStaticBody: true
+            showBody: config.debug,
+            showStaticBody: config.debug
           }
         }
       }
@@ -653,7 +653,7 @@ export default class TestScene extends Scene {
     this.throwSound.setVolume(.04);
 
     this.music = this.sound.add('music');
-    this.music.setVolume(.02);
+    this.music.setVolume(.1);
     this.music.play({ loop: true });
 
     if (config.itemRain) {

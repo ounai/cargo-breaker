@@ -1,7 +1,7 @@
 import Phaser from '/src/lib/phaser';
 
 const config = {
-  debug: true,
+  debug: false,
   debugTexts: false,
 
   itemRain: false,
