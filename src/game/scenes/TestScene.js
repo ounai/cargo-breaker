@@ -45,7 +45,8 @@ export default class TestScene extends Scene {
       pointerup: this.onMouseUp
     },
     keydown: {
-      SPACE: () => this.doDemolish(5)
+      SPACE: () => this.doDemolish(5),
+      R: () => this.restart()
     }
   }
 
@@ -83,6 +84,42 @@ export default class TestScene extends Scene {
 
   currentItemType = null;
   nextItemTypes = [];
+
+  onRestart() {
+    this.chargeFactor = 500;
+    this.minCharge = .1;
+    this.maxCharge = 5;
+    this.aimLineCount = 5;
+
+    this.boatVelocity = -.2;
+    this.boatX = 1150;
+
+    this.itemCount = 0;
+    this.roundItemCount = 0;
+    this.currentTowerHeight = 0;
+
+    this.lastTowerHeight = null;
+    this.chargeStartTime = null;
+    this.itemInPlayerHand = null;
+    this.scoreText = null;
+    this.boat = null;
+    this.health = null;
+    this.items = [];
+    this.player = null;
+    this.staticItems = [];
+    this.followItem = null;
+
+    this.charge = null;
+    this.angle = null;
+    this.aimLines = [];
+
+    this.canSpawnItem = false;
+    this.demolish = false;
+    this.stopCharge = false;
+
+    this.currentItemType = null;
+    this.nextItemTypes = [];
+  }
 
   getRandomItemType() {
     const itemTypes = [
@@ -406,11 +443,15 @@ export default class TestScene extends Scene {
   }
 
   updatePlayer(delta) {
+    const rotationFactor = 200;
+
     if (this.canSpawnItem) {
       const playerAngle = Math.atan2(this.input.mousePointer.x - this.player.x, -(this.input.mousePointer.y - this.player.y));
       const angle = Math.max(Math.min(playerAngle, Math.PI / 2), 0);
 
-      this.player.setRotation(angle);
+      if (angle > this.player.rotation) this.player.rotation = Math.min(angle, this.player.rotation + delta / rotationFactor);
+      if (angle < this.player.rotation) this.player.rotation = Math.max(angle, this.player.rotation - delta / rotationFactor);
+      //this.player.setRotation(angle);
 
       // Match item in hand to player
       if (this.itemInPlayerHand !== null) {
@@ -418,13 +459,13 @@ export default class TestScene extends Scene {
 
         const offset = this.player.height * this.player.scaleY / 2 + this.itemInPlayerHand.height * this.itemInPlayerHand.scaleY / 2 - 8;
 
-        this.itemInPlayerHand.x = playerWorldX + Math.sin(angle) * offset;
-        this.itemInPlayerHand.y = playerWorldY - Math.cos(angle) * offset;
+        this.itemInPlayerHand.x = playerWorldX + Math.sin(this.player.rotation) * offset;
+        this.itemInPlayerHand.y = playerWorldY - Math.cos(this.player.rotation) * offset;
 
-        this.itemInPlayerHand.setRotation(angle);
+        this.itemInPlayerHand.setRotation(this.player.rotation);
       }
     } else {
-      if (this.player.rotation > 0) this.player.rotation -= delta / 500;
+      if (this.player.rotation > 0) this.player.rotation -= delta / rotationFactor;
       if (this.player.rotation < 0) this.player.rotation = 0;
     }
   }
