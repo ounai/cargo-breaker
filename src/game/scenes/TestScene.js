@@ -134,6 +134,7 @@ export default class TestScene extends Scene {
 
   getRandomItemType() {
     const itemTypes = [
+      // Set 1
       DroppableItemType.CARDBOARD_BOX,
       DroppableItemType.SHIPPING_CONTAINER,
       DroppableItemType.SAFE,
@@ -144,7 +145,18 @@ export default class TestScene extends Scene {
       DroppableItemType.CRT_SCREEN,
       DroppableItemType.WASHING_MACHINE,
       DroppableItemType.WIDE_PAINTING,
-      DroppableItemType.WIDE_PLANK
+      DroppableItemType.WIDE_PLANK,
+
+      // Set 2
+      DroppableItemType.MUIKKU,
+      DroppableItemType.FELIX,
+      DroppableItemType.TRIANGLE,
+      DroppableItemType.GRAMOPHONE,
+      DroppableItemType.LONG_CONTAINER,
+      DroppableItemType.BOMB,
+      DroppableItemType.BOTTLE,
+      DroppableItemType.BRIEFCASE,
+      DroppableItemType.AKIMBO_CONTAINER
     ];
 
     const n = Math.floor(Math.random() * itemTypes.length);
