@@ -38,7 +38,11 @@ const config = {
 
     // Max velocity to be considered as stopped
     stopVelocityTreshold: {
-      default: 1
+      default: .1
+    },
+
+    stopRotationTreshold: {
+      default: .1
     },
 
     // Min velocity to do auto positioning
@@ -48,7 +52,7 @@ const config = {
 
     // How aggressive the auto positioning is, higher is less aggressive
     autoPositionFactor: {
-      default: 100000
+      default: 50000
     },
 
     // Show auto position debug messages every frame
@@ -62,18 +66,24 @@ const config = {
     },
 
     mass: {
-      default: 10,
+      default: 1,
+
+      // High (~50)
       SHIPPING_CONTAINER: 50,
       SAFE: 50,
-      WOODEN_CRATE: 20,
-      CARDBOARD_BOX: 10,
-      GRASS_BLOCK: 20,
-      ROTARY_PHONE: 10,
-      GIFT_BOX: 10,
-      CRT_SCREEN: 30,
       WASHING_MACHINE: 50,
-      WIDE_PAINTING: 10,
-      WIDE_PLANK: 15
+      CRT_SCREEN: 40,
+
+      // Medium (~30)
+      GRASS_BLOCK: 30,
+      WIDE_PLANK: 25,
+
+      // Low (~20)
+      WOODEN_CRATE: 20,
+      ROTARY_PHONE: 20,
+      GIFT_BOX: 20,
+      WIDE_PAINTING: 20,
+      CARDBOARD_BOX: 15
     },
 
     density: {

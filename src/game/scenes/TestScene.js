@@ -51,7 +51,7 @@ export default class TestScene extends Scene {
 
   // TODO config
   chargeFactor = 500;
-  minCharge = .5;
+  minCharge = .1;
   maxCharge = 5;
 
   boatVelocity = -.2;
@@ -78,6 +78,7 @@ export default class TestScene extends Scene {
 
   canSpawnItem = false;
   demolish = false;
+  stopCharge = false;
 
   currentItemType = null;
   nextItemTypes = [];
@@ -244,6 +245,14 @@ export default class TestScene extends Scene {
   }
 
   onMouseUp() {
+    if (this.stopCharge) {
+      this.charge = null;
+      this.stopCharge = false;
+      this.chargeStartTime = null;
+
+      return;
+    }
+
     if (this.canSpawnItem && this.chargeStartTime !== null) {
       this.debug('Liftoff! Charge time:', this.charge);
 
@@ -381,7 +390,11 @@ export default class TestScene extends Scene {
         if (!config.spawnClick) {
           const { x, y } = this.worldToViewport(this.player.x, this.player.y);
 
-          this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, x, y, this.currentItemType.res).setStatic(true);
+          let opt;
+
+          if (this.shapes[this.currentItemType.name]) opt = { shape: this.shapes[this.currentItemType.name] };
+
+          this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, x, y, this.currentItemType.res, 0, opt).setStatic(true);
 
           this.add.existing(this.itemInPlayerHand);
         }
@@ -528,7 +541,10 @@ export default class TestScene extends Scene {
 
     for (let i = 0; i < this.items.length; i++) {
       // Delete items that are not in the boat
-      if (this.items[i].y > this.cameras.main.worldView.bottom || this.items[i].x > this.boat.x + 1500) {
+      if (
+        this.items[i].y - this.items[i].height * this.items[i].scaleY > this.cameras.main.worldView.bottom
+        || this.items[i].x > this.boat.x + 1500
+      ) {
         this.items[i].destroy();
         this.items.splice(i, 1);
         this.health.decrease();
@@ -547,17 +563,11 @@ export default class TestScene extends Scene {
     if (this.canSpawnItem && this.chargeStartTime !== null) {
       this.charge = (this.time.now - this.chargeStartTime) / this.chargeFactor;
 
-      if (this.charge < this.minCharge) {
-        this.charge = this.minCharge;
+      // Clamp to min charge
+      if (this.charge < this.minCharge) this.charge = this.minCharge;
 
-        this.debug('min charge');
-      }
-
-      if (this.charge > this.maxCharge) {
-        this.charge = this.maxCharge;
-
-        this.debug('MAX CHARGE');
-      }
+      // Stop at max charge
+      if (this.charge > this.maxCharge) this.stopCharge = true;
     }
 
     if (this.followItem) {
@@ -584,23 +594,25 @@ export default class TestScene extends Scene {
         this.aimLines = [];
       }
 
-      const points = [];
+      if (!this.stopCharge) {
+        const points = [];
 
-      for (let i = 0; i < positionCount; i += 2) {
-        const xy = time => [
-          velocity * time * Math.cos(angle),
-          velocity * time * Math.sin(angle) + (gravity * time * time) / 2,
-        ];
+        for (let i = 0; i < positionCount; i += 2) {
+          const xy = time => [
+            velocity * time * Math.cos(angle),
+            velocity * time * Math.sin(angle) + (gravity * time * time) / 2,
+          ];
 
-        const [x1, y1] = xy(timeFactor * i);
-        const [x2, y2] = xy(timeFactor * (i + 1));
+          const [x1, y1] = xy(timeFactor * i);
+          const [x2, y2] = xy(timeFactor * (i + 1));
 
-        const aimLine = new Line(this, this.itemInPlayerHand.x, this.itemInPlayerHand.y, x1, y1, x2, y2, lineColor);
+          const aimLine = new Line(this, this.itemInPlayerHand.x, this.itemInPlayerHand.y, x1, y1, x2, y2, lineColor);
 
-        aimLine.setDepth(-1).setOrigin(0, 0);
+          aimLine.setDepth(-1).setOrigin(0, 0);
 
-        this.aimLines.push(aimLine);
-        this.add.existing(aimLine);
+          this.aimLines.push(aimLine);
+          this.add.existing(aimLine);
+        }
       }
     }
   }

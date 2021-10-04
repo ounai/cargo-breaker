@@ -10,6 +10,7 @@ import Vector2 from '/src/engine/math/Vector2';
 export default class DroppableItem extends MatterImage {
   #maxVelocities = null;
   #stopVelocityTreshold = null;
+  #stopRotationTreshold = null;
   #autoPositionVelocityTreshold = null;
   #autoPositionFactor = null;
 
@@ -18,6 +19,7 @@ export default class DroppableItem extends MatterImage {
 
   #itemType;
   #lastVelocities = [];
+  #lastRotations = [];
 
   demolish = false;
 
@@ -64,6 +66,7 @@ export default class DroppableItem extends MatterImage {
 
     this.#maxVelocities = config.droppableItems.maxVelocities[itemType.name] ?? config.droppableItems.maxVelocities.default;
     this.#stopVelocityTreshold = config.droppableItems.stopVelocityTreshold[itemType.name] ?? config.droppableItems.stopVelocityTreshold.default;
+    this.#stopRotationTreshold = config.droppableItems.stopRotationTreshold[itemType.name] ?? config.droppableItems.stopRotationTreshold.default;
     this.#autoPositionVelocityTreshold = config.droppableItems.autoPositionVelocityTreshold[itemType.name] ?? config.droppableItems.autoPositionVelocityTreshold.default;
     this.#autoPositionFactor = config.droppableItems.autoPositionFactor[itemType.name] ?? config.droppableItems.autoPositionFactor.default;
     this.#autoPositionDebug = config.droppableItems.autoPositionDebug[itemType.name] ?? config.droppableItems.autoPositionDebug.default;
@@ -75,7 +78,13 @@ export default class DroppableItem extends MatterImage {
   }
 
   get hasStopped() {
-    return this.#lastVelocities.length === this.#maxVelocities && !this.#lastVelocities.find(v => v > this.#stopVelocityTreshold);
+    for (let i = 0; i < this.#lastRotations.length - 1; i++) {
+      if (Math.abs(this.#lastRotations[i] - this.#lastRotations[i + 1]) > this.#stopRotationTreshold) {
+        return false;
+      }
+    }
+
+    return (this.#lastVelocities.length === this.#maxVelocities && !this.#lastVelocities.find(v => v > this.#stopVelocityTreshold));
   }
 
   get itemType() {
@@ -88,8 +97,10 @@ export default class DroppableItem extends MatterImage {
 
   onUpdate(boatCenter) {
     if (!this.demolish) {
+      if (this.#lastRotations.length >= this.#maxVelocities) this.#lastRotations.shift();
       if (this.#lastVelocities.length >= this.#maxVelocities) this.#lastVelocities.shift();
 
+      this.#lastRotations.push(this.rotation);
       this.#lastVelocities.push(this.velocity.length);
 
       this.#autoPosition(boatCenter);
