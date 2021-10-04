@@ -110,6 +110,8 @@ export default class TestScene extends Scene {
 
     this.currentItemType = null;
     this.nextItemTypes = [];
+
+    //this.music.stop();
   }
 
   getRandomItemType() {
@@ -612,8 +614,8 @@ export default class TestScene extends Scene {
     ]);
 
     this.load.audio('conveyor', [
-      'assets/audio/conveyor2.ogg',
-      'assets/audio/conveyor2.mp3'
+      'assets/audio/conveyor_fast.ogg',
+      'assets/audio/conveyor_fast.mp3'
     ]);
   }
 
