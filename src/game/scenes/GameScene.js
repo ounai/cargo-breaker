@@ -828,6 +828,7 @@ export default class TestScene extends Scene {
             }
           }
         });
+        emitter.setScrollFactor(1, 0);
 
         this.smokeDensity -= 300
 
