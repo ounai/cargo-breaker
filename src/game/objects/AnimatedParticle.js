@@ -1,6 +1,6 @@
 import Particle from '/src/engine/objects/Particle';
 
-export default class AnimatedParticle extends Phaser.GameObjects.Particles.Particle {
+export default class AnimatedParticle extends Particle {
   constructor(emitter) {
     super(emitter);
 
