@@ -11,6 +11,7 @@ import SpriteSheetResource from '/src/engine/resources/SpriteSheetResource';
 import Vector2 from '/src/engine/math/Vector2';
 import Polygon from '/src/engine/objects/Polygon';
 import Line from '/src/engine/objects/Line';
+import Text from '/src/engine/objects/Text';
 
 import config from '/src/config';
 
@@ -54,52 +55,14 @@ export default class TestScene extends Scene {
     }
   }
 
-  // TODO config
-  chargeFactor = 500;
-  minCharge = .1;
-  maxCharge = 5;
-  aimLineCount = 5;
-  hitSoundInterval = 500;
-  smokeDensity = 1000;
-
-  boatVelocity = -.2;
-  boatX = 1150;
-
-  itemCount = 0;
-  roundItemCount = 0;
-  currentTowerHeight = 0;
-
-  lastTowerHeight = null;
-  chargeStartTime = null;
-  itemInPlayerHand = null;
-  scoreText = null;
-  boat = null;
-  health = null;
-  items = [];
-  player = null;
-  staticItems = [];
-  followItem = null;
-  lastHitSoundTime = null;
-
-  charge = null;
-  angle = null;
-  aimLines = [];
-
-  canSpawnItem = false;
-  demolish = false;
-  stopCharge = false;
-
-  currentItemType = null;
-  nextItemTypes = [];
-
   onRestart() {
-    // TODO
-
     this.chargeFactor = 500;
-    this.minCharge = .1;
+    this.minCharge = .2;
     this.maxCharge = 5;
     this.aimLineCount = 5;
-    this.hitSoundInterval = 200;
+    this.hitSoundInterval = 1000;
+    this.upcomingSpace = 10;
+    this.smokeDensity = 1000;
 
     this.boatVelocity = -.2;
     this.boatX = 1150;
@@ -111,6 +74,7 @@ export default class TestScene extends Scene {
     this.lastTowerHeight = null;
     this.chargeStartTime = null;
     this.itemInPlayerHand = null;
+    this.upcomingText = null;
     this.scoreText = null;
     this.boat = null;
     this.health = null;
@@ -127,6 +91,7 @@ export default class TestScene extends Scene {
     this.canSpawnItem = false;
     this.demolish = false;
     this.stopCharge = false;
+    this.gameOver = false;
 
     this.currentItemType = null;
     this.nextItemTypes = [];
@@ -190,12 +155,26 @@ export default class TestScene extends Scene {
   }
 
   doDemolish() {
+    this.demolish = true;
+
     // Move all current items over to static items
     this.staticItems.push(...this.items);
 
     // Remove score text
     this.scoreText.destroy();
     this.scoreText = null;
+
+    // Remove upcoming items
+    this.upcomingItem1.destroy();
+    this.upcomingItem1 = null;
+    this.upcomingItem2.destroy();
+    this.upcomingItem2 = null;
+    this.upcomingItem3.destroy();
+    this.upcomingItem3 = null;
+
+    // Remove upcoming text
+    this.upcomingText.destroy();
+    this.upcomingText = null;
 
     if (this.itemInPlayerHand !== null) this.itemInPlayerHand.destroy();
 
@@ -279,9 +258,15 @@ export default class TestScene extends Scene {
     );
 
     const onCollide = collision => {
-      if (!this.demolish && (this.lastHitSoundTime === null || this.time.now > this.lastHitSoundTime + this.hitSoundInterval)) {
-        this.hitSound.play();
-        this.lastHitSoundTime = this.time.now;
+      if (!this.demolish && collision.collision.depth > 1) {
+        if (
+          this.lastHitSoundTime === null
+          || this.time.now > this.lastHitSoundTime + this.hitSoundInterval
+          || collision.collision.depth > 5
+        ) {
+          this.hitSound.play();
+          this.lastHitSoundTime = this.time.now;
+        }
       }
     };
 
@@ -315,7 +300,7 @@ export default class TestScene extends Scene {
   }
 
   onMouseUp() {
-    if (this.stopCharge) {
+    if (this.stopCharge || this.charge < this.minCharge) {
       this.charge = null;
       this.stopCharge = false;
       this.chargeStartTime = null;
@@ -414,9 +399,9 @@ export default class TestScene extends Scene {
 
     this.add.existing(platform);
 
-    this.player = new Sprite(this, playerX, playerY, this.res.player)
+    this.player = new Sprite(this, playerX, playerY + 12, this.res.player)
       .setScale(1.5, 1.5)
-      .setOrigin(.5, .5)
+      .setOrigin(.5, .75)
       .setScrollFactor(1, 0)
       .setDepth(1);
 
@@ -447,7 +432,7 @@ export default class TestScene extends Scene {
 
     this.explosion = this.anims.create({
       key: 'explosion_smoke',
-      frames: this.anims.generateFrameNumbers(this.res.explosion, { start: 0, end: 7 }),
+      frames: this.anims.generateFrameNumbers(this.res.explosion, { start: 0, end: 6 }),
       frameRate: 10,
       repeat: 0
     });
@@ -460,11 +445,21 @@ export default class TestScene extends Scene {
 
     this.player.on('animationcomplete', animation => {
       if (animation.key === 'pickup_item_torso') {
-        if (this.itemInPlayerHand === null) {
+        if (this.itemInPlayerHand === null && !this.demolish) {
           // Update next items textures
+          let upcomingX = this.upcomingItem1.x;
+
           this.upcomingItem1.setTexture(this.nextItemTypes[0].res);
+
+          upcomingX += this.upcomingItem1.width + this.upcomingSpace;
+
           this.upcomingItem2.setTexture(this.nextItemTypes[1].res);
+          this.upcomingItem2.x = upcomingX;
+
+          upcomingX += this.upcomingItem2.width + this.upcomingSpace;
+
           this.upcomingItem3.setTexture(this.nextItemTypes[2].res);
+          this.upcomingItem3.x = upcomingX;
 
           this.canSpawnItem = true;
 
@@ -481,7 +476,7 @@ export default class TestScene extends Scene {
 
             this.add.existing(this.itemInPlayerHand);
           }
-        } else this.debug('pickup_item_torso finished but itemInPlayerHand is not null!');
+        }
       }
     });
   }
@@ -495,13 +490,12 @@ export default class TestScene extends Scene {
 
       if (angle > this.player.rotation) this.player.rotation = Math.min(angle, this.player.rotation + delta / rotationFactor);
       if (angle < this.player.rotation) this.player.rotation = Math.max(angle, this.player.rotation - delta / rotationFactor);
-      //this.player.setRotation(angle);
 
       // Match item in hand to player
       if (this.itemInPlayerHand !== null) {
         const { x: playerWorldX, y: playerWorldY } = this.viewportToWorld(this.player.x, this.player.y);
 
-        const offset = this.player.height * this.player.scaleY / 2 + this.itemInPlayerHand.height * this.itemInPlayerHand.scaleY / 2 - 8;
+        const offset = this.player.height * this.player.scaleY / 2 + this.itemInPlayerHand.height * this.itemInPlayerHand.scaleY / 2 + 10;
 
         this.itemInPlayerHand.x = playerWorldX + Math.sin(this.player.rotation) * offset;
         this.itemInPlayerHand.y = playerWorldY - Math.cos(this.player.rotation) * offset;
@@ -580,29 +574,34 @@ export default class TestScene extends Scene {
     if (!config.itemRain) this.createPlayer();
 
     this.health = new Health(config.health);
-    this.health.on(0, () => this.doDemolish(0));
+    this.health.on(0, () => this.doDemolish());
 
     // Das Boot
     this.boat = new MatterImage(this.matter.world, this.boatX, 680, this.resources.boat, 0, {
       shape: this.shapes.boat
-    }).setStatic(true).setScale(4, 4).setDepth(1);
+    }).setStatic(true).setScale(4, 4).setDepth(5);
 
     this.add.existing(this.boat);
 
     this.scoreText = new ScoreText(this);
 
-    this.add.text(250, 8, 'UPCOMING ITEMS:').setScrollFactor(0);
+    let upcomingX = 16, upcomingY = 46;
 
-    const upcomingX = 250, upcomingY = 40, upcomingStep = 50;
+    this.upcomingText = new Text(this, upcomingX, 16, 'UPCOMING ITEMS:').setScrollFactor(0);
+    this.add.existing(this.upcomingText);
 
     // Next items
     this.upcomingItem1 = new Image(this, upcomingX, upcomingY, this.nextItemTypes[0].res).setOrigin(0, 0).setScrollFactor(0);
     this.add.existing(this.upcomingItem1);
 
-    this.upcomingItem2 = new Image(this, upcomingX + upcomingStep, upcomingY, this.nextItemTypes[1].res).setOrigin(0, 0).setScrollFactor(0);
+    upcomingX += this.upcomingItem1.width + this.upcomingSpace;
+
+    this.upcomingItem2 = new Image(this, upcomingX, upcomingY, this.nextItemTypes[1].res).setOrigin(0, 0).setScrollFactor(0);
     this.add.existing(this.upcomingItem2);
 
-    this.upcomingItem3 = new Image(this, upcomingX + upcomingStep * 2, upcomingY, this.nextItemTypes[2].res).setOrigin(0, 0).setScrollFactor(0);
+    upcomingX += this.upcomingItem2.width + this.upcomingSpace;
+
+    this.upcomingItem3 = new Image(this, upcomingX, upcomingY, this.nextItemTypes[2].res).setOrigin(0, 0).setScrollFactor(0);
     this.add.existing(this.upcomingItem3);
 
     // Audio
@@ -648,8 +647,21 @@ export default class TestScene extends Scene {
         for (const item of this.staticItems) {
           if (item.scene) {
             item.x -= delta * this.boatVelocity;
-            item.thrust(0.01);
+
+            item.applyForce(new Vector2(0, 0));
           }
+        }
+
+        if (this.boat.x < -this.boat.width && !this.gameOver) {
+          this.debug('Game over!');
+
+          this.gameOver = true;
+
+          const gameOverText = new Text(this, this.screenCenter.x, this.screenCenter.y, 'GAME OVER', {
+            fontSize: 100
+          });
+
+          this.add.existing(gameOverText);
         }
       }
     }
@@ -672,44 +684,45 @@ export default class TestScene extends Scene {
         const explosion = this.explosion;
 
         let emitter = particles.createEmitter({
-            x: this.player.x,
-            y: this.player.y,
-            frame: 0,
-            quantity: 1,
-            frequency: this.smokeDensity,
-            angle: { min: 0, max: 30 },
-            speed: 0,
-            gravityY: -100,
-            lifespan: { min: 1000, max: 2000 },
-            particleClass: class AnimatedParticle extends Particle {
-              constructor(emitter) {
-                super(emitter);
-              
-                this.t = 0;
-                this.i = 0;
-              }
-            
-              update(delta, step, processors) {
-                const result = super.update(delta, step, processors);
-              
-                this.t += delta;
-              
-                if (this.t >= explosion.msPerFrame) {
-                  this.i++;
-                
-                  if (this.i >= explosion.frames.length) this.i = 0;
-                
-                  this.frame = explosion.frames[this.i].frame;
-                
-                  this.t -= explosion.msPerFrame;
-                }
-              
-                return result;
-              }
+          x: this.player.x,
+          y: this.viewportToWorld(0, this.player.y).y,
+          frame: 0,
+          quantity: 1,
+          frequency: this.smokeDensity,
+          angle: { min: 0, max: 30 },
+          speed: 0,
+          gravityY: -100,
+          lifespan: { min: 1000, max: 2000 },
+          particleClass: class AnimatedParticle extends Particle {
+            constructor(emitter) {
+              super(emitter);
+
+              this.t = 0;
+              this.i = 0;
             }
+
+            update(delta, step, processors) {
+              const result = super.update(delta, step, processors);
+
+              this.t += delta;
+
+              if (this.t >= explosion.msPerFrame) {
+                this.i++;
+
+                if (this.i >= explosion.frames.length) this.i = 0;
+
+                this.frame = explosion.frames[this.i].frame;
+
+                this.t -= explosion.msPerFrame;
+              }
+
+              return result;
+            }
+          }
         });
 
         this.smokeDensity -= 300
+
         continue;
       }
 
@@ -725,9 +738,6 @@ export default class TestScene extends Scene {
 
     if (this.canSpawnItem && this.chargeStartTime !== null) {
       this.charge = (this.time.now - this.chargeStartTime) / this.chargeFactor;
-
-      // Clamp to min charge
-      if (this.charge < this.minCharge) this.charge = this.minCharge;
 
       // Stop at max charge
       if (this.charge > this.maxCharge) this.stopCharge = true;
@@ -757,7 +767,7 @@ export default class TestScene extends Scene {
         this.aimLines = [];
       }
 
-      if (!this.stopCharge) {
+      if (!this.stopCharge && this.charge > this.minCharge) {
         const points = [];
 
         for (let i = 0; i < positionCount; i += 2) {
@@ -779,12 +789,18 @@ export default class TestScene extends Scene {
       }
     }
 
-    for (const item of this.staticItems) {
-      if (!item.scene) this.debug('This item has no scene:', item);
+    for (let i = 0; i < this.staticItems.length; i++) {
+      if (!this.staticItems[i].scene) {
+        this.debug('Destroying item with no scene:', item);
+
+        this.staticItems.splice(i, 1);
+      }
     }
   }
 
   debugStrings() {
+    if (!config.debugTexts) return [];
+
     return [
       `Item Count: ${this.itemCount}`,
       `Round Item Count: ${this.roundItemCount}`,

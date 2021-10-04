@@ -145,7 +145,6 @@ export default class Scene extends Phaser.Scene {
   restart() {
     this.registry.destroy();
     this.events.off();
-    this.onRestart();
     this.scene.restart();
   }
 
@@ -189,6 +188,7 @@ export default class Scene extends Phaser.Scene {
     this.#setCameraOrigin();
     this.#updateScreenCenter();
 
+    this.onRestart();
     this.onCreate();
   }
 
