@@ -142,6 +142,13 @@ export default class Scene extends Phaser.Scene {
     logDebug(`[${this.constructor.name}]`, ...args);
   }
 
+  restart() {
+    this.registry.destroy();
+    this.events.off();
+    this.onRestart();
+    this.scene.restart();
+  }
+
   // Takes either (x, y) or (Vector2(x, y))
   viewportToWorld(x, y) {
     const viewportPosition = this.#argsToVector(x, y);
@@ -210,6 +217,7 @@ export default class Scene extends Phaser.Scene {
   }
 
   // Subclass methods
+  onRestart() {}
   onPreload() {}
   onCreate() {}
   onUpdate() {}
