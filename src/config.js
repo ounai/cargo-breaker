@@ -5,6 +5,7 @@ const config = {
 
   itemRain: false,
   itemsPerRound: 3,
+  health: 5,
 
   spawnClick: false,
   skipBoatArriving: true,

@@ -55,6 +55,7 @@ export default class TestScene extends Scene {
   minCharge = .1;
   maxCharge = 5;
   aimLineCount = 5;
+  hitSoundInterval = 200;
 
   boatVelocity = -.2;
   boatX = 1150;
@@ -73,6 +74,7 @@ export default class TestScene extends Scene {
   player = null;
   staticItems = [];
   followItem = null;
+  lastHitSoundTime = null;
 
   charge = null;
   angle = null;
@@ -86,10 +88,13 @@ export default class TestScene extends Scene {
   nextItemTypes = [];
 
   onRestart() {
+    // TODO
+
     this.chargeFactor = 500;
     this.minCharge = .1;
     this.maxCharge = 5;
     this.aimLineCount = 5;
+    this.hitSoundInterval = 200;
 
     this.boatVelocity = -.2;
     this.boatX = 1150;
@@ -108,6 +113,7 @@ export default class TestScene extends Scene {
     this.player = null;
     this.staticItems = [];
     this.followItem = null;
+    this.lastHitSoundTime = null;
 
     this.charge = null;
     this.angle = null;
@@ -254,12 +260,17 @@ export default class TestScene extends Scene {
       -Math.cos(this.player.rotation) * this.charge
     );
 
-
+    const onCollide = collision => {
+      if (!this.demolish && (this.lastHitSoundTime === null || this.time.now > this.lastHitSoundTime + this.hitSoundInterval)) {
+        this.hitSound.play();
+        this.lastHitSoundTime = this.time.now;
+      }
+    };
 
     const item = this.itemInPlayerHand
       .setStatic(false)
       .applyForce(velocityVector)
-      .setOnCollide(() => this.hitSound.play())
+      .setOnCollide(onCollide.bind(this))
       .onStop(this.onItemStop.bind(this));
 
     this.items.push(item);
@@ -534,8 +545,8 @@ export default class TestScene extends Scene {
 
     if (!config.itemRain) this.createPlayer();
 
-    this.health = new Health(3);
-    this.health.on(0, () => this.debug('RIP'));
+    this.health = new Health(config.health);
+    this.health.on(0, () => this.doDemolish(0));
 
     // Das Boot
     this.boat = new MatterImage(this.matter.world, this.boatX, 680, this.resources.boat, 0, {
@@ -562,7 +573,7 @@ export default class TestScene extends Scene {
 
     // Audio
     this.hitSound = this.sound.add('box_hit');
-    this.hitSound.setVolume(0.2);
+    this.hitSound.setVolume(.1);
 
     // Psykoosit tulille
     if (config.itemRain) {
@@ -678,6 +689,10 @@ export default class TestScene extends Scene {
         }
       }
     }
+
+    for (const item of this.staticItems) {
+      if (!item.scene) this.debug('This item has no scene:', item);
+    }
   }
 
   debugStrings() {
@@ -685,7 +700,8 @@ export default class TestScene extends Scene {
       `Item Count: ${this.itemCount}`,
       `Round Item Count: ${this.roundItemCount}`,
       `Health: ${this.health}`,
-      `Tower height: ${Math.floor(this.currentTowerHeight)} px`
+      `Tower height: ${Math.floor(this.currentTowerHeight)} px`,
+      `Missed: ${config.health - this.health} / ${config.health}`
     ];
   }
 }

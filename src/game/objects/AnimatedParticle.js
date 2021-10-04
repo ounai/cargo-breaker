@@ -1,15 +1,11 @@
 import Particle from '/src/engine/objects/Particle';
 
 export default class AnimatedParticle extends Particle {
-  constructor(emitter) {
-    super(emitter);
-
-    this.t = 0;
-    this.i = 0;
-  }
+  t = 0;
+  i = 0;
 
   update(delta, step, processors) {
-    var result = super.update(delta, step, processors);
+    const result = super.update(delta, step, processors);
 
     this.t += delta;
 
