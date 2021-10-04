@@ -68,7 +68,7 @@ const config = {
 
     // How aggressive the auto positioning is, higher is less aggressive
     autoPositionFactor: {
-      default: 100000
+      default: 75000
     },
 
     // Show auto position debug messages every frame

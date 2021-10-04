@@ -13,6 +13,7 @@ import Polygon from '/src/engine/objects/Polygon';
 import Line from '/src/engine/objects/Line';
 import Text from '/src/engine/objects/Text';
 import Particle from '/src/engine/objects/Particle';
+import Rectangle from '/src/engine/objects/Rectangle';
 
 import config from '/src/config';
 
@@ -55,6 +56,8 @@ export default class TestScene extends Scene {
       pointerup: this.onMouseUp
     }
   }
+
+  cutSceneAnimation = true;
 
   onRestart() {
     this.chargeFactor = 500;
@@ -102,7 +105,6 @@ export default class TestScene extends Scene {
     this.stopCharge = false;
     this.gameOver = false;
     this.firstItemPickedUp = false;
-    this.cutSceneAnimation = true;
 
     this.currentItemType = null;
     this.nextItemTypes = [];
@@ -172,7 +174,7 @@ export default class TestScene extends Scene {
     this.staticItems.push(...this.items);
 
     // Remove score text
-    this.finalScore = this.scoreText.score;
+    this.finalScore = this.scoreText.score ?? 0;
     this.scoreText.destroy();
     this.scoreText = null;
 
@@ -386,7 +388,8 @@ export default class TestScene extends Scene {
 
     for (const item of this.items) {
       item.setStatic(true);
-      item.setTint(0x7878ff);
+      //item.setTint(0x7878ff);
+      item.setTint(0x787878);
 
       score = Math.floor(Math.max(this.currentTowerHeight, 720 - item.y)) / 50;
 
@@ -561,7 +564,7 @@ export default class TestScene extends Scene {
   }
 
   startCutscene() {
-    this.boss = new Image(this, 1600, 498, this.res.boss);
+    this.boss = new Image(this, 1600, 532, this.res.boss).setScale(2, 2).setOrigin(.5, 1);
     this.add.existing(this.boss);
   }
 
@@ -686,10 +689,10 @@ export default class TestScene extends Scene {
         this.add.existing(this.bossLine2);
       }
     } else if (this.cutSceneAnimation === false) {
-      if (this.boss !== null) {
+      /*if (this.boss !== null) {
         this.boss.destroy();
         this.boss = null;
-      }
+      }*/
 
       if (this.speechBubble !== null) {
         this.speechBubble.destroy();
@@ -748,6 +751,22 @@ export default class TestScene extends Scene {
             fontFamily: 'Roundabout'
           }).setOrigin(.5, .5);
 
+          const maxWidth = Math.max(gameOverText.width, finalScoreText.width, clickToRestartText.width);
+          const totalHeight = gameOverText.height + finalScoreText.height +  clickToRestartText.height;
+
+          const margin = 10;
+
+          const gameOverRect = new Rectangle(
+            this,
+            this.screenCenter.x,
+            this.screenCenter.y,
+            maxWidth + margin * 2,
+            totalHeight + margin * 2,
+            0x333333,
+            .5
+          );
+
+          this.add.existing(gameOverRect);
           this.add.existing(gameOverText);
           this.add.existing(finalScoreText);
           this.add.existing(clickToRestartText);
@@ -837,6 +856,12 @@ export default class TestScene extends Scene {
         if (this.cameras.main.midPoint.x < this.followItem.x && this.cameras.main.midPoint.x < this.boat.x + 60) {
           this.cameras.main.scrollX += delta;
         }
+
+        /*
+        if (this.cameras.main.midPoint.y < this.followItem.y && this.cameras.main.midPoint.y < this.cameraOrigin.y) {
+          this.cameras.main.scrollY += delta;
+        }
+        */
       } else {
         this.followItem = null;
       }
