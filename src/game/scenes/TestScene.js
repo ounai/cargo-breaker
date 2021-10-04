@@ -256,6 +256,8 @@ export default class TestScene extends Scene {
   }
 
   throwItem() {
+    setTimeout(() => this.player.setFrame(12), 250);
+
     const velocityVector = new Vector2(
       Math.sin(this.player.rotation) * this.charge,
       -Math.cos(this.player.rotation) * this.charge
