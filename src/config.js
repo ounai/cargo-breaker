@@ -38,11 +38,11 @@ const config = {
 
     // Max velocity to be considered as stopped
     stopVelocityTreshold: {
-      default: .1
+      default: .2
     },
 
     stopRotationTreshold: {
-      default: .1
+      default: .2
     },
 
     // Min velocity to do auto positioning

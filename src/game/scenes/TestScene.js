@@ -381,24 +381,26 @@ export default class TestScene extends Scene {
 
     this.player.on('animationcomplete', animation => {
       if (animation.key === 'pickup_item_torso') {
-        // Update next items textures
-        this.upcomingItem1.setTexture(this.nextItemTypes[0].res);
-        this.upcomingItem2.setTexture(this.nextItemTypes[1].res);
-        this.upcomingItem3.setTexture(this.nextItemTypes[2].res);
+        if (this.itemInPlayerHand === null) {
+          // Update next items textures
+          this.upcomingItem1.setTexture(this.nextItemTypes[0].res);
+          this.upcomingItem2.setTexture(this.nextItemTypes[1].res);
+          this.upcomingItem3.setTexture(this.nextItemTypes[2].res);
 
-        this.canSpawnItem = true;
+          this.canSpawnItem = true;
 
-        if (!config.spawnClick) {
-          const { x, y } = this.worldToViewport(this.player.x, this.player.y);
+          if (!config.spawnClick) {
+            const { x, y } = this.worldToViewport(this.player.x, this.player.y);
 
-          let opt;
+            let opt;
 
-          if (this.shapes[this.currentItemType.name]) opt = { shape: this.shapes[this.currentItemType.name] };
+            if (this.shapes[this.currentItemType.name]) opt = { shape: this.shapes[this.currentItemType.name] };
 
-          this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, x, y, this.currentItemType.res, 0, opt).setStatic(true);
+            this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, x, y, this.currentItemType.res, 0, opt).setStatic(true);
 
-          this.add.existing(this.itemInPlayerHand);
-        }
+            this.add.existing(this.itemInPlayerHand);
+          }
+        } else this.debug('pickup_item_torso finished but itemInPlayerHand is not null!');
       }
     });
   }
