@@ -4,7 +4,9 @@ const config = {
   debug: true,
 
   itemRain: false,
-  itemsPerRound: 10,
+  itemsPerRound: 5,
+
+  skipBoatArriving: true,
 
   game: {
     type: Phaser.AUTO,
@@ -60,17 +62,17 @@ const config = {
 
     mass: {
       default: 10,
-      SHIPPING_CONTAINER: 100,
-      SAFE: 100,
-      WOODEN_CRATE: 30,
+      SHIPPING_CONTAINER: 50,
+      SAFE: 50,
+      WOODEN_CRATE: 20,
       CARDBOARD_BOX: 10,
-      GRASS_BLOCK: 30,
+      GRASS_BLOCK: 20,
       ROTARY_PHONE: 10,
       GIFT_BOX: 10,
-      CRT_SCREEN: 50,
-      WASHING_MACHINE: 100,
+      CRT_SCREEN: 30,
+      WASHING_MACHINE: 50,
       WIDE_PAINTING: 10,
-      WIDE_PLANK: 20
+      WIDE_PLANK: 15
     },
 
     density: {
@@ -90,7 +92,7 @@ const config = {
     },
     scale: {
       // [0, inf[
-      default: [1.5, 3]
+      default: [2, 4]
     },
     friction: {
       // [0, 1] ?
