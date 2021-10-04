@@ -56,7 +56,7 @@ export default class TestScene extends Scene {
   minCharge = .1;
   maxCharge = 5;
   aimLineCount = 5;
-  hitSoundInterval = 200;
+  hitSoundInterval = 500;
 
   boatVelocity = -.2;
   boatX = 1150;
@@ -574,10 +574,12 @@ export default class TestScene extends Scene {
 
     // Audio
     this.hitSound = this.sound.add('box_hit');
-    this.hitSound.setVolume(.1);
+    this.hitSound.setVolume(.04);
 
     //Particle test
-    let particles = this.add.particles('pickup_item_torso');
+    let particles = this.add.particles(this.res.player);
+
+    const pickupAnimation = this.pickupAnimation;
 
     let emitter = particles.createEmitter({
         x: 100,
@@ -589,8 +591,7 @@ export default class TestScene extends Scene {
         speed: 200,
         gravityY: 100,
         lifespan: { min: 1000, max: 2000 },
-        particleClass: 
-        class AnimatedParticle extends Particle {
+        particleClass: class AnimatedParticle extends Particle {
           constructor(emitter) {
             super(emitter);
         
@@ -599,18 +600,18 @@ export default class TestScene extends Scene {
           }
         
           update(delta, step, processors) {
-            var result = super.update(delta, step, processors);
+            const result = super.update(delta, step, processors);
         
             this.t += delta;
         
-            if (this.t >= this.pickupAnimation.msPerFrame) {
+            if (this.t >= pickupAnimation.msPerFrame) {
               this.i++;
         
-              if (this.i > this.pickupAnimation.length) this.i = 0;
+              if (this.i >= pickupAnimation.frames.length) this.i = 0;
         
-              this.frame = this.pickupAnimation.frames[this.i].frame;
+              this.frame = pickupAnimation.frames[this.i].frame;
         
-              this.t -= this.pickupAnimation.msPerFrame;
+              this.t -= pickupAnimation.msPerFrame;
             }
         
             return result;
