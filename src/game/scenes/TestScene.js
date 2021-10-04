@@ -18,6 +18,7 @@ import DroppableItemType from '/src/game/objects/DroppableItemType';
 import DroppableItem from '/src/game/objects/DroppableItem';
 import Health from '/src/game/objects/Health';
 import ScoreText from '/src/game/objects/ScoreText';
+import Particle from '/src/engine/objects/Particle';
 
 export default class TestScene extends Scene {
   resources = {
@@ -407,7 +408,7 @@ export default class TestScene extends Scene {
       repeat: 0
     });
 
-    this.anims.create({
+    this.pickupAnimation = this.anims.create({
       key: 'pickup_item_torso',
       frames: this.anims.generateFrameNumbers(this.res.player, { start: 12, end: 15 }),
       frameRate: 10,
@@ -563,6 +564,48 @@ export default class TestScene extends Scene {
     // Audio
     this.hitSound = this.sound.add('box_hit');
     this.hitSound.setVolume(0.2);
+
+    //Particle test
+    let particles = this.add.particles('pickup_item_torso');
+
+    let emitter = particles.createEmitter({
+        x: 100,
+        y: 100,
+        frame: 0,
+        quantity: 1,
+        frequency: 200,
+        angle: { min: 0, max: 30 },
+        speed: 200,
+        gravityY: 100,
+        lifespan: { min: 1000, max: 2000 },
+        particleClass: 
+        class AnimatedParticle extends Particle {
+          constructor(emitter) {
+            super(emitter);
+        
+            this.t = 0;
+            this.i = 0;
+          }
+        
+          update(delta, step, processors) {
+            var result = super.update(delta, step, processors);
+        
+            this.t += delta;
+        
+            if (this.t >= this.pickupAnimation.msPerFrame) {
+              this.i++;
+        
+              if (this.i > this.pickupAnimation.length) this.i = 0;
+        
+              this.frame = this.pickupAnimation.frames[this.i].frame;
+        
+              this.t -= this.pickupAnimation.msPerFrame;
+            }
+        
+            return result;
+          }
+        }
+    });
 
     // Psykoosit tulille
     if (config.itemRain) {
