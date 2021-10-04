@@ -254,9 +254,12 @@ export default class TestScene extends Scene {
       -Math.cos(this.player.rotation) * this.charge
     );
 
+
+
     const item = this.itemInPlayerHand
       .setStatic(false)
       .applyForce(velocityVector)
+      .setOnCollide(() => this.hitSound.play())
       .onStop(this.onItemStop.bind(this));
 
     this.items.push(item);
@@ -376,6 +379,7 @@ export default class TestScene extends Scene {
   createPlayer() {
     const playerX = 300, playerY = 300;
 
+    // Image and sprite setup
     const platform = new Image(this, playerX, playerY + 78, this.res.platform).setOrigin(.5, 1).setScale(1.5, 1.5).setScrollFactor(1, 0);
 
     this.add.existing(platform);
@@ -501,6 +505,17 @@ export default class TestScene extends Scene {
 
   onPreload() {
     DroppableItemType.preloadAll(this);
+
+    // Audio setup
+    this.load.audio('box_hit', [
+      'assets/audio/default_hit.ogg',
+      'assets/audio/default_hit.mp3'
+    ]);
+
+    this.load.audio('throw', [
+      'assets/audio/default_throw.ogg',
+      'assets/audio/default_throw.mp3'
+    ]);
   }
 
   onCreate() {
@@ -544,6 +559,10 @@ export default class TestScene extends Scene {
 
     this.upcomingItem3 = new Image(this, upcomingX + upcomingStep * 2, upcomingY, this.nextItemTypes[2].res).setOrigin(0, 0).setScrollFactor(0);
     this.add.existing(this.upcomingItem3);
+
+    // Audio
+    this.hitSound = this.sound.add('box_hit');
+    this.hitSound.setVolume(0.2);
 
     // Psykoosit tulille
     if (config.itemRain) {

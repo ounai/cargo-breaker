@@ -16,6 +16,10 @@ const config = {
     pixelArt: true
   },
 
+  audio: {
+    disableWebAudio: true
+  },
+
   droppableItems: {
     /*
       SHIPPING_CONTAINER: 1,
