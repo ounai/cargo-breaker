@@ -17,6 +17,7 @@ export default class DroppableItemType {
   static CRT_SCREEN = new DroppableItemType('CRT_SCREEN', '/assets/items/crt-screen.png');
   static WASHING_MACHINE = new DroppableItemType('WASHING_MACHINE', '/assets/items/washing-machine.png');
   static WIDE_PAINTING = new DroppableItemType('WIDE_PAINTING', '/assets/items/wide-painting.png');
+  static WIDE_PLANK = new DroppableItemType('WIDE_PLANK', '/assets/items/wide-plank.png');
   static MUIKKU = new DroppableItemType('MUIKKU', '/assets/items/Muikku1.png');
   static FELIX = new DroppableItemType('FELIX', '/assets/items/Felix1.png');
   static TRIANGLE = new DroppableItemType('TRIANGLE', '/assets/items/Kolmio_Hagrid.png');

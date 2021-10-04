@@ -55,3 +55,4 @@ export default class ScoreText extends TextObject {
     return this;
   }
 }
+

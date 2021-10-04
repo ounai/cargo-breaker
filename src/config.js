@@ -34,6 +34,16 @@ const config = {
       WASHING_MACHINE: 1,
       WIDE_PAINTING: 1,
       WIDE_PLANK: 1,
+
+      MUIKKU: 1,
+      FELIX: 1,
+      TRIANGLE: 1,
+      GRAMOPHONE: 1,
+      LONG_CONTAINER: 1,
+      BOMB: 1,
+      BOTTLE: 1,
+      BRIEFCASE: 1,
+      AKIMBO_CONTAINER: 1,
     */
 
     // How many past frames to check for hasStopped
@@ -73,21 +83,25 @@ const config = {
     mass: {
       default: 1,
 
-      // High (~50)
-      SHIPPING_CONTAINER: 50,
-      SAFE: 50,
-      WASHING_MACHINE: 50,
+      AKIMBO_CONTAINER: 60,
+      LONG_CONTAINER: 50,
+      SHIPPING_CONTAINER: 40,
+      SAFE: 40,
+      WASHING_MACHINE: 40,
       CRT_SCREEN: 40,
-
-      // Medium (~30)
       GRASS_BLOCK: 30,
+      TRIANGLE: 30,
       WIDE_PLANK: 25,
-
-      // Low (~20)
+      BOMB: 25,
       WOODEN_CRATE: 20,
       ROTARY_PHONE: 20,
+      GRAMOPHONE: 20,
       GIFT_BOX: 20,
       WIDE_PAINTING: 20,
+      MUIKKU: 20,
+      FELIX: 20,
+      BOTTLE: 15,
+      BRIEFCASE: 15,
       CARDBOARD_BOX: 15
     },
 
@@ -150,8 +164,22 @@ const config = {
       default: 0.01
     },
 
-    minHeight: { default: null },
-    maxHeight: { default: null }
+    minHeight: {
+      default: null,
+      MUIKKU: 10,
+      FELIX: 10,
+      TRIANGLE: 10,
+      GRAMOPHONE: 10,
+      LONG_CONTAINER: 10,
+      BOMB: 10,
+      BOTTLE: 10,
+      BRIEFCASE: 10,
+      AKIMBO_CONTAINER: 10,
+    },
+
+    maxHeight: {
+      default: null
+    }
   }
 };
 

@@ -50,7 +50,6 @@ export default class TestScene extends Scene {
       pointerup: this.onMouseUp
     },
     keydown: {
-      SPACE: () => this.doDemolish(5),
       R: () => this.restart()
     }
   }
@@ -157,7 +156,10 @@ export default class TestScene extends Scene {
       DroppableItemType.BOTTLE,
       DroppableItemType.BRIEFCASE,
       DroppableItemType.AKIMBO_CONTAINER
-    ];
+    ].filter(itemType => (
+      (itemType.minHeight === null || itemType.minHeight < this.currentTowerHeight)
+      && (itemType.maxHeight === null || itemTypes.maxHeight > this.currentTowerHeight)
+    ));
 
     const n = Math.floor(Math.random() * itemTypes.length);
 
@@ -186,17 +188,13 @@ export default class TestScene extends Scene {
     return this.cache.json.get(this.res.shapes);
   }
 
-  doDemolish(waitSecodsBefore = 0) {
-    this.demolish = true;
-
-    if (typeof waitSecodsBefore === 'number' && waitSecodsBefore > 0) {
-      setTimeout(() => this.doDemolish(0), waitSecodsBefore * 1000);
-
-      return;
-    }
-
+  doDemolish() {
     // Move all current items over to static items
     this.staticItems.push(...this.items);
+
+    // Remove score text
+    this.scoreText.destroy();
+    this.scoreText = null;
 
     if (this.itemInPlayerHand !== null) this.itemInPlayerHand.destroy();
 
@@ -377,6 +375,7 @@ export default class TestScene extends Scene {
   }
 
   newRound() {
+    this.debug('New round! Demolish:', this.demolish);
     let score = 0;
 
     for (const item of this.items) {
@@ -682,9 +681,11 @@ export default class TestScene extends Scene {
     }
 
     for (let i = 0; i < this.items.length; i++) {
+      const itemDimension = Math.max(this.items[i].height * this.items[i].scaleY, this.items[i].width * this.items[i].scaleX);
+
       // Delete items that are not in the boat
       if (
-        this.items[i].y - this.items[i].height * this.items[i].scaleY > this.cameras.main.worldView.bottom
+        this.items[i].y - itemDimension > this.cameras.main.worldView.bottom
         || this.items[i].x > this.boat.x + 1500
       ) {
         this.items[i].destroy();
@@ -698,9 +699,11 @@ export default class TestScene extends Scene {
       this.items[i].onUpdate(this.boat.x);
     }
 
-    if (this.shouldRoundEnd()) this.newRound();
+    if (!this.demolish) {
+      if (this.shouldRoundEnd()) this.newRound();
 
-    if (!config.itemRain && !this.demolish) this.updatePlayer(delta);
+      if (!config.itemRain) this.updatePlayer(delta);
+    }
 
     if (this.canSpawnItem && this.chargeStartTime !== null) {
       this.charge = (this.time.now - this.chargeStartTime) / this.chargeFactor;
@@ -726,7 +729,7 @@ export default class TestScene extends Scene {
       const positionCount = this.aimLineCount * 2;
       const timeFactor = 2;
       const gravity = 1;
-      const lineColor = 0xff0000;
+      const lineColor = 0x3333ff;
       const angle = this.player.rotation - Math.PI / 2;
       const velocity = 520 * this.charge / this.itemInPlayerHand.itemType.mass;
 
@@ -750,7 +753,7 @@ export default class TestScene extends Scene {
 
           const aimLine = new Line(this, this.itemInPlayerHand.x, this.itemInPlayerHand.y, x1, y1, x2, y2, lineColor);
 
-          aimLine.setDepth(-1).setOrigin(0, 0);
+          aimLine.setDepth(-1).setOrigin(0, 0).setLineWidth(6);
 
           this.aimLines.push(aimLine);
           this.add.existing(aimLine);
