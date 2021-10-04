@@ -556,6 +556,11 @@ export default class TestScene extends Scene {
       'assets/audio/default_throw.ogg',
       'assets/audio/default_throw.mp3'
     ]);
+
+    this.load.audio('music', [
+      'assets/audio/music.ogg',
+      'assets/audio/music.mp3'
+    ]);
   }
 
   onCreate() {
@@ -606,6 +611,10 @@ export default class TestScene extends Scene {
 
     this.throwSound = this.sound.add('throw');
     this.throwSound.setVolume(.04);
+
+    this.music = this.sound.add('music');
+    this.music.setVolume(.02);
+    this.music.play();
 
     // Psykoosit tulille
     if (config.itemRain) {
