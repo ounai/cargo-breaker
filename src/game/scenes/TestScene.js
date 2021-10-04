@@ -613,7 +613,7 @@ export default class TestScene extends Scene {
 
     this.music = this.sound.add('music');
     this.music.setVolume(.02);
-    this.music.play();
+    this.music.play({ loop: true });
 
     // Psykoosit tulille
     if (config.itemRain) {
