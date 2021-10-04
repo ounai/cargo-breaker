@@ -36,10 +36,16 @@ export default class ScoreText extends TextObject {
         onUpdate: ({ totalProgress }, { value }) => {
           const progressValue = Math.floor((oldScore + totalProgress * (newScore - oldScore)) * 10) / 10;
 
-          this.setFontSize(value);
+          const fontSize = Math.floor(value);
+
+          this.setFontSize(fontSize);
           this.setText(`${progressValue.toFixed(1)} m`);
 
-          if (totalProgress >= 1) this.#fontSize = value;
+          if (totalProgress >= 1) {
+            this.setFontSize(newSize);
+
+            this.#fontSize = newSize;
+          }
         }
       });
 
