@@ -35,7 +35,7 @@ export default class TestScene extends Scene {
       pointerup: this.onMouseUp
     },
     keydown: {
-      SPACE: this.demolish
+      SPACE: () => this.doDemolish(5)
     }
   }
 
@@ -110,13 +110,19 @@ export default class TestScene extends Scene {
     return this.cache.json.get(this.res.shapes);
   }
 
-  demolish() {
+  doDemolish(waitSecodsBefore = 0) {
+    this.demolish = true;
+
+    if (typeof waitSecodsBefore === 'number' && waitSecodsBefore > 0) {
+      setTimeout(() => this.doDemolish(0), waitSecodsBefore * 1000);
+
+      return;
+    }
+
     // Move all current items over to static items
     this.staticItems.push(...this.items);
 
     if (this.itemInPlayerHand !== null) this.itemInPlayerHand.destroy();
-
-    this.demolish = true;
 
     const time = Math.floor(Math.abs(this.cameraPosition.y * 1.5)) + 1000;
 
@@ -152,7 +158,7 @@ export default class TestScene extends Scene {
   }
 
   onItemStop() {
-    if (this.roundItemCount > 0) {
+    if (!config.itemRain && this.roundItemCount > 0) {
       setTimeout(() => {
         this.followItem = null;
 
@@ -255,11 +261,14 @@ export default class TestScene extends Scene {
     this.debug('Moving camera, demolish:', this.demolish, 'time:', timeMs);
 
     this.followItem = null;
-    this.cameras.main.pan(this.cameraCenter.x, y, timeMs, 'Sine.easeInOut');
 
-    setTimeout(() => {
-      this.panToPlayer(() => this.player.anims.play('pickup_item', true));
-    }, timeMs + 100);
+    if (!this.demolish) {
+      this.cameras.main.pan(this.cameraCenter.x, y, timeMs, 'Sine.easeInOut');
+
+      if (!config.itemRain) {
+        setTimeout(() => this.panToPlayer(() => this.player.anims.play('pickup_item', true)), timeMs + 100);
+      }
+    }
   }
 
   newRound() {
@@ -284,7 +293,7 @@ export default class TestScene extends Scene {
       if (!this.demolish) this.moveCamera();
 
       this.lastTowerHeight = this.currentTowerHeight;
-    } else {
+    } else if (!config.itemRain) {
       this.panToPlayer(() => this.player.anims.play('pickup_item', true));
     }
   }
@@ -356,7 +365,7 @@ export default class TestScene extends Scene {
   }
 
   panToBoat(time = 1000, y = null, ease = 'Sine.easeInOut') {
-    this.debug('Pan: BOAT');
+    this.debug('Pan: BOAT, y:', y);
 
     if (y === null) y = this.cameraCenter.y;
 
