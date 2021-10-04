@@ -288,10 +288,14 @@ export default class TestScene extends Scene {
     this.player.setRotation(playerRotation);
 
     if(this.itemInPlayerHand !== null) {
-      const { y: playerWorldY } = this.viewportToWorld(this.player.x, this.player.y);
+      const { x: playerWorldX, y: playerWorldY } = this.viewportToWorld(this.player.x, this.player.y);
 
-      // Move hand item to player's new position
-      if (this.itemInPlayerHand.y !== playerWorldY) this.itemInPlayerHand.y = playerWorldY;
+      console.log(this.player.height, this.itemInPlayerHand.height * this.itemInPlayerHand.scaleY);
+
+      const offset = this.player.height * this.player.scaleY / 2 + this.itemInPlayerHand.height * this.itemInPlayerHand.scaleY / 2 - 8;
+
+      this.itemInPlayerHand.x = playerWorldX + Math.sin(playerRotation) * offset;
+      this.itemInPlayerHand.y = playerWorldY - Math.cos(playerRotation) * offset;
 
       this.itemInPlayerHand.setRotation(playerRotation);
     }
