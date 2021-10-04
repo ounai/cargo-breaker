@@ -65,22 +65,28 @@ export default class TestScene extends Scene {
   canSpawnItem = false;
   demolish = false;
 
-  currentItemType = DroppableItemType.CARDBOARD_BOX;
+  currentItemType = null;
+  nextItemTypes = [];
 
-  //nextItemTypes = Array(10).fill(DroppableItemType.CARDBOARD_BOX);
-  nextItemTypes = [
-    //DroppableItemType.CARDBOARD_BOX,
-    DroppableItemType.SHIPPING_CONTAINER,
-    DroppableItemType.SAFE,
-    DroppableItemType.WOODEN_CRATE,
-    DroppableItemType.GRASS_BLOCK,
-    DroppableItemType.ROTARY_PHONE,
-    DroppableItemType.GIFT_BOX,
-    DroppableItemType.CRT_SCREEN,
-    DroppableItemType.WASHING_MACHINE,
-    DroppableItemType.WIDE_PAINTING,
-    DroppableItemType.WIDE_PLANK
-  ];
+  getRandomItemType() {
+    const itemTypes = [
+      DroppableItemType.CARDBOARD_BOX,
+      DroppableItemType.SHIPPING_CONTAINER,
+      DroppableItemType.SAFE,
+      DroppableItemType.WOODEN_CRATE,
+      DroppableItemType.GRASS_BLOCK,
+      DroppableItemType.ROTARY_PHONE,
+      DroppableItemType.GIFT_BOX,
+      DroppableItemType.CRT_SCREEN,
+      DroppableItemType.WASHING_MACHINE,
+      DroppableItemType.WIDE_PAINTING,
+      DroppableItemType.WIDE_PLANK
+    ];
+
+    const n = Math.floor(Math.random() * itemTypes.length);
+
+    return itemTypes[n];
+  }
 
   constructor() {
     super({
@@ -150,7 +156,6 @@ export default class TestScene extends Scene {
   }
 
   spawnItem(screenX, screenY) {
-    if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
     this.currentItemType = this.nextItemTypes.shift();
 
     const itemPosition = this.viewportToWorld(screenX, screenY), opt = {};
@@ -194,9 +199,6 @@ export default class TestScene extends Scene {
     this.itemCount++;
     this.roundItemCount++;
 
-    // Add current item type at the end of next items array
-    if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
-
     // Get new current item type from the start of next items array
     this.currentItemType = this.nextItemTypes.shift();
 
@@ -220,11 +222,6 @@ export default class TestScene extends Scene {
 
       // Spawn item at player position
       if (this.canSpawnItem) this.throwItem();
-
-      // Update next items textures
-      this.upcomingItem1.setTexture(this.nextItemTypes[0].res);
-      this.upcomingItem2.setTexture(this.nextItemTypes[1].res);
-      this.upcomingItem3.setTexture(this.nextItemTypes[2].res);
     }
   }
 
@@ -310,6 +307,11 @@ export default class TestScene extends Scene {
 
     this.player.on('animationcomplete', animation => {
       if (animation.key === 'pickup_item') {
+        // Update next items textures
+        this.upcomingItem1.setTexture(this.nextItemTypes[0].res);
+        this.upcomingItem2.setTexture(this.nextItemTypes[1].res);
+        this.upcomingItem3.setTexture(this.nextItemTypes[2].res);
+
         this.canSpawnItem = true;
 
         if (!config.spawnClick) {
@@ -370,12 +372,21 @@ export default class TestScene extends Scene {
     if (typeof callback === 'function') setTimeout(callback, time);
   }
 
+  updateNextItemTypes() {
+    while (this.nextItemTypes.length < 10) {
+      this.nextItemTypes.push(this.getRandomItemType());
+    }
+  }
+
   onPreload() {
     DroppableItemType.preloadAll(this);
   }
 
   onCreate() {
     this.debug('Game.onCreate()');
+
+    this.currentItemType = this.getRandomItemType();
+    this.updateNextItemTypes();
 
     this.cameras.main.setBackgroundColor('#000000');
 
@@ -424,6 +435,8 @@ export default class TestScene extends Scene {
   }
 
   onUpdate(time, delta) {
+    this.updateNextItemTypes();
+
     if (this.boatVelocity !== 0) {
       this.boat.x += delta * this.boatVelocity;
 
