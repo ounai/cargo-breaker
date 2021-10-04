@@ -14,8 +14,6 @@ export default class NextItem {
         ? Phaser.Math.FloatBetween(itemType.scale[0], itemType.scale[1])
         : itemType.scale
     );
-
-    console.log('NextItem', this);
   }
 
   createItem(scene, x, y, opt) {

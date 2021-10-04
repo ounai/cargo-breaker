@@ -88,6 +88,10 @@ export default class TestScene extends Scene {
     this.lastHitSoundTime = null;
     this.finalScore = null;
     this.nextItem = null;
+    this.boss = null;
+    this.speechBubble = null;
+    this.bossLine1 = null;
+    this.bossLine2 = null
 
     this.charge = null;
     this.angle = null;
@@ -307,9 +311,8 @@ export default class TestScene extends Scene {
   onMouseDown({ x, y }) {
     if (this.canSpawnItem) {
       this.cutSceneAnimation = false;
-      if (config.spawnClick){
-        this.spawnItem(x, y);
-      } 
+
+      if (config.spawnClick) this.spawnItem(x, y);
       else if (this.roundItemCount !== config.itemsPerRound) this.chargeStartTime = this.time.now;
     }
   }
@@ -558,7 +561,7 @@ export default class TestScene extends Scene {
   }
 
   startCutscene() {
-    this.boss = new Image(this, 1400, 498, this.res.boss);
+    this.boss = new Image(this, 1600, 498, this.res.boss);
     this.add.existing(this.boss);
   }
 
@@ -662,37 +665,46 @@ export default class TestScene extends Scene {
   onUpdate(time, delta) {
     this.updateNextItemTypes();
 
-    console.log(this.cutSceneAnimation);
-
-    if(this.cutSceneAnimation === true){
-      if(this.boss.x > 1000 && this.boss !== null){
-        this.boss.x -= 0.1 * delta;
-        console.log(this.boss.x);
-      } else if (this.boss.x <= 1000 && this.boss !== null){
+    if(this.cutSceneAnimation === true) {
+      if(this.boss.x > 1000 && this.boss !== null) {
+        this.boss.x -= 0.2 * delta;
+      } else if (this.boss.x <= 1000 && this.boss !== null && this.speechBubble === null) {
         this.speechBubble = new Image(this, 1050, 350, this.res.speechBubble).setScale(1.5);
-        this.add.existing(this.speechBubble);
-        this.bossLine1 = new Text(this, 1010, 260, 'Get to work \nyou rusty\npiece of\ngarbage!\nDo you\nwant to\nget fired\non your\nfirst day,\nhuh?', {
+
+        this.bossLine1 = new Text(this, 1010, 250, 'Get to work \nyou rusty\npiece of\ngarbage!\nDo you\nwant to\nget fired\non your\nfirst day,\nhuh?', {
           color: '#000000',
           fontSize: '14px'
         });
-        this.add.existing(this.bossLine1);
-  
-        this.add.existing(this.speechBubble);
-        this.bossLine2 = new Text(this, 1010, 400, 'Thankfully \nrobots dont\nneed salary...', {
+
+        this.bossLine2 = new Text(this, 1010, 405, 'Thankfully you\nrobots don\'t\nneed salary...', {
           color: '#000000',
           fontSize: '10px'
         });
+
+        this.add.existing(this.speechBubble);
+        this.add.existing(this.bossLine1);
         this.add.existing(this.bossLine2);
       }
-    }else if (this.cutSceneAnimation === false) {
-      this.boss.destroy();
-      this.boss = null;
-      this.speechBubble.destroy();
-      this.speechBubble = null;
-      this.bossLine1.destroy();
-      this.bossLine1 = null;
-      this.bossLine2.destroy();
-      this.bossLine2 = null;
+    } else if (this.cutSceneAnimation === false) {
+      if (this.boss !== null) {
+        this.boss.destroy();
+        this.boss = null;
+      }
+
+      if (this.speechBubble !== null) {
+        this.speechBubble.destroy();
+        this.speechBubble = null;
+      }
+
+      if (this.bossLine1 !== null) {
+        this.bossLine1.destroy();
+        this.bossLine1 = null;
+      }
+
+      if (this.bossLine2 !== null) {
+        this.bossLine2.destroy();
+        this.bossLine2 = null;
+      }
     }
 
     if (this.boatVelocity !== 0) {

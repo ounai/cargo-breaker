@@ -32,7 +32,6 @@ export default class DroppableItemType {
   #assetPath;
 
   #scale;
-  #density;
   #mass;
   #bounce;
 
@@ -58,7 +57,6 @@ export default class DroppableItemType {
     this.#assetPath = assetPath;
 
     this.#scale = config.droppableItems.scale[name] ?? config.droppableItems.scale.default;
-    this.#density = config.droppableItems.density[name] ?? config.droppableItems.density.default;
     this.#mass = config.droppableItems.mass[name] ?? config.droppableItems.mass.default;
     this.#bounce = config.droppableItems.bounce[name] ?? config.droppableItems.bounce.default;
 
@@ -82,10 +80,6 @@ export default class DroppableItemType {
 
   get res() {
     return this.#resource;
-  }
-
-  get density() {
-    return this.#density;
   }
 
   get mass() {
