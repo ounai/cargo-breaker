@@ -22,6 +22,7 @@ export default class TestScene extends Scene {
     shapes: new JSONResource('assets/jsons/shapes.json'),
     boat: new ImageResource('assets/static_props/boat.png'),
     background: new ImageResource('assets/backgrounds/Background_Wide_V2.png'),
+    platform: new ImageResource('assets/player/platform.png'),
     player: new SpriteSheetResource('assets/player/Worker_bot_sprites.png', {
       frameWidth: 64,
       frameHeight: 48
@@ -286,7 +287,13 @@ export default class TestScene extends Scene {
   }
 
   createPlayer() {
-    this.player = new Sprite(this, 300, 300, this.res.player)
+    const playerX = 300, playerY = 300;
+
+    const platform = new Image(this, playerX, playerY + 78, this.res.platform).setOrigin(.5, 1).setScale(1.5, 1.5).setScrollFactor(1, 0);
+
+    this.add.existing(platform);
+
+    this.player = new Sprite(this, playerX, playerY, this.res.player)
       .setScale(1.5, 1.5)
       .setOrigin(.5, .5)
       .setScrollFactor(1, 0);
