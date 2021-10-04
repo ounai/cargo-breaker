@@ -60,6 +60,7 @@ export default class TestScene extends Scene {
   maxCharge = 5;
   aimLineCount = 5;
   hitSoundInterval = 500;
+  smokeDensity = 1000;
 
   boatVelocity = -.2;
   boatX = 1150;
@@ -605,49 +606,6 @@ export default class TestScene extends Scene {
 
     this.throwSound = this.sound.add('throw');
     this.throwSound.setVolume(.04);
-    
-    //Particle test
-    let particles = this.add.particles(this.res.explosion);
-
-    const explosion = this.explosion;
-
-    let emitter = particles.createEmitter({
-        x: 100,
-        y: 100,
-        frame: 0,
-        quantity: 1,
-        frequency: 200,
-        angle: { min: 0, max: 30 },
-        speed: 200,
-        gravityY: 100,
-        lifespan: { min: 1000, max: 2000 },
-        particleClass: class AnimatedParticle extends Particle {
-          constructor(emitter) {
-            super(emitter);
-        
-            this.t = 0;
-            this.i = 0;
-          }
-        
-          update(delta, step, processors) {
-            const result = super.update(delta, step, processors);
-        
-            this.t += delta;
-        
-            if (this.t >= explosion.msPerFrame) {
-              this.i++;
-        
-              if (this.i >= explosion.frames.length) this.i = 0;
-        
-              this.frame = explosion.frames[this.i].frame;
-        
-              this.t -= explosion.msPerFrame;
-            }
-        
-            return result;
-          }
-        }
-    });
 
     // Psykoosit tulille
     if (config.itemRain) {
@@ -699,6 +657,50 @@ export default class TestScene extends Scene {
         this.items.splice(i, 1);
         this.health.decrease();
 
+        // Smoke particles
+        let particles = this.add.particles(this.res.explosion);
+
+        const explosion = this.explosion;
+
+        let emitter = particles.createEmitter({
+            x: this.player.x,
+            y: this.player.y,
+            frame: 0,
+            quantity: 1,
+            frequency: this.smokeDensity,
+            angle: { min: 0, max: 30 },
+            speed: 0,
+            gravityY: -100,
+            lifespan: { min: 1000, max: 2000 },
+            particleClass: class AnimatedParticle extends Particle {
+              constructor(emitter) {
+                super(emitter);
+              
+                this.t = 0;
+                this.i = 0;
+              }
+            
+              update(delta, step, processors) {
+                const result = super.update(delta, step, processors);
+              
+                this.t += delta;
+              
+                if (this.t >= explosion.msPerFrame) {
+                  this.i++;
+                
+                  if (this.i >= explosion.frames.length) this.i = 0;
+                
+                  this.frame = explosion.frames[this.i].frame;
+                
+                  this.t -= explosion.msPerFrame;
+                }
+              
+                return result;
+              }
+            }
+        });
+
+        this.smokeDensity -= 300
         continue;
       }
 
