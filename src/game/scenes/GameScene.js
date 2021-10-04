@@ -60,6 +60,7 @@ export default class TestScene extends Scene {
   }
 
   cutSceneAnimation = true;
+  soundsMuted = false;
 
   onRestart() {
     this.chargeFactor = 500;
@@ -108,7 +109,6 @@ export default class TestScene extends Scene {
     this.stopCharge = false;
     this.gameOver = false;
     this.firstItemPickedUp = false;
-    this.soundsMuted = false;
 
     this.currentItemType = null;
     this.nextItemTypes = [];
