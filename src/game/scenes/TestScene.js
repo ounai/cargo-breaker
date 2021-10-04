@@ -240,7 +240,7 @@ export default class TestScene extends Scene {
 
     this.debug('Moving camera, demolish:', this.demolish);
 
-    this.cameras.main.pan(this.cameraCenter.x, y, timeMs, 'Sine.easeInOut');
+    this.cameras.main.pan(this.cameraOrigin.x, y, timeMs, 'Sine.easeInOut');
   }
 
   newRound() {
@@ -262,7 +262,7 @@ export default class TestScene extends Scene {
     this.roundItemCount = 0;
 
     if (this.lastTowerHeight === null) this.lastTowerHeight = this.currentTowerHeight;
-    else if (this.lastTowerHeight < this.currentTowerHeight - 100) {
+    else if (this.lastTowerHeight < this.currentTowerHeight /*- 100*/) {
       if (!this.demolish) this.moveCamera();
 
       this.lastTowerHeight = this.currentTowerHeight;
@@ -272,7 +272,8 @@ export default class TestScene extends Scene {
   createPlayer() {
     this.player = new Sprite(this, 100, 250, this.res.player)
       .setScale(1.5, 1.5)
-      .setOrigin(.5, .5);
+      .setOrigin(.5, .5)
+      .setScrollFactor(1, 0);
 
     this.add.existing(this.player);
 
