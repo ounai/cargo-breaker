@@ -33,7 +33,7 @@ export default class TestScene extends Scene {
     boss: new ImageResource('assets/player/boss.png'),
     speechBubble: new ImageResource('assets/player/sbubble.png'),
     mutes1: new ImageResource('assets/headphones/mutes1.png'),
-    mutes2: new ImageResource('assets/headphones/mutes2.png'),
+    //mutes2: new ImageResource('assets/headphones/mutes2.png'),
     player: new SpriteSheetResource('assets/player/Worker-Bot-Seperated.png', {
       frameWidth: 64,
       frameHeight: 48
@@ -697,8 +697,7 @@ export default class TestScene extends Scene {
     }
 
     // Mute icon
-    const muteIcon = new Image(this, 100, 100, this.res.headphones).setScrollFactor(0).setScale(.5, .5).setOrigin(1, 0).setDepth(100);
-    console.log(muteIcon);
+    const muteIcon = new Image(this, 1280, 0, this.res.mutes1).setScrollFactor(0).setScale(.5, .5).setOrigin(1, 0).setDepth(100);
     this.add.existing(muteIcon);
   }
 
@@ -707,7 +706,7 @@ export default class TestScene extends Scene {
 
     if (this.cutSceneAnimation === true) {
       if (this.boss.x > 1000 && this.boss !== null) {
-        this.boss.x -= 0.2 * delta;
+        this.boss.x -= .2 * delta;
       } else if (this.boss.x <= 1000 && this.boss !== null && this.speechBubble === null) {
         const offset = 50;
 
@@ -731,10 +730,14 @@ export default class TestScene extends Scene {
         this.add.existing(this.bossLine2);
       }
     } else if (this.cutSceneAnimation === false) {
-      /*if (this.boss !== null) {
-        this.boss.destroy();
-        this.boss = null;
-      }*/
+      if (this.boss !== null) {
+        this.boss.x += .2 * delta;
+
+        if (this.boss.x > 2000) {
+          this.boss.destroy();
+          this.boss = null;
+        }
+      }
 
       if (this.speechBubble !== null) {
         this.speechBubble.destroy();
