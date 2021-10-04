@@ -32,7 +32,8 @@ export default class TestScene extends Scene {
     conveyor: new ImageResource('assets/player/ConveyorBelt.png'),
     boss: new ImageResource('assets/player/boss.png'),
     speechBubble: new ImageResource('assets/player/sbubble.png'),
-    headphones: new ImageResource('assets/headphones.png'),
+    mutes1: new ImageResource('assets/headphones/mutes1.png'),
+    mutes2: new ImageResource('assets/headphones/mutes2.png'),
     player: new SpriteSheetResource('assets/player/Worker-Bot-Seperated.png', {
       frameWidth: 64,
       frameHeight: 48
@@ -696,7 +697,9 @@ export default class TestScene extends Scene {
     }
 
     // Mute icon
-    this.add.existing(new Image(this, 1280, 720, this.res.headphones).setOrigin(1, 0));
+    const muteIcon = new Image(this, 100, 100, this.res.headphones).setScrollFactor(0).setScale(.5, .5).setOrigin(1, 0).setDepth(100);
+    console.log(muteIcon);
+    this.add.existing(muteIcon);
   }
 
   onUpdate(time, delta) {
