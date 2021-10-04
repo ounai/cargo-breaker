@@ -55,54 +55,14 @@ export default class TestScene extends Scene {
     }
   }
 
-  // TODO config
-  chargeFactor = 500;
-  minCharge = .1;
-  maxCharge = 5;
-  aimLineCount = 5;
-  hitSoundInterval = 500;
-  upcomingSpace = 10;
-
-  boatVelocity = -.2;
-  boatX = 1150;
-
-  itemCount = 0;
-  roundItemCount = 0;
-  currentTowerHeight = 0;
-
-  lastTowerHeight = null;
-  chargeStartTime = null;
-  itemInPlayerHand = null;
-  upcomingText = null;
-  scoreText = null;
-  boat = null;
-  health = null;
-  items = [];
-  player = null;
-  staticItems = [];
-  followItem = null;
-  lastHitSoundTime = null;
-
-  charge = null;
-  angle = null;
-  aimLines = [];
-
-  canSpawnItem = false;
-  demolish = false;
-  stopCharge = false;
-
-  currentItemType = null;
-  nextItemTypes = [];
-
   onRestart() {
-    // TODO
-
     this.chargeFactor = 500;
     this.minCharge = .1;
     this.maxCharge = 5;
     this.aimLineCount = 5;
     this.hitSoundInterval = 200;
     this.upcomingSpace = 10;
+    this.smokeDensity = 1000;
 
     this.boatVelocity = -.2;
     this.boatX = 1150;
@@ -131,6 +91,7 @@ export default class TestScene extends Scene {
     this.canSpawnItem = false;
     this.demolish = false;
     this.stopCharge = false;
+    this.gameOver = false;
 
     this.currentItemType = null;
     this.nextItemTypes = [];
@@ -463,6 +424,13 @@ export default class TestScene extends Scene {
       repeat: 0
     });
 
+    this.explosion = this.anims.create({
+      key: 'explosion_smoke',
+      frames: this.anims.generateFrameNumbers(this.res.explosion, { start: 0, end: 6 }),
+      frameRate: 10,
+      repeat: 0
+    });
+
     this.playerLegs.on('animationcomplete', animation => {
       if (animation.key === 'pickup_item_legs') {
         this.playerLegs.setFrame(0);
@@ -632,49 +600,6 @@ export default class TestScene extends Scene {
 
     this.throwSound = this.sound.add('throw');
     this.throwSound.setVolume(.04);
-    
-    //Particle test
-    let particles = this.add.particles(this.res.player);
-
-    const pickupAnimation = this.pickupAnimation;
-
-    let emitter = particles.createEmitter({
-        x: 100,
-        y: 100,
-        frame: 0,
-        quantity: 1,
-        frequency: 200,
-        angle: { min: 0, max: 30 },
-        speed: 200,
-        gravityY: 100,
-        lifespan: { min: 1000, max: 2000 },
-        particleClass: class AnimatedParticle extends Particle {
-          constructor(emitter) {
-            super(emitter);
-        
-            this.t = 0;
-            this.i = 0;
-          }
-        
-          update(delta, step, processors) {
-            const result = super.update(delta, step, processors);
-        
-            this.t += delta;
-        
-            if (this.t >= pickupAnimation.msPerFrame) {
-              this.i++;
-        
-              if (this.i >= pickupAnimation.frames.length) this.i = 0;
-        
-              this.frame = pickupAnimation.frames[this.i].frame;
-        
-              this.t -= pickupAnimation.msPerFrame;
-            }
-        
-            return result;
-          }
-        }
-    });
 
     // Psykoosit tulille
     if (config.itemRain) {
@@ -727,6 +652,50 @@ export default class TestScene extends Scene {
         this.items.splice(i, 1);
         this.health.decrease();
 
+        // Smoke particles
+        let particles = this.add.particles(this.res.explosion);
+
+        const explosion = this.explosion;
+
+        let emitter = particles.createEmitter({
+            x: this.player.x,
+            y: this.player.y,
+            frame: 0,
+            quantity: 1,
+            frequency: this.smokeDensity,
+            angle: { min: 0, max: 30 },
+            speed: 0,
+            gravityY: -100,
+            lifespan: { min: 1000, max: 2000 },
+            particleClass: class AnimatedParticle extends Particle {
+              constructor(emitter) {
+                super(emitter);
+              
+                this.t = 0;
+                this.i = 0;
+              }
+            
+              update(delta, step, processors) {
+                const result = super.update(delta, step, processors);
+              
+                this.t += delta;
+              
+                if (this.t >= explosion.msPerFrame) {
+                  this.i++;
+                
+                  if (this.i >= explosion.frames.length) this.i = 0;
+                
+                  this.frame = explosion.frames[this.i].frame;
+                
+                  this.t -= explosion.msPerFrame;
+                }
+              
+                return result;
+              }
+            }
+        });
+
+        this.smokeDensity -= 300
         continue;
       }
 
