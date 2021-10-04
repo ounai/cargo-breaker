@@ -266,6 +266,8 @@ export default class TestScene extends Scene {
   throwItem() {
     setTimeout(() => this.player.setFrame(12), 250);
 
+    this.throwSound.play();
+
     const velocityVector = new Vector2(
       Math.sin(this.player.rotation) * this.charge,
       -Math.cos(this.player.rotation) * this.charge
@@ -304,6 +306,8 @@ export default class TestScene extends Scene {
 
     this.conveyorBeltItem = new Image(this, 0, this.conveyorBeltY, this.nextItem.itemType.res).setOrigin(1, 1).setScale(this.nextItem.scale).setScrollFactor(1, 0);
     this.add.existing(this.conveyorBeltItem);
+
+    this.conveyorSound.play();
 
     this.canSpawnItem = false;
     this.itemInPlayerHand = null;
@@ -586,6 +590,16 @@ export default class TestScene extends Scene {
       'assets/audio/music.ogg',
       'assets/audio/music.mp3'
     ]);
+
+    this.load.audio('missed', [
+      'assets/audio/missed.ogg',
+      'assets/audio/missed.mp3'
+    ]);
+
+    this.load.audio('conveyor', [
+      'assets/audio/conveyor2.ogg',
+      'assets/audio/conveyor2.mp3'
+    ]);
   }
 
   onCreate() {
@@ -647,13 +661,19 @@ export default class TestScene extends Scene {
 
     // Audio
     this.hitSound = this.sound.add('box_hit');
-    this.hitSound.setVolume(.04);
+    this.hitSound.setVolume(.4);
 
     this.throwSound = this.sound.add('throw');
-    this.throwSound.setVolume(.04);
+    this.throwSound.setVolume(.4);
+
+    this.missedSound = this.sound.add('missed');
+    this.missedSound.setVolume(.4);
+
+    this.conveyorSound = this.sound.add('conveyor');
+    this.conveyorSound.setVolume(.4);
 
     this.music = this.sound.add('music');
-    this.music.setVolume(.02);
+    this.music.setVolume(.2);
     this.music.play({ loop: true });
 
     if (config.itemRain) {
@@ -785,6 +805,7 @@ export default class TestScene extends Scene {
         this.items[i].destroy();
         this.items.splice(i, 1);
         this.health.decrease();
+        this.missedSound.play();
 
         // Smoke particles
         let particles = this.add.particles(this.res.explosion);
