@@ -44,6 +44,7 @@ export default class TestScene extends Scene {
   maxCharge = 5;
 
   boatVelocity = -.2;
+  boatX = 1150;
 
   itemCount = 0;
   roundItemCount = 0;
@@ -285,7 +286,7 @@ export default class TestScene extends Scene {
   }
 
   createPlayer() {
-    this.player = new Sprite(this, 100, 250, this.res.player)
+    this.player = new Sprite(this, 300, 300, this.res.player)
       .setScale(1.5, 1.5)
       .setOrigin(.5, .5)
       .setScrollFactor(1, 0);
@@ -315,22 +316,27 @@ export default class TestScene extends Scene {
     });
   }
 
-  updatePlayer() {
-    const fullPlayerRotation = Math.atan2(this.input.mousePointer.x - this.player.x, -(this.input.mousePointer.y - this.player.y));
-    const playerRotation = Math.max(Math.min(fullPlayerRotation, Math.PI / 2), 0);
+  updatePlayer(delta) {
+    if (this.canSpawnItem) {
+      const fullPlayerRotation = Math.atan2(this.input.mousePointer.x - this.player.x, -(this.input.mousePointer.y - this.player.y));
+      const playerRotation = Math.max(Math.min(fullPlayerRotation, Math.PI / 2), 0);
 
-    this.player.setRotation(playerRotation);
+      this.player.setRotation(playerRotation);
 
-    // Match item in hand to player
-    if (this.itemInPlayerHand !== null) {
-      const { x: playerWorldX, y: playerWorldY } = this.viewportToWorld(this.player.x, this.player.y);
+      // Match item in hand to player
+      if (this.itemInPlayerHand !== null) {
+        const { x: playerWorldX, y: playerWorldY } = this.viewportToWorld(this.player.x, this.player.y);
 
-      const offset = this.player.height * this.player.scaleY / 2 + this.itemInPlayerHand.height * this.itemInPlayerHand.scaleY / 2 - 8;
+        const offset = this.player.height * this.player.scaleY / 2 + this.itemInPlayerHand.height * this.itemInPlayerHand.scaleY / 2 - 8;
 
-      this.itemInPlayerHand.x = playerWorldX + Math.sin(playerRotation) * offset;
-      this.itemInPlayerHand.y = playerWorldY - Math.cos(playerRotation) * offset;
+        this.itemInPlayerHand.x = playerWorldX + Math.sin(playerRotation) * offset;
+        this.itemInPlayerHand.y = playerWorldY - Math.cos(playerRotation) * offset;
 
-      this.itemInPlayerHand.setRotation(playerRotation);
+        this.itemInPlayerHand.setRotation(playerRotation);
+      }
+    } else {
+      if (this.player.rotation > 0) this.player.rotation -= delta / 500;
+      if (this.player.rotation < 0) this.player.rotation = 0;
     }
   }
 
@@ -366,7 +372,7 @@ export default class TestScene extends Scene {
 
     this.cameras.main.setBackgroundColor('#000000');
 
-    const bgX = -500, bgScale = 6;
+    const bgX = 1100, bgScale = 6;
     const bgImage = new Image(this, bgX, 720, this.res.background).setOrigin(.4, 1).setScale(bgScale, bgScale);
 
     this.add.existing(bgImage);
@@ -378,7 +384,7 @@ export default class TestScene extends Scene {
     this.health.on(0, () => this.debug('RIP'));
 
     // Das Boot
-    this.boat = new MatterImage(this.matter.world, 2000, 680, this.resources.boat, 0, {
+    this.boat = new MatterImage(this.matter.world, this.boatX, 680, this.resources.boat, 0, {
       shape: this.shapes.boat
     }).setStatic(true).setScale(4, 4).setDepth(1);
 
@@ -414,8 +420,8 @@ export default class TestScene extends Scene {
     if (this.boatVelocity !== 0) {
       this.boat.x += delta * this.boatVelocity;
 
-      if (this.boatVelocity < 0 && (config.skipBoatArriving || this.boat.x < 1200)) {
-        this.boat.x = 1200;
+      if (this.boatVelocity < 0 && (config.skipBoatArriving || this.boat.x < this.boatX)) {
+        this.boat.x = this.boatX;
         this.boatVelocity = 0;
 
         if (config.itemRain) this.panToBoat(0);
@@ -447,7 +453,7 @@ export default class TestScene extends Scene {
 
     if (this.shouldRoundEnd()) this.newRound();
 
-    if (!config.itemRain) this.updatePlayer();
+    if (!config.itemRain) this.updatePlayer(delta);
 
     if (this.canSpawnItem && this.chargeStartTime !== null) {
       this.charge = (this.time.now - this.chargeStartTime) / this.chargeFactor;
