@@ -97,6 +97,7 @@ export default class TestScene extends Scene {
     this.speechBubble = null;
     this.bossLine1 = null;
     this.bossLine2 = null
+    this.missedText = null;
 
     this.charge = null;
     this.angle = null;
@@ -195,6 +196,10 @@ export default class TestScene extends Scene {
     this.upcomingText.destroy();
     this.upcomingText = null;
 
+    // Remove missed text
+    this.missedText.destroy();
+    this.missedText = null;
+
     if (this.itemInPlayerHand !== null) this.itemInPlayerHand.destroy();
 
     const time = Math.floor(Math.abs(this.cameraPosition.y * 1.5)) + 1000;
@@ -231,7 +236,7 @@ export default class TestScene extends Scene {
   }
 
   onItemStop() {
-    if (!config.itemRain && this.roundItemCount > 0) {
+    if (!config.itemRain && (this.roundItemCount > 0 || this.roundItemCount < config.itemsPerRound)) {
       setTimeout(() => {
         this.followItem = null;
 
@@ -642,7 +647,10 @@ export default class TestScene extends Scene {
     if (!config.itemRain) this.createPlayer();
 
     this.health = new Health(config.health);
-    this.health.on(0, () => this.doDemolish());
+    this.health.on(0, () => {
+      this.doDemolish();
+      this.missedSound.play();
+    });
 
     // Das Boot
     this.boat = new MatterImage(this.matter.world, this.boatX, 680, this.resources.boat, 0, {
@@ -660,6 +668,12 @@ export default class TestScene extends Scene {
       fontFamily: 'Roundabout'
     }).setScrollFactor(0).setDepth(100);
     this.add.existing(this.upcomingText);
+
+    this.missedText = new Text(this, upcomingX, upcomingY + 60, 'Miss: 0/3', {
+      fontSize: 20,
+      fontFamily: 'Roundabout'
+    }).setScrollFactor(0).setDepth(100);
+    this.add.existing(this.missedText);
 
     upcomingX += 54;
 
@@ -919,7 +933,8 @@ export default class TestScene extends Scene {
       const positionCount = this.aimLineCount * 2;
       const timeFactor = 2;
       const gravity = 1;
-      const lineColor = 0x3333ff;
+      //const lineColor = 0x3333ff;
+      const lineColor = 0xffffff;
       const angle = this.player.rotation - Math.PI / 2;
       const velocity = 520 * this.charge / this.itemInPlayerHand.itemType.mass;
 
@@ -943,7 +958,7 @@ export default class TestScene extends Scene {
 
           const aimLine = new Line(this, this.itemInPlayerHand.x, this.itemInPlayerHand.y, x1, y1, x2, y2, lineColor);
 
-          aimLine.setDepth(-1).setOrigin(0, 0).setLineWidth(6);
+          aimLine.setDepth(-1).setOrigin(0, 0).setLineWidth(6).setAlpha(.75);
 
           this.aimLines.push(aimLine);
           this.add.existing(aimLine);
@@ -966,6 +981,10 @@ export default class TestScene extends Scene {
       this.playerLegs.anims.play('pickup_item_legs', true);
 
       this.firstItemPickedUp = true;
+    }
+
+    if (this.missedText !== null) {
+      this.missedText.setText(`Missed ${config.health - this.health} / ${config.health}`);
     }
   }
 
