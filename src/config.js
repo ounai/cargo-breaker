@@ -6,7 +6,7 @@ const config = {
 
   itemRain: false,
   itemsPerRound: 3,
-  health: 5,
+  health: 3,
 
   spawnClick: false,
   skipBoatArriving: true,
@@ -68,7 +68,7 @@ const config = {
 
     // How aggressive the auto positioning is, higher is less aggressive
     autoPositionFactor: {
-      default: 50000
+      default: 100000
     },
 
     // Show auto position debug messages every frame
@@ -106,25 +106,12 @@ const config = {
       CARDBOARD_BOX: 15
     },
 
-    density: {
-      // [0, inf[ ?
-      default: 1,
-      SHIPPING_CONTAINER: 100,
-      SAFE: 100,
-      WOODEN_CRATE: 30,
-      CARDBOARD_BOX: 5,
-      GRASS_BLOCK: 30,
-      ROTARY_PHONE: 10,
-      GIFT_BOX: 10,
-      CRT_SCREEN: 70,
-      WASHING_MACHINE: 100,
-      WIDE_PAINTING: 20,
-      WIDE_PLANK: 20
-    },
     scale: {
       // [0, inf[
-      default: [3, 5]
+      default: [3, 5],
+      LONG_CONTAINER: [4, 5]
     },
+
     friction: {
       // [0, 1] ?
       default: 0.5,
@@ -140,11 +127,13 @@ const config = {
       WIDE_PAINTING: 0.5,
       WIDE_PLANK: 0.7
     },
+
     frictionAir: {
       // [0, 1] ?
       //default: 0.01
       default: 0
     },
+
     frictionStatic: {
       // [0, inf[ ?
       default: 5,
@@ -160,6 +149,7 @@ const config = {
       WIDE_PAINTING: 5,
       WIDE_PLANK: 7
     },
+
     bounce: {
       // [0, 1]
       default: 0.01

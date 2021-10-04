@@ -12,6 +12,7 @@ import Vector2 from '/src/engine/math/Vector2';
 import Polygon from '/src/engine/objects/Polygon';
 import Line from '/src/engine/objects/Line';
 import Text from '/src/engine/objects/Text';
+import Particle from '/src/engine/objects/Particle';
 
 import config from '/src/config';
 
@@ -19,7 +20,7 @@ import DroppableItemType from '/src/game/objects/DroppableItemType';
 import DroppableItem from '/src/game/objects/DroppableItem';
 import Health from '/src/game/objects/Health';
 import ScoreText from '/src/game/objects/ScoreText';
-import Particle from '/src/engine/objects/Particle';
+import NextItem from '/src/game/objects/NextItem';
 
 export default class TestScene extends Scene {
   resources = {
@@ -27,6 +28,7 @@ export default class TestScene extends Scene {
     boat: new ImageResource('assets/static_props/boat.png'),
     background: new ImageResource('assets/backgrounds/Background_Wide_V2.png'),
     platform: new ImageResource('assets/player/platform.png'),
+    conveyor: new ImageResource('assets/player/ConveyorBelt.png'),
     player: new SpriteSheetResource('assets/player/Worker-Bot-Seperated.png', {
       frameWidth: 64,
       frameHeight: 48
@@ -49,9 +51,6 @@ export default class TestScene extends Scene {
     input: {
       pointerdown: this.onMouseDown,
       pointerup: this.onMouseUp
-    },
-    keydown: {
-      R: () => this.restart()
     }
   }
 
@@ -63,6 +62,8 @@ export default class TestScene extends Scene {
     this.hitSoundInterval = 1000;
     this.upcomingSpace = 10;
     this.smokeDensity = 1000;
+    this.conveyorBeltY = 320;
+    this.conveyorBeltEndX = 200;
 
     this.boatVelocity = -.2;
     this.boatX = 1150;
@@ -84,6 +85,7 @@ export default class TestScene extends Scene {
     this.followItem = null;
     this.lastHitSoundTime = null;
     this.finalScore = null;
+    this.nextItem = null;
 
     this.charge = null;
     this.angle = null;
@@ -93,6 +95,7 @@ export default class TestScene extends Scene {
     this.demolish = false;
     this.stopCharge = false;
     this.gameOver = false;
+    this.firstItemPickedUp = false;
 
     this.currentItemType = null;
     this.nextItemTypes = [];
@@ -288,6 +291,10 @@ export default class TestScene extends Scene {
 
     // Get new current item type from the start of next items array
     this.currentItemType = this.nextItemTypes.shift();
+    this.nextItem = new NextItem(this.currentItemType);
+
+    this.conveyorBeltItem = new Image(this, 0, this.conveyorBeltY, this.nextItem.itemType.res).setOrigin(1, 1).setScale(this.nextItem.scale).setScrollFactor(1, 0);
+    this.add.existing(this.conveyorBeltItem);
 
     this.canSpawnItem = false;
     this.itemInPlayerHand = null;
@@ -302,6 +309,8 @@ export default class TestScene extends Scene {
   }
 
   onMouseUp() {
+    if (this.gameOver) return this.restart();
+
     if (this.stopCharge || this.charge < this.minCharge) {
       this.charge = null;
       this.stopCharge = false;
@@ -394,12 +403,14 @@ export default class TestScene extends Scene {
   }
 
   createPlayer() {
-    const playerX = 300, playerY = 300;
+    const playerX = 280, playerY = 300;
 
     // Image and sprite setup
-    const platform = new Image(this, playerX, playerY + 78, this.res.platform).setOrigin(.5, 1).setScale(1.5, 1.5).setScrollFactor(1, 0);
+    const platform = new Image(this, playerX, playerY + 60, this.res.platform).setOrigin(.5, 1).setScale(1.5, 1.5).setScrollFactor(1, 0).setDepth(1);
+    const conveyor = new Image(this, playerX - 280, playerY, this.res.conveyor).setOrigin(0, 0).setScale(1.75, 1.75).setScrollFactor(1, 0).setDepth(1);
 
     this.add.existing(platform);
+    this.add.existing(conveyor);
 
     this.player = new Sprite(this, playerX, playerY + 12, this.res.player)
       .setScale(1.5, 1.5)
@@ -470,11 +481,12 @@ export default class TestScene extends Scene {
 
             let opt;
 
-            if (this.shapes[this.currentItemType.name]) opt = { shape: this.shapes[this.currentItemType.name] };
+            if (this.shapes[this.nextItem.itemType.name]) opt = { shape: this.shapes[this.nextItem.itemType.name] };
+            this.itemInPlayerHand = this.nextItem.createItem(this, x, y, opt).setStatic(true).setDepth(2);
 
-            this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, x, y, this.currentItemType.res, 0, opt)
-              .setStatic(true)
-              .setDepth(2);
+            this.conveyorBeltItem.destroy();
+            this.conveyorBeltItem = null;
+            this.nextItem = null;
 
             this.add.existing(this.itemInPlayerHand);
           }
@@ -562,8 +574,13 @@ export default class TestScene extends Scene {
   onCreate() {
     this.debug('Game.onCreate()');
 
-    this.currentItemType = this.getRandomItemType();
+    this.nextItem = new NextItem(this.getRandomItemType());
+
+    //this.currentItemType = this.getRandomItemType();
     this.updateNextItemTypes();
+
+    this.conveyorBeltItem = new Image(this, 0, this.conveyorBeltY, this.nextItem.itemType.res).setOrigin(1, 1).setScale(this.nextItem.scale).setScrollFactor(1, 0);
+    this.add.existing(this.conveyorBeltItem);
 
     this.cameras.main.setBackgroundColor('#000000');
 
@@ -587,23 +604,28 @@ export default class TestScene extends Scene {
 
     this.scoreText = new ScoreText(this);
 
-    let upcomingX = 16, upcomingY = 46;
+    let upcomingX = 16, upcomingY = 16;
 
-    this.upcomingText = new Text(this, upcomingX, 16, 'UPCOMING ITEMS:').setScrollFactor(0);
+    this.upcomingText = new Text(this, upcomingX, upcomingY + 4, 'Next:', {
+      fontSize: 20,
+      fontFamily: 'Roundabout'
+    }).setScrollFactor(0).setDepth(100);
     this.add.existing(this.upcomingText);
 
+    upcomingX += 54;
+
     // Next items
-    this.upcomingItem1 = new Image(this, upcomingX, upcomingY, this.nextItemTypes[0].res).setOrigin(0, 0).setScrollFactor(0);
+    this.upcomingItem1 = new Image(this, upcomingX, upcomingY, this.nextItemTypes[0].res).setOrigin(0, 0).setScrollFactor(0).setDepth(100);
     this.add.existing(this.upcomingItem1);
 
     upcomingX += this.upcomingItem1.width + this.upcomingSpace;
 
-    this.upcomingItem2 = new Image(this, upcomingX, upcomingY, this.nextItemTypes[1].res).setOrigin(0, 0).setScrollFactor(0);
+    this.upcomingItem2 = new Image(this, upcomingX, upcomingY, this.nextItemTypes[1].res).setOrigin(0, 0).setScrollFactor(0).setDepth(100);
     this.add.existing(this.upcomingItem2);
 
     upcomingX += this.upcomingItem2.width + this.upcomingSpace;
 
-    this.upcomingItem3 = new Image(this, upcomingX, upcomingY, this.nextItemTypes[2].res).setOrigin(0, 0).setScrollFactor(0);
+    this.upcomingItem3 = new Image(this, upcomingX, upcomingY, this.nextItemTypes[2].res).setOrigin(0, 0).setScrollFactor(0).setDepth(100);
     this.add.existing(this.upcomingItem3);
 
     // Audio
@@ -617,7 +639,6 @@ export default class TestScene extends Scene {
     this.music.setVolume(.02);
     this.music.play();
 
-    // Psykoosit tulille
     if (config.itemRain) {
       setInterval(() => {
         if (!this.demolish && this.roundItemCount < config.itemsPerRound) {
@@ -636,10 +657,7 @@ export default class TestScene extends Scene {
         this.boatVelocity = 0;
 
         if (config.itemRain) this.panToBoat(0);
-        else {
-          this.player.anims.play('pickup_item_torso', true);
-          this.playerLegs.anims.play('pickup_item_legs', true);
-        } 
+        else this.player.setFrame(12);
 
         this.boat.x += delta * this.boatVelocity;
       } else if (this.boatVelocity > 0 && this.demolish) {
@@ -660,15 +678,18 @@ export default class TestScene extends Scene {
           this.gameOver = true;
 
           const gameOverText = new Text(this, this.screenCenter.x, this.screenCenter.y - 50, 'GAME OVER', {
-            fontSize: 100
+            fontSize: 100,
+            fontFamily: 'Roundabout'
           }).setOrigin(.5, .5);
 
-          const finalScoreText = new Text(this, this.screenCenter.x, this.screenCenter.y + 30, `Final Score: ${this.finalScore} m`, {
-            fontSize: 60
+          const finalScoreText = new Text(this, this.screenCenter.x, this.screenCenter.y + 35, `Final Score: ${this.finalScore} m`, {
+            fontSize: 60,
+            fontFamily: 'Roundabout'
           }).setOrigin(.5, .5);
 
           const clickToRestartText = new Text(this, this.screenCenter.x, this.screenCenter.y + 100, '(click to play again!)', {
-            fontSize: 40
+            fontSize: 40,
+            fontFamily: 'Roundabout'
           }).setOrigin(.5, .5);
 
           this.add.existing(gameOverText);
@@ -803,10 +824,19 @@ export default class TestScene extends Scene {
 
     for (let i = 0; i < this.staticItems.length; i++) {
       if (!this.staticItems[i].scene) {
-        this.debug('Destroying item with no scene:', item);
+        this.debug('Destroying item with no scene:', this.staticItems[i]);
 
         this.staticItems.splice(i, 1);
       }
+    }
+
+    if (this.conveyorBeltItem !== null && this.conveyorBeltItem.x < this.conveyorBeltEndX) {
+      this.conveyorBeltItem.x = Math.min(this.conveyorBeltItem.x + delta, this.conveyorBeltEndX);
+    } else if (!this.firstItemPickedUp) {
+      this.player.anims.play('pickup_item_torso', true);
+      this.playerLegs.anims.play('pickup_item_legs', true);
+
+      this.firstItemPickedUp = true;
     }
   }
 

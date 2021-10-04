@@ -5,7 +5,7 @@ export default class ScoreText extends TextObject {
   #fontSize = 16;
 
   constructor(scene, fontSize = 20) {
-    super(scene, scene.screenCenter.x, scene.screenCenter.y / 2, '0.0 m', {
+    super(scene, scene.screenCenter.x, scene.screenCenter.y / 8, '0.0 m', {
       font: 'Courier'
     });
 
@@ -14,7 +14,7 @@ export default class ScoreText extends TextObject {
     this.setFontSize(fontSize);
     this.setOrigin(.5);
     this.setScrollFactor(0);
-    this.setDepth(1);
+    this.setDepth(100);
 
     scene.add.existing(this);
   }
