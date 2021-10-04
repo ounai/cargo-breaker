@@ -433,6 +433,13 @@ export default class TestScene extends Scene {
       repeat: 0
     });
 
+    this.explosion = this.anims.create({
+      key: 'explosion_smoke',
+      frames: this.anims.generateFrameNumbers(this.res.explosion, { start: 0, end: 7 }),
+      frameRate: 10,
+      repeat: 0
+    });
+
     this.playerLegs.on('animationcomplete', animation => {
       if (animation.key === 'pickup_item_legs') {
         this.playerLegs.setFrame(0);
@@ -589,9 +596,9 @@ export default class TestScene extends Scene {
     this.throwSound.setVolume(.04);
     
     //Particle test
-    let particles = this.add.particles(this.res.player);
+    let particles = this.add.particles(this.res.explosion);
 
-    const pickupAnimation = this.pickupAnimation;
+    const explosion = this.explosion;
 
     let emitter = particles.createEmitter({
         x: 100,
@@ -616,14 +623,14 @@ export default class TestScene extends Scene {
         
             this.t += delta;
         
-            if (this.t >= pickupAnimation.msPerFrame) {
+            if (this.t >= explosion.msPerFrame) {
               this.i++;
         
-              if (this.i >= pickupAnimation.frames.length) this.i = 0;
+              if (this.i >= explosion.frames.length) this.i = 0;
         
-              this.frame = pickupAnimation.frames[this.i].frame;
+              this.frame = explosion.frames[this.i].frame;
         
-              this.t -= pickupAnimation.msPerFrame;
+              this.t -= explosion.msPerFrame;
             }
         
             return result;
