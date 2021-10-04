@@ -53,6 +53,7 @@ export default class TestScene extends Scene {
   chargeFactor = 500;
   minCharge = .1;
   maxCharge = 5;
+  aimLineCount = 5;
 
   boatVelocity = -.2;
   boatX = 1150;
@@ -581,7 +582,7 @@ export default class TestScene extends Scene {
     }
 
     if (this.charge !== null) {
-      const positionCount = 10;
+      const positionCount = this.aimLineCount * 2;
       const timeFactor = 2;
       const gravity = 1;
       const lineColor = 0xff0000;
