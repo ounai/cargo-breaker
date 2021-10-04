@@ -2,10 +2,11 @@ import Phaser from '/src/lib/phaser';
 
 const config = {
   debug: true,
+  debugTexts: false,
 
   itemRain: false,
   itemsPerRound: 3,
-  health: 5,
+  health: 3,
 
   spawnClick: false,
   skipBoatArriving: true,

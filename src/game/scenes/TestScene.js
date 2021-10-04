@@ -11,6 +11,7 @@ import SpriteSheetResource from '/src/engine/resources/SpriteSheetResource';
 import Vector2 from '/src/engine/math/Vector2';
 import Polygon from '/src/engine/objects/Polygon';
 import Line from '/src/engine/objects/Line';
+import Text from '/src/engine/objects/Text';
 
 import config from '/src/config';
 
@@ -60,6 +61,7 @@ export default class TestScene extends Scene {
   maxCharge = 5;
   aimLineCount = 5;
   hitSoundInterval = 500;
+  upcomingSpace = 10;
 
   boatVelocity = -.2;
   boatX = 1150;
@@ -71,6 +73,7 @@ export default class TestScene extends Scene {
   lastTowerHeight = null;
   chargeStartTime = null;
   itemInPlayerHand = null;
+  upcomingText = null;
   scoreText = null;
   boat = null;
   health = null;
@@ -99,6 +102,7 @@ export default class TestScene extends Scene {
     this.maxCharge = 5;
     this.aimLineCount = 5;
     this.hitSoundInterval = 200;
+    this.upcomingSpace = 10;
 
     this.boatVelocity = -.2;
     this.boatX = 1150;
@@ -110,6 +114,7 @@ export default class TestScene extends Scene {
     this.lastTowerHeight = null;
     this.chargeStartTime = null;
     this.itemInPlayerHand = null;
+    this.upcomingText = null;
     this.scoreText = null;
     this.boat = null;
     this.health = null;
@@ -189,12 +194,26 @@ export default class TestScene extends Scene {
   }
 
   doDemolish() {
+    this.demolish = true;
+
     // Move all current items over to static items
     this.staticItems.push(...this.items);
 
     // Remove score text
     this.scoreText.destroy();
     this.scoreText = null;
+
+    // Remove upcoming items
+    this.upcomingItem1.destroy();
+    this.upcomingItem1 = null;
+    this.upcomingItem2.destroy();
+    this.upcomingItem2 = null;
+    this.upcomingItem3.destroy();
+    this.upcomingItem3 = null;
+
+    // Remove upcoming text
+    this.upcomingText.destroy();
+    this.upcomingText = null;
 
     if (this.itemInPlayerHand !== null) this.itemInPlayerHand.destroy();
 
@@ -452,11 +471,21 @@ export default class TestScene extends Scene {
 
     this.player.on('animationcomplete', animation => {
       if (animation.key === 'pickup_item_torso') {
-        if (this.itemInPlayerHand === null) {
+        if (this.itemInPlayerHand === null && !this.demolish) {
           // Update next items textures
+          let upcomingX = this.upcomingItem1.x;
+
           this.upcomingItem1.setTexture(this.nextItemTypes[0].res);
+
+          upcomingX += this.upcomingItem1.width + this.upcomingSpace;
+
           this.upcomingItem2.setTexture(this.nextItemTypes[1].res);
+          this.upcomingItem2.x = upcomingX;
+
+          upcomingX += this.upcomingItem2.width + this.upcomingSpace;
+
           this.upcomingItem3.setTexture(this.nextItemTypes[2].res);
+          this.upcomingItem3.x = upcomingX;
 
           this.canSpawnItem = true;
 
@@ -473,7 +502,7 @@ export default class TestScene extends Scene {
 
             this.add.existing(this.itemInPlayerHand);
           }
-        } else this.debug('pickup_item_torso finished but itemInPlayerHand is not null!');
+        }
       }
     });
   }
@@ -567,7 +596,7 @@ export default class TestScene extends Scene {
     if (!config.itemRain) this.createPlayer();
 
     this.health = new Health(config.health);
-    this.health.on(0, () => this.doDemolish(0));
+    this.health.on(0, () => this.doDemolish());
 
     // Das Boot
     this.boat = new MatterImage(this.matter.world, this.boatX, 680, this.resources.boat, 0, {
@@ -578,18 +607,23 @@ export default class TestScene extends Scene {
 
     this.scoreText = new ScoreText(this);
 
-    this.add.text(250, 8, 'UPCOMING ITEMS:').setScrollFactor(0);
+    let upcomingX = 16, upcomingY = 46;
 
-    const upcomingX = 250, upcomingY = 40, upcomingStep = 50;
+    this.upcomingText = new Text(this, upcomingX, 16, 'UPCOMING ITEMS:').setScrollFactor(0);
+    this.add.existing(this.upcomingText);
 
     // Next items
     this.upcomingItem1 = new Image(this, upcomingX, upcomingY, this.nextItemTypes[0].res).setOrigin(0, 0).setScrollFactor(0);
     this.add.existing(this.upcomingItem1);
 
-    this.upcomingItem2 = new Image(this, upcomingX + upcomingStep, upcomingY, this.nextItemTypes[1].res).setOrigin(0, 0).setScrollFactor(0);
+    upcomingX += this.upcomingItem1.width + this.upcomingSpace;
+
+    this.upcomingItem2 = new Image(this, upcomingX, upcomingY, this.nextItemTypes[1].res).setOrigin(0, 0).setScrollFactor(0);
     this.add.existing(this.upcomingItem2);
 
-    this.upcomingItem3 = new Image(this, upcomingX + upcomingStep * 2, upcomingY, this.nextItemTypes[2].res).setOrigin(0, 0).setScrollFactor(0);
+    upcomingX += this.upcomingItem2.width + this.upcomingSpace;
+
+    this.upcomingItem3 = new Image(this, upcomingX, upcomingY, this.nextItemTypes[2].res).setOrigin(0, 0).setScrollFactor(0);
     this.add.existing(this.upcomingItem3);
 
     // Audio
@@ -674,7 +708,8 @@ export default class TestScene extends Scene {
         for (const item of this.staticItems) {
           if (item.scene) {
             item.x -= delta * this.boatVelocity;
-            item.thrust(0.01);
+
+            item.applyForce(new Vector2(0, 0));
           }
         }
       }
@@ -767,6 +802,8 @@ export default class TestScene extends Scene {
   }
 
   debugStrings() {
+    if (!config.debugTexts) return [];
+
     return [
       `Item Count: ${this.itemCount}`,
       `Round Item Count: ${this.roundItemCount}`,
