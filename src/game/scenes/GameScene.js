@@ -312,7 +312,7 @@ export default class TestScene extends Scene {
     this.conveyorBeltItem = new Image(this, 0, this.conveyorBeltY, this.nextItem.itemType.res).setOrigin(1, 1).setScale(this.nextItem.scale).setScrollFactor(1, 0);
     this.add.existing(this.conveyorBeltItem);
 
-    //this.conveyorSound.play();
+    this.conveyorSound.play();
 
     this.canSpawnItem = false;
     this.itemInPlayerHand = null;
