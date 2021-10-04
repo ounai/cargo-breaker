@@ -50,7 +50,7 @@ export default class TestScene extends Scene {
   }
 
   // TODO config
-  chargeFactor = 250;
+  chargeFactor = 500;
   minCharge = .5;
   maxCharge = 5;
 
