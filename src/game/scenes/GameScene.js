@@ -668,20 +668,25 @@ export default class TestScene extends Scene {
   onUpdate(time, delta) {
     this.updateNextItemTypes();
 
-    if(this.cutSceneAnimation === true) {
-      if(this.boss.x > 1000 && this.boss !== null) {
+    if (this.cutSceneAnimation === true) {
+      if (this.boss.x > 1000 && this.boss !== null) {
         this.boss.x -= 0.2 * delta;
       } else if (this.boss.x <= 1000 && this.boss !== null && this.speechBubble === null) {
-        this.speechBubble = new Image(this, 1050, 350, this.res.speechBubble).setScale(1.5);
+        const offset = 50;
 
-        this.bossLine1 = new Text(this, 1010, 250, 'Get to work \nyou rusty\npiece of\ngarbage!\nDo you\nwant to\nget fired\non your\nfirst day,\nhuh?', {
+        this.speechBubble = new Image(this, 1084, 350 - offset, this.res.speechBubble).setScale(2.4, 1.5);
+
+        //this.bossLine1 = new Text(this, 1010, 250, 'Get to work \nyou rusty\npiece of\ngarbage!\nDo you\nwant to\nget fired\non your\nfirst day,\nhuh?', {
+        this.bossLine1 = new Text(this, 1000, 250 - offset, 'Get to work\nalready!!!\n\n\nJust click\nand drag,\nanyone could\ndo it!', {
           color: '#000000',
-          fontSize: '14px'
+          fontSize: '14px',
+          fontFamily: 'Lazytown'
         });
 
-        this.bossLine2 = new Text(this, 1010, 405, 'Thankfully you\nrobots don\'t\nneed salary...', {
+        this.bossLine2 = new Text(this, 1000, 390 - offset, '...can\'t believe\nI\'m paying robo-\nminimum wage\nfor this...', {
           color: '#000000',
-          fontSize: '10px'
+          fontSize: '10px',
+          fontFamily: 'Lazytown'
         });
 
         this.add.existing(this.speechBubble);
