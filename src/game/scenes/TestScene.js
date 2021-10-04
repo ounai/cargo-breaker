@@ -29,6 +29,8 @@ export default class TestScene extends Scene {
     background: new ImageResource('assets/backgrounds/Background_Wide_V2.png'),
     platform: new ImageResource('assets/player/platform.png'),
     conveyor: new ImageResource('assets/player/ConveyorBelt.png'),
+    boss: new ImageResource('assets/player/boss.png'),
+    speechBubble: new ImageResource('assets/player/sbubble.png'),
     player: new SpriteSheetResource('assets/player/Worker-Bot-Seperated.png', {
       frameWidth: 64,
       frameHeight: 48
@@ -96,6 +98,7 @@ export default class TestScene extends Scene {
     this.stopCharge = false;
     this.gameOver = false;
     this.firstItemPickedUp = false;
+    this.cutSceneAnimation = true;
 
     this.currentItemType = null;
     this.nextItemTypes = [];
@@ -303,7 +306,10 @@ export default class TestScene extends Scene {
   // Create item on mouse click
   onMouseDown({ x, y }) {
     if (this.canSpawnItem) {
-      if (config.spawnClick) this.spawnItem(x, y);
+      this.cutSceneAnimation = false;
+      if (config.spawnClick){
+        this.spawnItem(x, y);
+      } 
       else if (this.roundItemCount !== config.itemsPerRound) this.chargeStartTime = this.time.now;
     }
   }
@@ -551,6 +557,11 @@ export default class TestScene extends Scene {
     }
   }
 
+  startCutscene() {
+    this.boss = new Image(this, 1400, 498, this.res.boss);
+    this.add.existing(this.boss);
+  }
+
   onPreload() {
     DroppableItemType.preloadAll(this);
 
@@ -574,10 +585,10 @@ export default class TestScene extends Scene {
   onCreate() {
     this.debug('Game.onCreate()');
 
+    this.updateNextItemTypes();
     this.nextItem = new NextItem(this.getRandomItemType());
 
-    //this.currentItemType = this.getRandomItemType();
-    this.updateNextItemTypes();
+    this.startCutscene();
 
     this.conveyorBeltItem = new Image(this, 0, this.conveyorBeltY, this.nextItem.itemType.res).setOrigin(1, 1).setScale(this.nextItem.scale).setScrollFactor(1, 0);
     this.add.existing(this.conveyorBeltItem);
@@ -637,7 +648,7 @@ export default class TestScene extends Scene {
 
     this.music = this.sound.add('music');
     this.music.setVolume(.02);
-    this.music.play();
+    this.music.play({ loop: true });
 
     if (config.itemRain) {
       setInterval(() => {
@@ -650,6 +661,39 @@ export default class TestScene extends Scene {
 
   onUpdate(time, delta) {
     this.updateNextItemTypes();
+
+    console.log(this.cutSceneAnimation);
+
+    if(this.cutSceneAnimation === true){
+      if(this.boss.x > 1000 && this.boss !== null){
+        this.boss.x -= 0.1 * delta;
+        console.log(this.boss.x);
+      } else if (this.boss.x <= 1000 && this.boss !== null){
+        this.speechBubble = new Image(this, 1050, 350, this.res.speechBubble).setScale(1.5);
+        this.add.existing(this.speechBubble);
+        this.bossLine1 = new Text(this, 1010, 260, 'Get to work \nyou rusty\npiece of\ngarbage!\nDo you\nwant to\nget fired\non your\nfirst day,\nhuh?', {
+          color: '#000000',
+          fontSize: '14px'
+        });
+        this.add.existing(this.bossLine1);
+  
+        this.add.existing(this.speechBubble);
+        this.bossLine2 = new Text(this, 1010, 400, 'Thankfully \nrobots dont\nneed salary...', {
+          color: '#000000',
+          fontSize: '10px'
+        });
+        this.add.existing(this.bossLine2);
+      }
+    }else if (this.cutSceneAnimation === false) {
+      this.boss.destroy();
+      this.boss = null;
+      this.speechBubble.destroy();
+      this.speechBubble = null;
+      this.bossLine1.destroy();
+      this.bossLine1 = null;
+      this.bossLine2.destroy();
+      this.bossLine2 = null;
+    }
 
     if (this.boatVelocity !== 0) {
       if (this.boatVelocity < 0 && (config.skipBoatArriving || this.boat.x < this.boatX)) {
