@@ -9,6 +9,8 @@ import MatterImage from '/src/engine/objects/MatterImage';
 import Sprite from '/src/engine/objects/Sprite';
 import SpriteSheetResource from '/src/engine/resources/SpriteSheetResource';
 import Vector2 from '/src/engine/math/Vector2';
+import Polygon from '/src/engine/objects/Polygon';
+import Line from '/src/engine/objects/Line';
 
 import config from '/src/config';
 
@@ -61,6 +63,10 @@ export default class TestScene extends Scene {
   player = null;
   staticItems = [];
   followItem = null;
+
+  charge = null;
+  angle = null;
+  aimLines = [];
 
   canSpawnItem = false;
   demolish = false;
@@ -235,6 +241,14 @@ export default class TestScene extends Scene {
       // Spawn item at player position
       if (this.canSpawnItem) this.throwItem();
     }
+
+    this.charge = null;
+
+    if (this.aimLines.length > 0) {
+      for (const aimLine of this.aimLines) aimLine.destroy();
+
+      this.aimLines = [];
+    }
   }
 
   shouldRoundEnd() {
@@ -342,10 +356,10 @@ export default class TestScene extends Scene {
 
   updatePlayer(delta) {
     if (this.canSpawnItem) {
-      const fullPlayerRotation = Math.atan2(this.input.mousePointer.x - this.player.x, -(this.input.mousePointer.y - this.player.y));
-      const playerRotation = Math.max(Math.min(fullPlayerRotation, Math.PI / 2), 0);
+      const playerAngle = Math.atan2(this.input.mousePointer.x - this.player.x, -(this.input.mousePointer.y - this.player.y));
+      const angle = Math.max(Math.min(playerAngle, Math.PI / 2), 0);
 
-      this.player.setRotation(playerRotation);
+      this.player.setRotation(angle);
 
       // Match item in hand to player
       if (this.itemInPlayerHand !== null) {
@@ -353,10 +367,10 @@ export default class TestScene extends Scene {
 
         const offset = this.player.height * this.player.scaleY / 2 + this.itemInPlayerHand.height * this.itemInPlayerHand.scaleY / 2 - 8;
 
-        this.itemInPlayerHand.x = playerWorldX + Math.sin(playerRotation) * offset;
-        this.itemInPlayerHand.y = playerWorldY - Math.cos(playerRotation) * offset;
+        this.itemInPlayerHand.x = playerWorldX + Math.sin(angle) * offset;
+        this.itemInPlayerHand.y = playerWorldY - Math.cos(angle) * offset;
 
-        this.itemInPlayerHand.setRotation(playerRotation);
+        this.itemInPlayerHand.setRotation(angle);
       }
     } else {
       if (this.player.rotation > 0) this.player.rotation -= delta / 500;
@@ -406,10 +420,10 @@ export default class TestScene extends Scene {
     this.cameras.main.setBackgroundColor('#000000');
 
     const bgX = 1100, bgScale = 6;
-    const bgImage = new Image(this, bgX, 720, this.res.background).setOrigin(.4, 1).setScale(bgScale, bgScale);
+    const bgImage = new Image(this, bgX, 720, this.res.background).setOrigin(.4, 1).setScale(bgScale, bgScale).setDepth(-10);
 
     this.add.existing(bgImage);
-    this.add.existing(new Image(this, bgX + bgImage.width * bgScale, 720, this.res.background).setOrigin(.4, 1).setScale(bgScale, bgScale));
+    this.add.existing(new Image(this, bgX + bgImage.width * bgScale, 720, this.res.background).setOrigin(.4, 1).setScale(bgScale, bgScale).setDepth(-10));
 
     if (!config.itemRain) this.createPlayer();
 
@@ -517,9 +531,43 @@ export default class TestScene extends Scene {
         this.followItem = null;
       }
     }
+
+    if (this.charge !== null) {
+      const positionCount = 10;
+      const timeFactor = 2;
+      const gravity = 1;
+      const lineColor = 0xff0000;
+      const angle = this.player.rotation - Math.PI / 2;
+      const velocity = 520 * this.charge / this.itemInPlayerHand.itemType.mass;
+
+      if (this.aimLines.length > 0) {
+        for (const aimLine of this.aimLines) aimLine.destroy();
+
+        this.aimLines = [];
+      }
+
+      const points = [];
+
+      for (let i = 0; i < positionCount; i += 2) {
+        const xy = time => [
+          velocity * time * Math.cos(angle),
+          velocity * time * Math.sin(angle) + (gravity * time * time) / 2,
+        ];
+
+        const [x1, y1] = xy(timeFactor * i);
+        const [x2, y2] = xy(timeFactor * (i + 1));
+
+        const aimLine = new Line(this, this.itemInPlayerHand.x, this.itemInPlayerHand.y, x1, y1, x2, y2, lineColor);
+
+        aimLine.setDepth(-1).setOrigin(0, 0);
+
+        this.aimLines.push(aimLine);
+        this.add.existing(aimLine);
+      }
+    }
   }
 
-  debugStrings(){
+  debugStrings() {
     return [
       `Item Count: ${this.itemCount}`,
       `Round Item Count: ${this.roundItemCount}`,

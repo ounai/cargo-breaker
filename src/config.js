@@ -112,7 +112,8 @@ const config = {
     },
     frictionAir: {
       // [0, 1] ?
-      default: 0.01
+      //default: 0.01
+      default: 0
     },
     frictionStatic: {
       // [0, inf[ ?
