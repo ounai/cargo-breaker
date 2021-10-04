@@ -179,7 +179,6 @@ export default class TestScene extends Scene {
         this.panToPlayer(() =>{
           this.player.anims.play('pickup_item_torso', true);
           this.playerLegs.anims.play('pickup_item_legs', true);
-          this.playerLegs.setFrame('pickup_item_legs', 0);
         });
       }, 500);
     }
@@ -323,7 +322,6 @@ export default class TestScene extends Scene {
       this.panToPlayer(() => {
         this.player.anims.play('pickup_item_torso', true);
         this.playerLegs.anims.play('pickup_item_legs', true);
-        this.playerLegs.setFrame('pickup_item_legs', 0);
       });
     }
   }
@@ -363,6 +361,12 @@ export default class TestScene extends Scene {
       frames: this.anims.generateFrameNumbers(this.res.player, { start: 12, end: 15 }),
       frameRate: 10,
       repeat: 0
+    });
+
+    this.playerLegs.on('animationcomplete', animation => {
+      if (animation.key === 'pickup_item_legs') {
+        this.playerLegs.setFrame(0);
+      }
     });
 
     this.player.on('animationcomplete', animation => {
@@ -506,7 +510,6 @@ export default class TestScene extends Scene {
         else {
           this.player.anims.play('pickup_item_torso', true);
           this.playerLegs.anims.play('pickup_item_legs', true);
-          this.playerLegs.setFrame('pickup_item_legs', 0);
         } 
 
         this.boat.x += delta * this.boatVelocity;
