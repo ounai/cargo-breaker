@@ -919,7 +919,8 @@ export default class TestScene extends Scene {
       const positionCount = this.aimLineCount * 2;
       const timeFactor = 2;
       const gravity = 1;
-      const lineColor = 0x3333ff;
+      //const lineColor = 0x3333ff;
+      const lineColor = 0xffffff;
       const angle = this.player.rotation - Math.PI / 2;
       const velocity = 520 * this.charge / this.itemInPlayerHand.itemType.mass;
 
@@ -943,7 +944,7 @@ export default class TestScene extends Scene {
 
           const aimLine = new Line(this, this.itemInPlayerHand.x, this.itemInPlayerHand.y, x1, y1, x2, y2, lineColor);
 
-          aimLine.setDepth(-1).setOrigin(0, 0).setLineWidth(6);
+          aimLine.setDepth(-1).setOrigin(0, 0).setLineWidth(6).setAlpha(.75);
 
           this.aimLines.push(aimLine);
           this.add.existing(aimLine);
