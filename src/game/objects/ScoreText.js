@@ -38,6 +38,8 @@ export default class ScoreText extends TextObject {
 
           this.setFontSize(value);
           this.setText(`${progressValue.toFixed(1)} m`);
+
+          if (totalProgress >= 1) this.#fontSize = value;
         }
       });
 
