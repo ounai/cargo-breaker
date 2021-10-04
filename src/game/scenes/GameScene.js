@@ -840,7 +840,7 @@ export default class TestScene extends Scene {
 
         let emitter = particles.createEmitter({
           x: this.player.x,
-          y: this.viewportToWorld(0, this.player.y).y,
+          y: this.player.y,
           frame: 0,
           quantity: 1,
           frequency: this.smokeDensity,
