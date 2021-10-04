@@ -407,6 +407,7 @@ export default class TestScene extends Scene {
     this.playerLegs = new Sprite(this, playerX, playerY, this.res.player)
       .setScale(1.5, 1.5)
       .setOrigin(.5, .5)
+      .setDepth(.5)
       .setScrollFactor(1, 0);
 
     this.add.existing(this.playerLegs);
@@ -449,7 +450,9 @@ export default class TestScene extends Scene {
 
             if (this.shapes[this.currentItemType.name]) opt = { shape: this.shapes[this.currentItemType.name] };
 
-            this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, x, y, this.currentItemType.res, 0, opt).setStatic(true);
+            this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, x, y, this.currentItemType.res, 0, opt)
+              .setStatic(true)
+              .setDepth(2);
 
             this.add.existing(this.itemInPlayerHand);
           }
