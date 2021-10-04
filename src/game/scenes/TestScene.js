@@ -83,6 +83,7 @@ export default class TestScene extends Scene {
     this.staticItems = [];
     this.followItem = null;
     this.lastHitSoundTime = null;
+    this.finalScore = null;
 
     this.charge = null;
     this.angle = null;
@@ -161,6 +162,7 @@ export default class TestScene extends Scene {
     this.staticItems.push(...this.items);
 
     // Remove score text
+    this.finalScore = this.scoreText.score;
     this.scoreText.destroy();
     this.scoreText = null;
 
@@ -648,11 +650,21 @@ export default class TestScene extends Scene {
 
           this.gameOver = true;
 
-          const gameOverText = new Text(this, this.screenCenter.x, this.screenCenter.y, 'GAME OVER', {
+          const gameOverText = new Text(this, this.screenCenter.x, this.screenCenter.y - 50, 'GAME OVER', {
             fontSize: 100
-          });
+          }).setOrigin(.5, .5);
+
+          const finalScoreText = new Text(this, this.screenCenter.x, this.screenCenter.y + 30, `Final Score: ${this.finalScore} m`, {
+            fontSize: 60
+          }).setOrigin(.5, .5);
+
+          const clickToRestartText = new Text(this, this.screenCenter.x, this.screenCenter.y + 100, '(click to play again!)', {
+            fontSize: 40
+          }).setOrigin(.5, .5);
 
           this.add.existing(gameOverText);
+          this.add.existing(finalScoreText);
+          this.add.existing(clickToRestartText);
         }
       }
     }
