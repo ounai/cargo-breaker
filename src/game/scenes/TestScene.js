@@ -114,23 +114,29 @@ export default class TestScene extends Scene {
     // Move all current items over to static items
     this.staticItems.push(...this.items);
 
+    if (this.itemInPlayerHand !== null) this.itemInPlayerHand.destroy();
+
     this.demolish = true;
 
-    const time = Math.floor(Math.abs(this.cameraPosition.y * 1.5));
+    const time = Math.floor(Math.abs(this.cameraPosition.y * 1.5)) + 1000;
 
     this.debug('Start demolish, time:', time);
 
     this.panToBoat(time, this.cameraOrigin.y);
+
+    let panFinished = false;
+
+    setTimeout(() => panFinished = true, time);
 
     const demolishInterval = setInterval(() => {
       this.debug('Demolish interval!');
 
       const { y, height } = this.cameras.main.worldView;
 
-      if (y === 0) {
+      if (y === 0 && panFinished) {
         clearInterval(demolishInterval);
 
-        this.boatVelocity = .1;
+        this.boatVelocity = .2;
       }
 
       for (const item of this.staticItems) {
@@ -438,19 +444,21 @@ export default class TestScene extends Scene {
     this.updateNextItemTypes();
 
     if (this.boatVelocity !== 0) {
-      this.boat.x += delta * this.boatVelocity;
-
       if (this.boatVelocity < 0 && (config.skipBoatArriving || this.boat.x < this.boatX)) {
         this.boat.x = this.boatX;
         this.boatVelocity = 0;
 
         if (config.itemRain) this.panToBoat(0);
         else this.player.anims.play('pickup_item', true);
+
+        this.boat.x += delta * this.boatVelocity;
       } else if (this.boatVelocity > 0 && this.demolish) {
+        this.boat.x -= delta * this.boatVelocity;
+
         // Move items along with the boat
         for (const item of this.staticItems) {
           if (item.scene) {
-            item.x += delta * this.boatVelocity;
+            item.x -= delta * this.boatVelocity;
             item.thrust(0.01);
           }
         }
@@ -473,7 +481,7 @@ export default class TestScene extends Scene {
 
     if (this.shouldRoundEnd()) this.newRound();
 
-    if (!config.itemRain) this.updatePlayer(delta);
+    if (!config.itemRain && !this.demolish) this.updatePlayer(delta);
 
     if (this.canSpawnItem && this.chargeStartTime !== null) {
       this.charge = (this.time.now - this.chargeStartTime) / this.chargeFactor;
