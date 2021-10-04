@@ -137,6 +137,16 @@ export default class TestScene extends Scene {
     }, 500);
   }
 
+  onItemStop() {
+    if (this.roundItemCount > 0) {
+      setTimeout(() => {
+        this.followItem = null;
+
+        this.panToPlayer(() => this.player.anims.play('pickup_item', true));
+      }, 500);
+    }
+  }
+
   spawnItem(screenX, screenY) {
     if (this.currentItemType !== null) this.nextItemTypes.push(this.currentItemType);
     this.currentItemType = this.nextItemTypes.shift();
@@ -155,14 +165,12 @@ export default class TestScene extends Scene {
     this.roundItemCount++;
 
     this.canSpawnItem = false;
-  }
 
-  onItemStop(item) {
-    setTimeout(() => {
-      this.followItem = null;
+    if (config.spawnClick) {
+      this.followItem = item;
 
-      this.panToPlayer(() => this.player.anims.play('pickup_item', true));
-    }, 500);
+      item.onStop(this.onItemStop.bind(this));
+    }
   }
 
   throwItem() {
@@ -195,9 +203,10 @@ export default class TestScene extends Scene {
   }
 
   // Create item on mouse click
-  onMouseDown() {
-    if (this.canSpawnItem && this.roundItemCount !== config.itemsPerRound) {
-      this.chargeStartTime = this.time.now;
+  onMouseDown({ x, y }) {
+    if (this.canSpawnItem) {
+      if (config.spawnClick) this.spawnItem(x, y);
+      else if (this.roundItemCount !== config.itemsPerRound) this.chargeStartTime = this.time.now;
     }
   }
 
@@ -238,9 +247,14 @@ export default class TestScene extends Scene {
     const diff = Math.abs(this.cameraCenter.y - y);
     const timeMs = 8 * Math.floor(diff);
 
-    this.debug('Moving camera, demolish:', this.demolish);
+    this.debug('Moving camera, demolish:', this.demolish, 'time:', timeMs);
 
-    this.cameras.main.pan(this.cameraOrigin.x, y, timeMs, 'Sine.easeInOut');
+    this.followItem = null;
+    this.cameras.main.pan(this.cameraCenter.x, y, timeMs, 'Sine.easeInOut');
+
+    setTimeout(() => {
+      this.panToPlayer(() => this.player.anims.play('pickup_item', true));
+    }, timeMs + 100);
   }
 
   newRound() {
@@ -261,11 +275,12 @@ export default class TestScene extends Scene {
     this.items = [];
     this.roundItemCount = 0;
 
-    if (this.lastTowerHeight === null) this.lastTowerHeight = this.currentTowerHeight;
-    else if (this.lastTowerHeight < this.currentTowerHeight /*- 100*/) {
+    if (this.lastTowerHeight === null || this.lastTowerHeight < this.currentTowerHeight - 100) {
       if (!this.demolish) this.moveCamera();
 
       this.lastTowerHeight = this.currentTowerHeight;
+    } else {
+      this.panToPlayer(() => this.player.anims.play('pickup_item', true));
     }
   }
 
@@ -285,15 +300,17 @@ export default class TestScene extends Scene {
       repeat: 0
     });
 
-    this.player.on('animationcomplete', (animation) => {
-      if(animation.key === 'pickup_item'){
+    this.player.on('animationcomplete', animation => {
+      if (animation.key === 'pickup_item') {
         this.canSpawnItem = true;
 
-        const { x, y } = this.worldToViewport(this.player.x, this.player.y);
+        if (!config.spawnClick) {
+          const { x, y } = this.worldToViewport(this.player.x, this.player.y);
 
-        this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, x, y, this.currentItemType.res).setStatic(true);
+          this.itemInPlayerHand = new DroppableItem(this.currentItemType, this.matter.world, x, y, this.currentItemType.res).setStatic(true);
 
-        this.add.existing(this.itemInPlayerHand);
+          this.add.existing(this.itemInPlayerHand);
+        }
       }
     });
   }
@@ -305,7 +322,7 @@ export default class TestScene extends Scene {
     this.player.setRotation(playerRotation);
 
     // Match item in hand to player
-    if(this.itemInPlayerHand !== null) {
+    if (this.itemInPlayerHand !== null) {
       const { x: playerWorldX, y: playerWorldY } = this.viewportToWorld(this.player.x, this.player.y);
 
       const offset = this.player.height * this.player.scaleY / 2 + this.itemInPlayerHand.height * this.itemInPlayerHand.scaleY / 2 - 8;
@@ -318,19 +335,25 @@ export default class TestScene extends Scene {
   }
 
   panToBoat(time = 1000, y = null, ease = 'Sine.easeInOut') {
-    if (y === null) y = this.cameraOrigin.y;
+    this.debug('Pan: BOAT');
+
+    if (y === null) y = this.cameraCenter.y;
 
     const boatStartX = -this.boat.width * this.boat.scaleX - 80;
     const boatEndX = boatStartX + this.boat.width * this.boat.scaleX;
 
+    this.followItem = null;
     this.cameras.main.pan(this.boat.x, y, time, ease);
   }
 
   panToPlayer(callback, ease = 'Sine.easeInOut') {
+    this.debug('Pan: PLAYER');
+
     const time = this.cameras.main.scrollX;
 
     this.cameras.main.pan(this.cameraOrigin.x, this.screenCenter.y, time, ease);
 
+    this.followItem = null;
     if (typeof callback === 'function') setTimeout(callback, time);
   }
 
@@ -342,7 +365,6 @@ export default class TestScene extends Scene {
     this.debug('Game.onCreate()');
 
     this.cameras.main.setBackgroundColor('#000000');
-    this.cameras.main.setLerp(new Vector2(0.1, 0.1));
 
     const bgX = -500, bgScale = 6;
     const bgImage = new Image(this, bgX, 720, this.res.background).setOrigin(.4, 1).setScale(bgScale, bgScale);
@@ -364,19 +386,18 @@ export default class TestScene extends Scene {
 
     this.scoreText = new ScoreText(this);
 
-    this.add.text(250, 8, 'UPCOMING ITEMS:');
-    //this.add.text(50, 400, '(eka vasemmalt)');
+    this.add.text(250, 8, 'UPCOMING ITEMS:').setScrollFactor(0);
 
     const upcomingX = 250, upcomingY = 40, upcomingStep = 50;
 
     // Next items
-    this.upcomingItem1 = new Image(this, upcomingX, upcomingY, this.nextItemTypes[0].res).setOrigin(0, 0);
+    this.upcomingItem1 = new Image(this, upcomingX, upcomingY, this.nextItemTypes[0].res).setOrigin(0, 0).setScrollFactor(0);
     this.add.existing(this.upcomingItem1);
 
-    this.upcomingItem2 = new Image(this, upcomingX + upcomingStep, upcomingY, this.nextItemTypes[1].res).setOrigin(0, 0);
+    this.upcomingItem2 = new Image(this, upcomingX + upcomingStep, upcomingY, this.nextItemTypes[1].res).setOrigin(0, 0).setScrollFactor(0);
     this.add.existing(this.upcomingItem2);
 
-    this.upcomingItem3 = new Image(this, upcomingX + upcomingStep * 2, upcomingY, this.nextItemTypes[2].res).setOrigin(0, 0);
+    this.upcomingItem3 = new Image(this, upcomingX + upcomingStep * 2, upcomingY, this.nextItemTypes[2].res).setOrigin(0, 0).setScrollFactor(0);
     this.add.existing(this.upcomingItem3);
 
     // Psykoosit tulille

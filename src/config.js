@@ -4,8 +4,9 @@ const config = {
   debug: true,
 
   itemRain: false,
-  itemsPerRound: 5,
+  itemsPerRound: 3,
 
+  spawnClick: false,
   skipBoatArriving: true,
 
   game: {
@@ -92,7 +93,7 @@ const config = {
     },
     scale: {
       // [0, inf[
-      default: [2, 4]
+      default: [3, 5]
     },
     friction: {
       // [0, 1] ?
