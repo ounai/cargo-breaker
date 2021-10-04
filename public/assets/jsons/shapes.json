@@ -326,6 +326,32 @@
         ]
       }
     ]
+  },
+  "GIFT_BOX": {
+    "type": "fromPhysicsEditor",
+    "label": "GIFT_BOX",
+    "isStatic": false,
+    "density": 0.10000000149011612,
+    "restitution": 0,
+    "friction": 0.10000000149011612,
+    "frictionAir": 0.009999999776482582,
+    "frictionStatic": 0.5,
+    "collisionFilter": {
+      "group": 0,
+      "category": 1,
+      "mask": 255
+    },
+    "fixtures": [
+      {
+        "label": "",
+        "isSensor": false,
+        "vertices": [
+          [ { "x":35, "y":36 }, { "x":35, "y":17 }, { "x":1, "y":17 }, { "x":1, "y":36 } ],
+          [ { "x":36, "y":0 }, { "x":0, "y":0 }, { "x":1, "y":17 }, { "x":36, "y":17 } ],
+          [ { "x":0, "y":17 }, { "x":1, "y":17 }, { "x":0, "y":0 } ]
+        ]
+      }
+    ]
   }
 }
 

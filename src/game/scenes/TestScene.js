@@ -60,7 +60,7 @@ export default class TestScene extends Scene {
     this.minCharge = .2;
     this.maxCharge = 5;
     this.aimLineCount = 5;
-    this.hitSoundInterval = 200;
+    this.hitSoundInterval = 1000;
     this.upcomingSpace = 10;
     this.smokeDensity = 1000;
 
@@ -258,9 +258,15 @@ export default class TestScene extends Scene {
     );
 
     const onCollide = collision => {
-      if (!this.demolish && (this.lastHitSoundTime === null || this.time.now > this.lastHitSoundTime + this.hitSoundInterval)) {
-        this.hitSound.play();
-        this.lastHitSoundTime = this.time.now;
+      if (!this.demolish && collision.collision.depth > 1) {
+        if (
+          this.lastHitSoundTime === null
+          || this.time.now > this.lastHitSoundTime + this.hitSoundInterval
+          || collision.collision.depth > 5
+        ) {
+          this.hitSound.play();
+          this.lastHitSoundTime = this.time.now;
+        }
       }
     };
 
