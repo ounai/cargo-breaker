@@ -143,6 +143,8 @@ export default class Scene extends Phaser.Scene {
   }
 
   restart() {
+    if (this.music) this.music.stop();
+
     this.registry.destroy();
     this.events.off();
     this.scene.restart();
@@ -173,6 +175,7 @@ export default class Scene extends Phaser.Scene {
       this.#preloadResources(this.resources);
     }
 
+    this.onRestart();
     this.onPreload();
   }
 
@@ -188,7 +191,6 @@ export default class Scene extends Phaser.Scene {
     this.#setCameraOrigin();
     this.#updateScreenCenter();
 
-    this.onRestart();
     this.onCreate();
   }
 
@@ -217,7 +219,6 @@ export default class Scene extends Phaser.Scene {
   }
 
   // Subclass methods
-  onRestart() {}
   onPreload() {}
   onCreate() {}
   onUpdate() {}

@@ -32,6 +32,7 @@ export default class TestScene extends Scene {
     conveyor: new ImageResource('assets/player/ConveyorBelt.png'),
     boss: new ImageResource('assets/player/boss.png'),
     speechBubble: new ImageResource('assets/player/sbubble.png'),
+    headphones: new ImageResource('assets/headphones.png'),
     player: new SpriteSheetResource('assets/player/Worker-Bot-Seperated.png', {
       frameWidth: 64,
       frameHeight: 48
@@ -105,6 +106,7 @@ export default class TestScene extends Scene {
     this.stopCharge = false;
     this.gameOver = false;
     this.firstItemPickedUp = false;
+    this.soundsMuted = false;
 
     this.currentItemType = null;
     this.nextItemTypes = [];
@@ -266,6 +268,8 @@ export default class TestScene extends Scene {
   throwItem() {
     setTimeout(() => this.player.setFrame(12), 250);
 
+    this.throwSound.play();
+
     const velocityVector = new Vector2(
       Math.sin(this.player.rotation) * this.charge,
       -Math.cos(this.player.rotation) * this.charge
@@ -305,6 +309,8 @@ export default class TestScene extends Scene {
     this.conveyorBeltItem = new Image(this, 0, this.conveyorBeltY, this.nextItem.itemType.res).setOrigin(1, 1).setScale(this.nextItem.scale).setScrollFactor(1, 0);
     this.add.existing(this.conveyorBeltItem);
 
+    //this.conveyorSound.play();
+
     this.canSpawnItem = false;
     this.itemInPlayerHand = null;
   }
@@ -319,7 +325,12 @@ export default class TestScene extends Scene {
     }
   }
 
-  onMouseUp() {
+  onMouseUp(pointer) {
+    if (pointer.x > 1280 - 32 && pointer.y > 0 && pointer.x < 1280 && pointer.y < 32) {
+      this.soundsMuted = !this.soundsMuted;
+      this.setVolumes();
+    }
+
     if (this.gameOver) return this.restart();
 
     if (this.stopCharge || this.charge < this.minCharge) {
@@ -507,6 +518,14 @@ export default class TestScene extends Scene {
     });
   }
 
+  setVolumes() {
+    this.hitSound.setVolume(this.soundsMuted ? 0 : .4);
+    this.throwSound.setVolume(this.soundsMuted ? 0 : .4);
+    this.missedSound.setVolume(this.soundsMuted ? 0 : .4);
+    this.conveyorSound.setVolume(this.soundsMuted ? 0 : .4);
+    this.music.setVolume(this.soundsMuted ? 0 : .2);
+  };
+
   updatePlayer(delta) {
     const rotationFactor = 200;
 
@@ -586,6 +605,16 @@ export default class TestScene extends Scene {
       'assets/audio/music.ogg',
       'assets/audio/music.mp3'
     ]);
+
+    this.load.audio('missed', [
+      'assets/audio/missed.ogg',
+      'assets/audio/missed.mp3'
+    ]);
+
+    this.load.audio('conveyor', [
+      'assets/audio/conveyor2.ogg',
+      'assets/audio/conveyor2.mp3'
+    ]);
   }
 
   onCreate() {
@@ -647,13 +676,13 @@ export default class TestScene extends Scene {
 
     // Audio
     this.hitSound = this.sound.add('box_hit');
-    this.hitSound.setVolume(.04);
-
     this.throwSound = this.sound.add('throw');
-    this.throwSound.setVolume(.04);
-
+    this.missedSound = this.sound.add('missed');
+    this.conveyorSound = this.sound.add('conveyor');
     this.music = this.sound.add('music');
-    this.music.setVolume(.1);
+
+    this.setVolumes(false);
+
     this.music.play({ loop: true });
 
     if (config.itemRain) {
@@ -663,6 +692,9 @@ export default class TestScene extends Scene {
         }
       }, 100);
     }
+
+    // Mute icon
+    this.add.existing(new Image(this, 1280, 720, this.res.headphones).setOrigin(1, 0));
   }
 
   onUpdate(time, delta) {
@@ -764,7 +796,7 @@ export default class TestScene extends Scene {
           const gameOverRect = new Rectangle(
             this,
             this.screenCenter.x,
-            this.screenCenter.y,
+            this.screenCenter.y + 10,
             maxWidth + margin * 2,
             totalHeight + margin * 2,
             0x333333,
@@ -790,6 +822,8 @@ export default class TestScene extends Scene {
         this.items[i].destroy();
         this.items.splice(i, 1);
         this.health.decrease();
+
+        if (!this.demolish) this.missedSound.play();
 
         // Smoke particles
         let particles = this.add.particles(this.res.explosion);
