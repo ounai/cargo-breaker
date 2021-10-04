@@ -23,11 +23,11 @@ export default class TestScene extends Scene {
     boat: new ImageResource('assets/static_props/boat.png'),
     background: new ImageResource('assets/backgrounds/Background_Wide_V2.png'),
     platform: new ImageResource('assets/player/platform.png'),
-    player: new SpriteSheetResource('assets/player/Worker-Bot-Separated.png', {
+    player: new SpriteSheetResource('assets/player/Worker-Bot-Seperated.png', {
       frameWidth: 64,
       frameHeight: 48
     }),
-    playerLegs: new SpriteSheetResource('assets/player/Worker-Bot-Separated.png', {
+    playerLegs: new SpriteSheetResource('assets/player/Worker-Bot-Seperated.png', {
       frameWidth: 64,
       frameHeight: 48
     }),
@@ -170,7 +170,11 @@ export default class TestScene extends Scene {
       setTimeout(() => {
         this.followItem = null;
 
-        this.panToPlayer(() => this.player.anims.play('pickup_item', true));
+        this.panToPlayer(() =>{
+          this.player.anims.play('pickup_item_torso', true);
+          this.playerLegs.anims.play('pickup_item_legs', true);
+          this.playerLegs.setFrame('pickup_item_legs', 0);
+        });
       }, 500);
     }
   }
@@ -274,7 +278,7 @@ export default class TestScene extends Scene {
       this.cameras.main.pan(this.cameraCenter.x, y, timeMs, 'Sine.easeInOut');
 
       if (!config.itemRain) {
-        setTimeout(() => this.panToPlayer(() => this.player.anims.play('pickup_item', true)), timeMs + 100);
+        setTimeout(() => this.panToPlayer(() => this.player.anims.play('pickup_item_torso', true)), timeMs + 100);
       }
     }
   }
@@ -302,7 +306,11 @@ export default class TestScene extends Scene {
 
       this.lastTowerHeight = this.currentTowerHeight;
     } else if (!config.itemRain) {
-      this.panToPlayer(() => this.player.anims.play('pickup_item', true));
+      this.panToPlayer(() => {
+        this.player.anims.play('pickup_item_torso', true);
+        this.playerLegs.anims.play('pickup_item_legs', true);
+        this.playerLegs.setFrame('pickup_item_legs', 0);
+      });
     }
   }
 
@@ -316,20 +324,35 @@ export default class TestScene extends Scene {
     this.player = new Sprite(this, playerX, playerY, this.res.player)
       .setScale(1.5, 1.5)
       .setOrigin(.5, .5)
-      .setScrollFactor(1, 0);
+      .setScrollFactor(1, 0)
+      .setDepth(1);
 
     this.add.existing(this.player);
 
+    this.playerLegs = new Sprite(this, playerX, playerY, this.res.player)
+      .setScale(1.5, 1.5)
+      .setOrigin(.5, .5)
+      .setScrollFactor(1, 0);
+
+    this.add.existing(this.playerLegs);
+
     // Animations setup
     this.anims.create({
-      key: 'pickup_item',
-      frames: this.anims.generateFrameNumbers(this.res.player, { start: 0, end: 3 }),
+      key: 'pickup_item_legs',
+      frames: this.anims.generateFrameNumbers(this.res.player, { start: 0, end: 4 }),
+      frameRate: 10,
+      repeat: 0
+    });
+
+    this.anims.create({
+      key: 'pickup_item_torso',
+      frames: this.anims.generateFrameNumbers(this.res.player, { start: 12, end: 15 }),
       frameRate: 10,
       repeat: 0
     });
 
     this.player.on('animationcomplete', animation => {
-      if (animation.key === 'pickup_item') {
+      if (animation.key === 'pickup_item_torso') {
         // Update next items textures
         this.upcomingItem1.setTexture(this.nextItemTypes[0].res);
         this.upcomingItem2.setTexture(this.nextItemTypes[1].res);
@@ -466,7 +489,11 @@ export default class TestScene extends Scene {
         this.boatVelocity = 0;
 
         if (config.itemRain) this.panToBoat(0);
-        else this.player.anims.play('pickup_item', true);
+        else {
+          this.player.anims.play('pickup_item_torso', true);
+          this.playerLegs.anims.play('pickup_item_legs', true);
+          this.playerLegs.setFrame('pickup_item_legs', 0);
+        } 
 
         this.boat.x += delta * this.boatVelocity;
       } else if (this.boatVelocity > 0 && this.demolish) {
