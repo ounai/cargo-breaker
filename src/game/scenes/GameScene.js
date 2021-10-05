@@ -156,6 +156,7 @@ export default class TestScene extends Scene {
       physics: {
         default: 'matter',
         matter: {
+          fps: 60,
           enableSleeping: true,
           gravity: {
             y: 1
@@ -916,14 +917,8 @@ export default class TestScene extends Scene {
     if (this.followItem) {
       if (this.followItem.scene) {
         if (this.cameras.main.midPoint.x < this.followItem.x && this.cameras.main.midPoint.x < this.boat.x + 60) {
-          this.cameras.main.scrollX += delta;
+          this.cameras.main.scrollX += Math.min(delta, this.followItem.x - this.cameras.main.midPoint.x);
         }
-
-        /*
-        if (this.cameras.main.midPoint.y < this.followItem.y && this.cameras.main.midPoint.y < this.cameraOrigin.y) {
-          this.cameras.main.scrollY += delta;
-        }
-        */
       } else {
         this.followItem = null;
       }
