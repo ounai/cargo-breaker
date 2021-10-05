@@ -156,7 +156,6 @@ export default class TestScene extends Scene {
       physics: {
         default: 'matter',
         matter: {
-          fps: 60,
           enableSleeping: true,
           gravity: {
             y: 1
