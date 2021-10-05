@@ -236,16 +236,14 @@ export default class TestScene extends Scene {
   }
 
   onItemStop() {
-    if (!config.itemRain && (this.roundItemCount > 0 || this.roundItemCount < config.itemsPerRound)) {
-      setTimeout(() => {
-        this.followItem = null;
+    setTimeout(() => {
+      this.followItem = null;
 
-        this.panToPlayer(() =>{
-          this.player.anims.play('pickup_item_torso', true);
-          this.playerLegs.anims.play('pickup_item_legs', true);
-        });
-      }, 500);
-    }
+      this.panToPlayer(() =>{
+        this.player.anims.play('pickup_item_torso', true);
+        this.playerLegs.anims.play('pickup_item_legs', true);
+      });
+    }, 500);
   }
 
   spawnItem(screenX, screenY) {
@@ -296,19 +294,22 @@ export default class TestScene extends Scene {
       }
     };
 
+    // Increase item count and round item count
+    this.itemCount++;
+    this.roundItemCount++;
+
     const item = this.itemInPlayerHand
       .setStatic(false)
       .applyForce(velocityVector)
       .setOnCollide(onCollide.bind(this))
-      .onStop(this.onItemStop.bind(this));
+
+    if (config.itemsPerRound !== this.roundItemCount && !this.itemRain) {
+      item.onStop(this.onItemStop.bind(this));
+    }
 
     this.items.push(item);
 
     this.followItem = item;
-
-    // Increase item count and round item count
-    this.itemCount++;
-    this.roundItemCount++;
 
     // Get new current item type from the start of next items array
     this.currentItemType = this.nextItemTypes.shift();
@@ -554,12 +555,6 @@ export default class TestScene extends Scene {
         this.itemInPlayerHand.y = playerWorldY - Math.cos(this.player.rotation) * offset;
 
         this.itemInPlayerHand.setRotation(this.player.rotation);
-
-        // Quick and dirty bugfix
-        if (this.cameras.main.worldView.x > 0) {
-          console.log('(bugfix)');
-          this.itemInPlayerHand.x = -2000;
-        }
       }
     } else {
       if (this.player.rotation > 0) this.player.rotation -= delta / rotationFactor;
