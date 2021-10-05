@@ -554,6 +554,12 @@ export default class TestScene extends Scene {
         this.itemInPlayerHand.y = playerWorldY - Math.cos(this.player.rotation) * offset;
 
         this.itemInPlayerHand.setRotation(this.player.rotation);
+
+        // Quick and dirty bugfix
+        if (this.cameras.main.worldView.x > 0) {
+          console.log('(bugfix)');
+          this.itemInPlayerHand.x = -2000;
+        }
       }
     } else {
       if (this.player.rotation > 0) this.player.rotation -= delta / rotationFactor;
