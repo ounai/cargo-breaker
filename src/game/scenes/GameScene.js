@@ -539,7 +539,7 @@ export default class TestScene extends Scene {
     const rotationFactor = 200;
 
     if (this.canSpawnItem) {
-      const playerAngle = Math.atan2(this.input.mousePointer.x - this.player.x, -(this.input.mousePointer.y - this.player.y));
+      const playerAngle = Math.atan2(this.input.activePointer.x - this.player.x, -(this.input.activePointer.y - this.player.y));
       const angle = Math.max(Math.min(playerAngle, Math.PI / 2), 0);
 
       if (angle > this.player.rotation) this.player.rotation = Math.min(angle, this.player.rotation + delta / rotationFactor);

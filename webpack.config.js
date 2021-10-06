@@ -12,6 +12,20 @@ module.exports = {
     compress: true,
     port: process.env.PORT ? Number(process.env.PORT) : 8080,
     allowedHosts: [process.env.HOST ?? 'localhost']
+  },
+  module: {
+    rules: [
+      {
+        test: /\.m?js$/,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
+        }
+      }
+    ]
   }
 };
 
